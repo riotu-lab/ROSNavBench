@@ -70,7 +70,6 @@ This project is licensed under the [MIT License](LICENSE).
 We would like to acknowledge the contributions of the following individuals to this project:
 
 - [Saqeef Tehnan](https://github.com/saqeeftehnan)
-- [Mohamed Abdelkader Zahana](https://github.com/mzahana)
 - [Fatimah Alahmed](https://github.com/Fatimah-Alahmed)
 
 Thank you for your support and contributions!
