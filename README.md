@@ -69,8 +69,8 @@ This project is licensed under the [MIT License](LICENSE).
 
 We would like to acknowledge the contributions of the following individuals to this project:
 
-- [Contributor 1](https://github.com/saqeeftehnan)
-- [Contributor 2](https://github.com/mzahana)
+- [Saqeef Tehnan](https://github.com/saqeeftehnan)
+- [Mohamed Abdelkader Zahana](https://github.com/mzahana)
 - [Contributor 2](https://github.com/Fatimah-Alahmed)
 
 Thank you for your support and contributions!
