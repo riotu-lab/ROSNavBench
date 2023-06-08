@@ -13,7 +13,7 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share', package_name), glob('launch/*launch.[pxy][yma]*')),
-        (os.path.join('share', package_name), glob('rviz/*.rviz'))       
+        (os.path.join('share', package_name), glob('rviz/*.rviz')),       
         (os.path.join('share/' + package_name, 'config/'), glob('./config/*')),
         (os.path.join('share/' + package_name, 'models/'), glob('./models/wall/*')),
         (os.path.join('share/' + package_name, 'world/'), glob('./world/*')),
