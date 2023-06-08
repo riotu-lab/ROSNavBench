@@ -38,7 +38,7 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     
     #World 
-    world_path=os.path.join(FindPackageShare(package='benchmarking_tool').find('benchmarking_tool'), 'worlds', world_name)
+    world_path=os.path.join(FindPackageShare(package='benchmarking_tool').find('benchmarking_tool'), 'world', world_name)
     
     #Setting the gazebo model path
 

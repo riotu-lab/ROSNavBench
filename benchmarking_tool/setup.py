@@ -1,6 +1,6 @@
+from setuptools import setup
 import os
 from glob import glob
-from setuptools import setup
 
 package_name = 'benchmarking_tool'
 
@@ -13,7 +13,12 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share', package_name), glob('launch/*launch.[pxy][yma]*')),
-        (os.path.join('share', package_name), glob('rviz/*.rviz'))
+        (os.path.join('share', package_name), glob('rviz/*.rviz'))       
+        (os.path.join('share/' + package_name, 'config/'), glob('./config/*')),
+        (os.path.join('share/' + package_name, 'models/'), glob('./models/wall/*')),
+        (os.path.join('share/' + package_name, 'world/'), glob('./world/*')),
+        (os.path.join('share/' + package_name, 'map/'), glob('./map/*')),
+        (os.path.join('share/' + package_name, 'script/'), glob('./script/*')),        
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -24,7 +29,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'goal_publisher = benchmarking_tool.pose_goal_publisher:main',
+        'send_goal = benchmarking_tool.pose_goal_publisher:main',
+        'generate_pdf = benchmarking_tool.generate_pdf_v2:main',        
         ],
     },
 )

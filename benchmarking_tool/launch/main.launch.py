@@ -35,31 +35,26 @@ def generate_launch_description():
 
             )    
 
-    send_goal = IncludeLaunchDescription(
-                PythonLaunchDescriptionSource([
-                    FindPackageShare("benchmarking_tool"), '/launch', '/send_goal.launch.py'])
-
+    send_goal = Node(
+                package='benchmarking_tool',
+                executable='pse_goal_publisher',
+                
             ) 
 
 
     return LaunchDescription([
     spawn_robot,
-    RegisterEventHandler(
-        event_handler = OnExecutionComplete(
-            target_action = spawn_robot,
-            on_completion = [nav2],
-        )
-    ),
+    nav2,
+    #RegisterEventHandler(
+    #    event_handler = OnExecutionComplete(
+    #        target_action = nav2,
+    #        on_completion = [record_data],
+    #    )
+    #),
     RegisterEventHandler(
         event_handler = OnExecutionComplete(
             target_action = nav2,
-            on_completion = [record_data],
-        )
-    ),
-    RegisterEventHandler(
-        event_handler = OnProcessStart(
-            target_action = record_data,
-            on_start = [send_goal],
+            on_completion = [send_goal],
         )
     ), 
           

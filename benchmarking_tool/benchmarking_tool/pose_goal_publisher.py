@@ -3,6 +3,9 @@
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped
+import yaml
+import os
+from ament_index_python.packages import get_package_share_directory
 
 class PoseGoalPublisher(Node):
     def __init__(self):
@@ -25,11 +28,26 @@ class PoseGoalPublisher(Node):
     
     
     def publish_messages(self):
-
+        
+       #Goal pose  
+        specs=os.path.join(
+            get_package_share_directory('benchmarking_tool'),
+            'config',
+            'params.yaml'
+          )
+        with open(specs, 'r') as file:
+            robot_specs = yaml.safe_load(file)
+        
+        x=robot_specs['goal_pose_x']     
+        y=robot_specs['goal_pose_y']
+        yaw=robot_specs['goal_pose_yaw']
+        
+        ####CHANGE the Yaw to 
+            
         goal = PoseStamped()
         goal.header.frame_id = "map"
-        goal.pose.position.x = 0.59
-        goal.pose.position.y = -0.53
+        goal.pose.position.x = x
+        goal.pose.position.y = y
         goal.pose.position.z = 0.0
         goal.pose.orientation.x = 0.0
         goal.pose.orientation.y = 0.0

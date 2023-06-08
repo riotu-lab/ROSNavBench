@@ -20,6 +20,9 @@ spawn_pose_x: '-6.0'
 spawn_pose_y: '1.0'
 spawn_pose_yaw: '-3.13'
 
+goal_pose_x: 6.0
+goal_pose_y: 2.0
+goal_pose_yaw: -3.13
 
 goal: []
 
