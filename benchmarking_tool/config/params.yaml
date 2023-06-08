@@ -1,0 +1,25 @@
+# if another world is used, add the world file to benchmarking_tool/world and provide the name of the new yaml file
+world_name: 'scenario_world.world'
+# if another map is used, add the map files to benchmarking_tool/map and provide the name of the new yaml file
+map_name: 'map.yaml' 
+#Maybe add gazebo model path 
+
+# Choose one of rhee following controllwe, by adding the path to the controller_type
+
+#burger_dwb_default.yaml
+#burger_dwb_with_rsc.yaml
+#burger_rpp_default.yaml
+#burger_rpp_with_rsc.yaml
+#burger_teb_default.yaml
+#burger_teb_with_rsc.yaml
+
+# if another controller is used, add the configuration file to turtlebot3_navigation2/param and provide the name of the new yaml file
+controller_type: 'burger_rpp_with_rsc.yaml'
+#provide the pose in a decimal form
+spawn_pose_x: '-6.0'
+spawn_pose_y: '1.0'
+spawn_pose_yaw: '-3.13'
+
+
+goal: []
+
