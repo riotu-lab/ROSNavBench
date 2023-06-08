@@ -1,6 +1,3 @@
-# ros2_nav_benchmarking
-This repository implements an automated benchamrking methods for any ROS2 compatible navigation framework.
-
 # ROS 2 Navigation Benchmarking
 
 This repository is created for benchmarking navigation in ROS 2. It provides a framework for evaluating the performance and efficiency of navigation systems in ROS 2.
