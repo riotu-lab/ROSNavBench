@@ -46,7 +46,7 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     map_dir = LaunchConfiguration(
         'map',
-        default=os.path.join(
+        default = os.path.join(
             get_package_share_directory('benchmarking_tool'),
             'map',
             'map.yaml'))
@@ -54,7 +54,7 @@ def generate_launch_description():
     param_file_name = TURTLEBOT3_MODEL + '_teb_with_rsc' + '.yaml'
     param_dir = LaunchConfiguration(
         'params_file',
-        default=os.path.join(
+        default = os.path.join(
             get_package_share_directory('turtlebot3_navigation2'),
             'param',
             controller_type))
@@ -69,25 +69,25 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument(
             'map',
-            default_value=os.path.join(
+            default_value = os.path.join(
             get_package_share_directory('benchmarking_tool'),
             'map',
             map_name),
-            description='Full path to map file to load'),
+            description = 'Full path to map file to load'),
 
         DeclareLaunchArgument(
             'params_file',
-            default_value=param_dir,
-            description='Full path to param file to load'),
+            default_value = param_dir,
+            description = 'Full path to param file to load'),
 
         DeclareLaunchArgument(
             'use_sim_time',
-            default_value='true',
-            description='Use simulation (Gazebo) clock if true'),
+            default_value = 'true',
+            description = 'Use simulation (Gazebo) clock if true'),
 
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([nav2_launch_file_dir, '/bringup_launch.py']),
-            launch_arguments={
+            launch_arguments = {
                 'map': map_dir,
                 'use_sim_time': use_sim_time,
                 'params_file': param_dir}.items(),

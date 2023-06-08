@@ -36,8 +36,8 @@ def generate_launch_description():
             )    
 
     send_goal = Node(
-                package='benchmarking_tool',
-                executable='pse_goal_publisher',
+                package = 'benchmarking_tool',
+                executable = 'pse_goal_publisher',
                 
             ) 
 
