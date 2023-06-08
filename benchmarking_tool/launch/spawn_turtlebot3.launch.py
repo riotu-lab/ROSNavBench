@@ -17,7 +17,7 @@ def generate_launch_description():
 
 
     #Intial pose of spawn robot of spawned turtlebot3 
-    specs=  os.path.join(
+    specs= os.path.join(
         get_package_share_directory('benchmarking_tool'),
         'config',
         'params.yaml'
@@ -54,7 +54,7 @@ def generate_launch_description():
 
     #URDF  arg
     urdf_file_name = 'turtlebot3_waffle.urdf'
-    urdf_package = os.path.join(
+    urdf_package=os.path.join(
         get_package_share_directory('turtlebot3_gazebo'))
     urdf = os.path.join(
         urdf_package,
@@ -62,7 +62,7 @@ def generate_launch_description():
         urdf_file_name)
     #Model  arg
 
-    model_package = os.path.join(
+    model_package=os.path.join(
         get_package_share_directory('turtlebot3_gazebo'))
     model_path = os.path.join(
         model_package,
@@ -72,10 +72,10 @@ def generate_launch_description():
 
     #Start Gazebo
     gazebo = ExecuteProcess(
-            cmd = ['gazebo', '--verbose', world_path,
+            cmd=['gazebo', '--verbose', world_path,
                  '-s', 'libgazebo_ros_init.so',
                  '-s', 'libgazebo_ros_factory.so'],
-            output = 'screen')
+            output='screen')
             
     # start robot state publisher 
     publisher_node = Node(
@@ -90,14 +90,14 @@ def generate_launch_description():
     )
 
     # Spawn robot 
-    spawn_node = Node(
+    spawn_node=  Node(
         package = 'gazebo_ros',
         executable = 'spawn_entity.py',
         output = 'screen',
         arguments = ['-entity','turtlebot3_waffle',
                    '-file',model_path,
 #                   '-robot_namespace',namespace,
-                   '-x', x, '-y', y, '-z', '0.0','-Y',yaw]   
+                   '-x', str(x), '-y', str(y), '-z', '0.0','-Y',str(yaw)]   
     )
     #Send goal 
        

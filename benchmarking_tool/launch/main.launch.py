@@ -37,7 +37,7 @@ def generate_launch_description():
 
     send_goal = Node(
                 package = 'benchmarking_tool',
-                executable = 'pse_goal_publisher',
+                executable = 'send_goal',
                 
             ) 
 
@@ -45,17 +45,18 @@ def generate_launch_description():
     return LaunchDescription([
     spawn_robot,
     nav2,
+    #send_goal,
     #RegisterEventHandler(
     #    event_handler = OnExecutionComplete(
     #        target_action = nav2,
     #        on_completion = [record_data],
     #    )
     #),
-    RegisterEventHandler(
-        event_handler = OnExecutionComplete(
-            target_action = nav2,
-            on_completion = [send_goal],
-        )
-    ), 
+    #RegisterEventHandler(
+    #    event_handler = OnExecutionComplete(
+    #        target_action = nav2,
+    #        on_completion = [send_goal],
+    #    )
+    #), 
           
     ])

@@ -6,19 +6,19 @@ map_name: 'map.yaml'
 
 # Choose one of rhee following controllwe, by adding the path to the controller_type
 
-#burger_dwb_default.yaml
-#burger_dwb_with_rsc.yaml
-#burger_rpp_default.yaml
-#burger_rpp_with_rsc.yaml
-#burger_teb_default.yaml
-#burger_teb_with_rsc.yaml
+#burger_dwb_default
+#burger_dwb_with_rsc
+#burger_rpp_default
+#burger_rpp_with_rsc
+#burger_teb_default
+#burger_teb_with_rsc
 
 # if another controller is used, add the configuration file to turtlebot3_navigation2/param and provide the name of the new yaml file
-controller_type: 'burger_rpp_with_rsc.yaml'
+controller_type: 'burger_rpp_with_rsc'
 #provide the pose in a decimal form
-spawn_pose_x: '-6.0'
-spawn_pose_y: '1.0'
-spawn_pose_yaw: '-3.13'
+spawn_pose_x: -6.0
+spawn_pose_y: 1.0
+spawn_pose_yaw: -3.13
 
 goal_pose_x: 6.0
 goal_pose_y: 2.0

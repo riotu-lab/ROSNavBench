@@ -15,7 +15,7 @@
 # Author: Darby Lim
 
 import os
-
+from jinja2 import Template
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
@@ -42,7 +42,10 @@ def generate_launch_description():
         
     map_name=robot_specs['map_name']     
     controller_type=robot_specs['controller_type']
-    
+    x=robot_specs['spawn_pose_x']     
+    y=robot_specs['spawn_pose_y']
+    yaw=robot_specs['spawn_pose_yaw']
+        
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     map_dir = LaunchConfiguration(
         'map',
@@ -51,13 +54,37 @@ def generate_launch_description():
             'map',
             'map.yaml'))
 
-    param_file_name = TURTLEBOT3_MODEL + '_teb_with_rsc' + '.yaml'
+    # Opening the model template 
+    controller_template = os.path.join(
+            get_package_share_directory('turtlebot3_navigation2'),
+            'param',
+            controller_type+'_template.yaml')
+    with open(controller_template, 'r') as infp:
+        template = infp.read()
+        
+    #Generating a config file for each spawned robot( namely changing the intial pose in rviz)
+ 
+    data = {
+            "x_pose":x ,
+            "y_pose":y,
+            "yaw":yaw ,
+           }
+        
+    j2_template = Template(template)
+        
+    fileName=controller_type+'.yaml'
+    with open(fileName, "w") as f:
+        f.write(j2_template.render(data))
+    dst=os.path.join(get_package_share_directory('turtlebot3_navigation2'),'param')
+
+    os.rename(os.getcwd()+'/'+fileName, dst+'/'+fileName)
+
     param_dir = LaunchConfiguration(
         'params_file',
         default = os.path.join(
             get_package_share_directory('turtlebot3_navigation2'),
             'param',
-            controller_type))
+            controller_type+'.yaml'))
 
     nav2_launch_file_dir = os.path.join(get_package_share_directory('nav2_bringup'), 'launch')
 
@@ -69,7 +96,7 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument(
             'map',
-            default_value = os.path.join(
+            default_value=os.path.join(
             get_package_share_directory('benchmarking_tool'),
             'map',
             map_name),
@@ -84,7 +111,14 @@ def generate_launch_description():
             'use_sim_time',
             default_value = 'true',
             description = 'Use simulation (Gazebo) clock if true'),
-
+        DeclareLaunchArgument(
+            'x_pose',
+            default_value = '1.0',
+            description = 'Use simulation (Gazebo) clock if true'),
+        DeclareLaunchArgument(
+            'y_pose',
+            default_value = '2.0',
+            description = 'Use simulation (Gazebo) clock if true'),            
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([nav2_launch_file_dir, '/bringup_launch.py']),
             launch_arguments = {
