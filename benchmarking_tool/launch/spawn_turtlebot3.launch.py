@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
 from launch import LaunchDescription
-from launch.actions import ExecuteProcess, IncludeLaunchDescription
+from launch.actions import ExecuteProcess, IncludeLaunchDescription, DeclareLaunchArgument, SetEnvironmentVariable, RegisterEventHandler
 from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from ament_index_python.packages import get_package_share_directory, get_package_prefix
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.event_handlers import OnExecutionComplete,OnProcessStart
 import os
 import xacro
 import yaml
@@ -99,14 +100,37 @@ def generate_launch_description():
 #                   '-robot_namespace',namespace,
                    '-x', str(x), '-y', str(y), '-z', '0.0','-Y',str(yaw)]   
     )
-    #Send goal 
-       
+    #Condition
+    
+    condition_1= SetEnvironmentVariable(name='condition', value='false')
+    #DeclareLaunchArgument(
+    #        'condition',
+    #        default_value='false',
+    #        description = 'whether the robot is spawned or not')
+    condition_2=SetEnvironmentVariable(name='condition', value='true')
+    #DeclareLaunchArgument(
+    #        'condition',
+    #        default_value='true',
+    #        description = 'whether the robot is spawned or not')
+    send_goal = Node(
+                package = 'benchmarking_tool',
+                executable = 'send_goal', 
+            )   
+              
+    change_condition=RegisterEventHandler(
+        OnExecutionComplete(
+            target_action = spawn_node,
+            on_completion = [ send_goal],
+        )
+    )            
+  
     #Creating the launch description
-    ld = LaunchDescription()    
+    ld = LaunchDescription()   
+    ld.add_action(condition_1) 
     ld.add_action(gazebo) 
     ld.add_action(publisher_node)
     ld.add_action(spawn_node) 
-
+    #ld.add_action(change_condition)
 
 
     return ld

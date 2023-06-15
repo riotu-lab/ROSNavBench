@@ -11,17 +11,18 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch_ros.actions import Node
-from launch.actions import DeclareLaunchArgument, ExecuteProcess, IncludeLaunchDescription, RegisterEventHandler, SetEnvironmentVariable
+from launch.actions import DeclareLaunchArgument, ExecuteProcess, IncludeLaunchDescription, RegisterEventHandler, SetEnvironmentVariable, TimerAction
 from launch_ros.substitutions import FindPackageShare
+from launch.substitutions import LaunchConfiguration, PythonExpression, EnvironmentVariable
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.event_handlers import OnExecutionComplete,OnProcessExit,OnProcessStart
-
+from launch.conditions import IfCondition
 
 def generate_launch_description():
 
     spawn_robot = IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([
-                    FindPackageShare("benchmarking_tool"), '/launch', '/spawn_turtlebot3.launch.py'])
+         FindPackageShare("benchmarking_tool"), '/launch', '/spawn_turtlebot3.launch.py'])
         
             )
     nav2 = IncludeLaunchDescription(
@@ -35,28 +36,19 @@ def generate_launch_description():
 
             )    
 
-    send_goal = Node(
+    follow_path = Node(
                 package = 'benchmarking_tool',
-                executable = 'send_goal',
-                
+                executable = 'follow_path',                
             ) 
-
-
+    
+    generate_pdf= Node(
+                package = 'benchmarking_tool',
+                executable = 'generate_pdf', 
+            ) 
+          
     return LaunchDescription([
     spawn_robot,
     nav2,
-    #send_goal,
-    #RegisterEventHandler(
-    #    event_handler = OnExecutionComplete(
-    #        target_action = nav2,
-    #        on_completion = [record_data],
-    #    )
-    #),
-    #RegisterEventHandler(
-    #    event_handler = OnExecutionComplete(
-    #        target_action = nav2,
-    #        on_completion = [send_goal],
-    #    )
-    #), 
-          
+    follow_path,
+    
     ])

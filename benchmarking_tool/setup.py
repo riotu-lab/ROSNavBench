@@ -29,8 +29,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-        'send_goal = benchmarking_tool.pose_goal_publisher:main',
-        'generate_pdf = benchmarking_tool.generate_pdf_v2:main',        
+        'generate_pdf = benchmarking_tool.pdf_generator_v2:main',       
+        'follow_path = benchmarking_tool.follow_path:main'                  
         ],
     },
 )
