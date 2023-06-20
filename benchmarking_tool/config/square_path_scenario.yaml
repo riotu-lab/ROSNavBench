@@ -1,4 +1,4 @@
-experiment_name: "testing rpp with rsc"
+experiment_name: "square_path_scenario"
 # if another world is used, add the world file to benchmarking_tool/world and provide the name of the new yaml file
 world_name: 'scenario_world.world'
 # if another map is used, add the map files to benchmarking_tool/map and provide the name of the new yaml file
@@ -17,22 +17,15 @@ map_name: 'map.yaml'
 # if another controller is used, add the configuration file to turtlebot3_navigation2/param and provide the name of the new yaml file
 controller_type: 'burger_rpp_with_rsc'
 #provide the pose in a decimal form
-spawn_pose_x: 4.0
-spawn_pose_y: -3.0
-spawn_pose_yaw: -3.13   #radians 
+spawn_pose_x: 2.5
+spawn_pose_y: -4.25
+spawn_pose_yaw: 0.026  #radians 
 
 
 # Specify either to send one goal, specific trajectory, or several waypoints 
 # square, circle, several_waypoints, one_goal
-trajectory_type: 'circle'
-# One goal parameter 
-goal_pose_x: 4.0
-goal_pose_y: -3.0
-goal_pose_yaw: -3.13   #radians 
-# circule paramete, note that the place of spawn will be the center of the circle 
-radius: 1.1
+trajectory_type: 'square'
 #square parameter 
 side_length: 3.0
-#Specify way points in this formate [[x0,y0,yaw0_radians], [x1,y1,yaw1_radians], ...]
-waypoints: [[-1.3,2.3,-3.13], [6.0,2.0,-3.13], [-4.0,4.0,-3.13]]
+
 

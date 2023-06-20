@@ -1,4 +1,4 @@
-experiment_name: "testing rpp with rsc"
+experiment_name: "circular_path_scenario_report"
 # if another world is used, add the world file to benchmarking_tool/world and provide the name of the new yaml file
 world_name: 'scenario_world.world'
 # if another map is used, add the map files to benchmarking_tool/map and provide the name of the new yaml file

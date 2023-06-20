@@ -1,18 +1,17 @@
 #!/usr/bin/env python3
 
 from launch import LaunchDescription
-from launch.actions import ExecuteProcess, IncludeLaunchDescription, DeclareLaunchArgument, SetEnvironmentVariable, RegisterEventHandler
+from launch.actions import ExecuteProcess, IncludeLaunchDescription, DeclareLaunchArgument
 from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from ament_index_python.packages import get_package_share_directory, get_package_prefix
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.event_handlers import OnExecutionComplete,OnProcessStart
 import os
 import xacro
 import yaml
 
-
+params_file = os.environ['PARAMS_FILE']
 
 def generate_launch_description():
 
@@ -21,7 +20,7 @@ def generate_launch_description():
     specs= os.path.join(
         get_package_share_directory('benchmarking_tool'),
         'config',
-        'params.yaml'
+        params_file+'.yaml'
        )
     with open(specs, 'r') as file:
         robot_specs = yaml.safe_load(file)
@@ -29,9 +28,9 @@ def generate_launch_description():
     x = robot_specs['spawn_pose_x']     
     y = robot_specs['spawn_pose_y']
     yaw = robot_specs['spawn_pose_yaw']
-    world_name = robot_specs['world_name']         
+    world_name = robot_specs['world_name']  
+           
     #Launch directory 
-
     pkg_gazebo_ros = FindPackageShare(package='gazebo_ros').find('gazebo_ros')
 
     
@@ -61,8 +60,8 @@ def generate_launch_description():
         urdf_package,
         'urdf',
         urdf_file_name)
+        
     #Model  arg
-
     model_package=os.path.join(
         get_package_share_directory('turtlebot3_gazebo'))
     model_path = os.path.join(
@@ -100,37 +99,14 @@ def generate_launch_description():
 #                   '-robot_namespace',namespace,
                    '-x', str(x), '-y', str(y), '-z', '0.0','-Y',str(yaw)]   
     )
-    #Condition
-    
-    condition_1= SetEnvironmentVariable(name='condition', value='false')
-    #DeclareLaunchArgument(
-    #        'condition',
-    #        default_value='false',
-    #        description = 'whether the robot is spawned or not')
-    condition_2=SetEnvironmentVariable(name='condition', value='true')
-    #DeclareLaunchArgument(
-    #        'condition',
-    #        default_value='true',
-    #        description = 'whether the robot is spawned or not')
-    send_goal = Node(
-                package = 'benchmarking_tool',
-                executable = 'send_goal', 
-            )   
-              
-    change_condition=RegisterEventHandler(
-        OnExecutionComplete(
-            target_action = spawn_node,
-            on_completion = [ send_goal],
-        )
-    )            
-  
+
     #Creating the launch description
     ld = LaunchDescription()   
-    ld.add_action(condition_1) 
+
     ld.add_action(gazebo) 
     ld.add_action(publisher_node)
     ld.add_action(spawn_node) 
-    #ld.add_action(change_condition)
+
 
 
     return ld

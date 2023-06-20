@@ -26,7 +26,7 @@ from launch_ros.actions import Node
 import yaml
 
 TURTLEBOT3_MODEL = os.environ['TURTLEBOT3_MODEL']
-
+params_file = os.environ['PARAMS_FILE']
 
 def generate_launch_description():
 
@@ -35,7 +35,7 @@ def generate_launch_description():
     specs=os.path.join(
         get_package_share_directory('benchmarking_tool'),
         'config',
-        'params.yaml'
+        params_file+'.yaml'
        )
     with open(specs, 'r') as file:
         robot_specs = yaml.safe_load(file)
