@@ -2,7 +2,8 @@
 from geometry_msgs.msg import PoseStamped
 from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
 from ament_index_python.packages import get_package_share_directory
-from benchmarking_tool.pdf_generator import table_generator
+#from benchmarking_tool.pdf_generator import table_generator
+#from benchmarking_tool.trail_pdf import table_generator
 import rclpy
 from rclpy.duration import Duration
 import numpy as np
@@ -11,7 +12,8 @@ import os
 import math
 import psutil
 from rclpy.node import Node
-
+import time 
+import csv
 
 params_file = os.environ['PARAMS_FILE']
 rclpy.init()
@@ -35,6 +37,7 @@ def main():
     yaw = robot_specs['spawn_pose_yaw'] 
     trajectory_type= robot_specs['trajectory_type'] 
     pdf_name=robot_specs['experiment_name']
+    controller_type=robot_specs['controller_type']
     # Set initial pose
     initial_pose = PoseStamped()
     initial_pose.header.frame_id = 'map'
@@ -42,12 +45,19 @@ def main():
     initial_pose.pose.position.x = x
     initial_pose.pose.position.y = y
     initial_pose.pose.orientation.x =  0.0
-    initial_pose.pose.orientation.y =   0.0
+    initial_pose.pose.orientation.y =  0.0 
     initial_pose.pose.orientation.z = np.sin(yaw/2) 
     initial_pose.pose.orientation.w = np.cos(yaw/2) 
-    navigator.setInitialPose(initial_pose)
+    
     
     navigator.waitUntilNav2Active()
+    navigator.setInitialPose(initial_pose)
+    time.sleep(5)
+    navigator.clearAllCostmaps()
+    navigator.getGlobalCostmap()
+    navigator.getLocalCostmap()
+    time.sleep(3)
+    
     result = navigator.getResult()
 
     # set our demo's goal poses
@@ -90,7 +100,9 @@ def main():
          goal_pose.pose.position.y = y
          goal_pose.pose.orientation.w = np.cos(np.deg2rad(90)/2) 
          goal_pose.pose.orientation.z = np.sin(np.deg2rad(90)/2)
-         navigator.goToPose(goal_pose) 
+         navigator.goToPose(goal_pose,behavior_tree=os.path.join(get_package_share_directory('turtlebot3_navigation2'),
+        'param',
+        os.environ["controller"]+'.xml')) 
          
          circumference=2*math.pi*r
          segment_num=circumference/0.1
@@ -141,16 +153,24 @@ def main():
                 
 
     if trajectory_type=='one_goal':
-       navigator.goToPose(goal_pose)
+       navigator.goToPose(goal_pose,behavior_tree=os.path.join(get_package_share_directory('turtlebot3_navigation2'),
+        'param',
+        os.environ["controller"]+'.xml'))
+       #path=navigator.getPath(initial_pose,goal_pose)
+       
     elif  trajectory_type=='several_waypoints' or trajectory_type=='circle' or trajectory_type=='square':
-       navigator.goThroughPoses(goal_poses) 
-
+       navigator.goThroughPoses(goal_poses,behavior_tree=os.path.join(get_package_share_directory('turtlebot3_navigation2'),
+        'param',
+        os.environ["controller"]+'_poses.xml')) 
+       #path=navigator.getPathThroughPoses(initial_pose,goal_poses)
+       
+    #navigator.followPath(path, controller_id='RPP')
     # sanity check a valid path exists
     # path = navigator.getPathThroughPoses(initial_pose, goal_poses)
     i = 0
     empty_matrix=["", "", "", "", "", "", ""]
     data=[["CPU usage %", "Memory usage\n%", "x-pose", "y-pose", 'number of\nrecoveries', 'distance\nremaining','navigation\ntime'],empty_matrix]
-
+    time.sleep(0.1)
     while not navigator.isTaskComplete():
 
         i = i + 1
@@ -163,15 +183,19 @@ def main():
             # Some navigation timeout to demo cancellation
             #if Duration.from_msg(feedback.navigation_time) > Duration(seconds=600.0):
             #    navigator.cancelTask()
+   
+        #bt=navigator.goToPose.goal_msg.behavior_tree
         row=[]
         row.append(psutil.cpu_percent())
         row.append(psutil.virtual_memory().percent)
-        row.append('{0:.2f}'.format(feedback.current_pose.pose.position.x))
-        row.append('{0:.2f}'.format(feedback.current_pose.pose.position.y))
+        row.append(round(feedback.current_pose.pose.position.x,2))
+        row.append(round(feedback.current_pose.pose.position.y,2))
         row.append(feedback.number_of_recoveries)
-        row.append('{0:.2f}'.format(feedback.distance_remaining))
-        row.append('{0:.2f}'.format(Duration.from_msg(feedback.navigation_time).nanoseconds / 1e9))
+        row.append(round(feedback.distance_remaining,2))
+        row.append(round(Duration.from_msg(feedback.navigation_time).nanoseconds / 1e9, 2))
         data.append(row)
+        time.sleep(0.2)
+        
     result = navigator.getResult()    
     
     if result == TaskResult.SUCCEEDED:
@@ -182,17 +206,24 @@ def main():
         result1='goal failed!'
     else:
         result1='goal has an invalid return status!' 
+    data.append(result1)
+    f=open(pdf_name+'_'+os.environ["controller"]+'.csv','w')
+    writer=csv.writer(f,quoting=csv.QUOTE_NONNUMERIC, delimiter=' ')
+    #for i in range(len(data)):
+
+    writer.writerows(data)
         
-    table_generator(data,result1)
+    #table_generator(data,result1)
     
+    navigator.destroyNode()
+    #navigator.lifecycleShutdown()
     
-    navigator.lifecycleShutdown()
 
     exit(0)
 
 
 
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
 
-    main()
+#     main()
