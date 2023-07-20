@@ -41,7 +41,7 @@ def generate_launch_description():
         robot_specs = yaml.safe_load(file)
         
     map_name=robot_specs['map_name']     
-    controller_type=robot_specs['controller_type']
+    nav_config=robot_specs['nav_config']
     x=robot_specs['spawn_pose_x']     
     y=robot_specs['spawn_pose_y']
     yaw=robot_specs['spawn_pose_yaw']
@@ -58,7 +58,7 @@ def generate_launch_description():
     controller_template = os.path.join(
             get_package_share_directory('turtlebot3_navigation2'),
             'param',
-            controller_type+'_template.yaml')
+            nav_config+'.yaml')
     with open(controller_template, 'r') as infp:
         template = infp.read()
         
@@ -72,7 +72,7 @@ def generate_launch_description():
         
     j2_template = Template(template)
         
-    fileName=controller_type+'.yaml'
+    fileName=nav_config+'.yaml'
     with open(fileName, "w") as f:
         f.write(j2_template.render(data))
     dst=os.path.join(get_package_share_directory('turtlebot3_navigation2'),'param')
@@ -84,7 +84,7 @@ def generate_launch_description():
         default = os.path.join(
             get_package_share_directory('turtlebot3_navigation2'),
             'param',
-            controller_type+'.yaml'))
+            nav_config+'.yaml'))
 
     nav2_launch_file_dir = os.path.join(get_package_share_directory('nav2_bringup'), 'launch')
 

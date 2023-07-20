@@ -29,7 +29,7 @@ def generate_launch_description():
     y = robot_specs['spawn_pose_y']
     yaw = robot_specs['spawn_pose_yaw']
     world_name = robot_specs['world_name']  
-           
+    models_path=  robot_specs['models_path']     
     #Launch directory 
     pkg_gazebo_ros = FindPackageShare(package='gazebo_ros').find('gazebo_ros')
 
@@ -45,7 +45,8 @@ def generate_launch_description():
     gazebo_models_path = os.path.join(
         get_package_share_directory('turtlebot3_gazebo'),
         'models')
-
+    if models_path!='':
+       gazebo_models_path+=':'+models_path
     if 'GAZEBO_MODEL_PATH' in os.environ:
         os.environ['GAZEBO_MODEL_PATH'] =  os.environ['GAZEBO_MODEL_PATH'] + ':' + gazebo_models_path
     else:
@@ -106,7 +107,7 @@ def generate_launch_description():
     ld.add_action(gazebo) 
     ld.add_action(publisher_node)
     ld.add_action(spawn_node) 
-
+    #ld.deprecated()
 
 
     return ld

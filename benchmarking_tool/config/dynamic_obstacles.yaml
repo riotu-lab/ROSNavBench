@@ -3,19 +3,21 @@ experiment_name: "dynamic_obstacles_scenario_report"
 world_name: 'dynamic_obstacles_world.world'
 # if another map is used, add the map files to benchmarking_tool/map and provide the name of the new yaml file
 map_name: 'map.yaml' 
-#Maybe add gazebo model path 
+# add gazebo model path, if multiple path, please spereate them by a :
+models_path: ''
 
-# Choose one of rhee following controllers, by adding the path to the controller_type
+# Choose one of rhee following controllers, by adding its name to the controller type list
 
-#burger_dwb_default
-#burger_dwb_with_rsc
-#burger_rpp_default
-#burger_rpp_with_rsc
-#burger_teb_default
-#burger_teb_with_rsc
+#DWB
+#RPP
+#RPP_RSC
+#DWB_RSC
 
 # if another controller is used, add the configuration file to turtlebot3_navigation2/param and provide the name of the new yaml file
-controller_type: 'burger_rpp_with_rsc'
+controller_type: ['RPP', 'RPP_RSC']   #name of behaviour tree 
+#Add the name of the robot navigation configuration, this file should be placed at turtlebot3/turtlebot3_navigation2
+nav_config: 'burger'
+controllers_num: 2
 #provide the pose in a decimal form
 spawn_pose_x: 4.0
 spawn_pose_y: -4.0
@@ -26,7 +28,7 @@ spawn_pose_yaw: 1.58   #radians
 # square, circle, several_waypoints, one_goal
 trajectory_type: 'one_goal'
 # One goal parameter 
-goal_pose_x: 6.0
-goal_pose_y: 2.0
+goal_pose_x: 7.0
+goal_pose_y: 2.2
 goal_pose_yaw: 1.58   #radians 
 
