@@ -56,7 +56,7 @@ bt_navigator:
     global_frame: map
     robot_base_frame: base_link
     odom_topic: /odom
-    default_bt_xml_filename: "navigate_w_replanning_and_recovery.xml"
+    #default_bt_xml_filename: "navigate_w_replanning_and_recovery.xml"
     bt_loop_duration: 10
     default_server_timeout: 20
     enable_groot_monitoring: True
