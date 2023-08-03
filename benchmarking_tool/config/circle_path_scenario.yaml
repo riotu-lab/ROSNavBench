@@ -15,7 +15,7 @@ models_path: ''
 
 # if another controller is used, add the configuration file to turtlebot3_navigation2/param and provide the name of the new yaml file
 controller_type: ['DWB']   #name of behaviour tree 
-#Add the name of the robot navigation configuration, this file should be placed at turtlebot3/turtlebot3_navigation2
+#Add the name of the robot navigation configuration, this file should be placed at turtlebot3/turtlebot3_navigation2/param
 nav_config: 'waffle'
 #Enter the  required model of turtlebot3
 #burger
