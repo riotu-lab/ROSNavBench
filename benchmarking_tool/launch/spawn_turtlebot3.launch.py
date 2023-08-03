@@ -45,22 +45,25 @@ def generate_launch_description():
     gazebo_models_path = os.path.join(
         get_package_share_directory('turtlebot3_gazebo'),
         'models')
+    gazebo_models_path += ':'+os.path.join(
+        get_package_share_directory('benchmarking_tool'),
+        'model')    
     if models_path!='':
        gazebo_models_path+=':'+models_path
     if 'GAZEBO_MODEL_PATH' in os.environ:
         os.environ['GAZEBO_MODEL_PATH'] =  os.environ['GAZEBO_MODEL_PATH'] + ':' + gazebo_models_path
     else:
         os.environ['GAZEBO_MODEL_PATH'] =   gazebo_models_path
-    
+    print(gazebo_models_path)
 
     #URDF  arg
-    urdf_file_name = 'turtlebot3_waffle.urdf'
+    urdf_file_name = robot_specs['turtlebot3_model']
     urdf_package=os.path.join(
         get_package_share_directory('turtlebot3_gazebo'))
     urdf = os.path.join(
         urdf_package,
         'urdf',
-        urdf_file_name)
+        'turtlebot3_'+urdf_file_name+'.urdf')
         
     #Model  arg
     model_package=os.path.join(
@@ -68,7 +71,7 @@ def generate_launch_description():
     model_path = os.path.join(
         model_package,
         'models',
-        'turtlebot3_waffle',
+        'turtlebot3_'+urdf_file_name,
         'model.sdf')
 
     #Start Gazebo
@@ -95,10 +98,10 @@ def generate_launch_description():
         package = 'gazebo_ros',
         executable = 'spawn_entity.py',
         output = 'screen',
-        arguments = ['-entity','turtlebot3_waffle',
+        arguments = ['-entity','turtlebot3',
                    '-file',model_path,
 #                   '-robot_namespace',namespace,
-                   '-x', str(x), '-y', str(y), '-z', '0.0','-Y',str(yaw)]   
+                   '-x', str(x), '-y', str(y), '-z', '0.01','-Y',str(yaw)]   
     )
 
     #Creating the launch description

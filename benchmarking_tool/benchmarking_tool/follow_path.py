@@ -207,7 +207,9 @@ def main():
     else:
         result1='goal has an invalid return status!' 
     data.append(result1)
-    f=open(pdf_name+'_'+os.environ["controller"]+'.csv','w')
+    f=open(os.path.join(get_package_share_directory('benchmarking_tool'),
+        'raw_data',
+        pdf_name+'_'+os.environ["controller"]+'.csv'),'w')
     writer=csv.writer(f,quoting=csv.QUOTE_NONNUMERIC, delimiter=' ')
     #for i in range(len(data)):
 

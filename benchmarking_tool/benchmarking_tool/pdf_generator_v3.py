@@ -59,7 +59,9 @@ def main():
         y_points.append([])
         time.append([])
     for i in range(len(controller_type)):
-        f=open(pdf_name+'_'+controller_type[i]+'.csv','r')
+        f=open(os.path.join(get_package_share_directory('benchmarking_tool'),
+        'raw_data',
+        pdf_name+'_'+controller_type[i]+'.csv'),'r')
         writer=csv.reader(f,quoting=csv.QUOTE_NONNUMERIC,delimiter=' ')
         for lines in  writer:
             data[i].append(lines[:])
@@ -119,7 +121,9 @@ def main():
     #summary='The '+result+' '+'Execution time is '+str( data[len(data)-1][6])+"sec. Average CPU usage is " +str('{0:.2f}'.format(sum(CPU)/len(CPU)))+"%. "+"Max CPU usage is " +str(max(CPU))+"%. \n"+  "Average memory usage is " +str('{0:.2f}'.format(sum(Memory)/len(Memory)))+"%. "+" Max memory usage is " +str(max(Memory))+"%. "   
     #empty_matrix[0]=summary
   
-    doc=SimpleDocTemplate(pdf_name+".pdf",pagesize=A4)
+    doc=SimpleDocTemplate(os.path.join(get_package_share_directory('benchmarking_tool'),
+        'results',
+        pdf_name+".pdf"),pagesize=A4)
     d=shapes.Drawing(5,40)
     d.add(String(5,20,pdf_name,fontSize=20)) 
     elements.append(d) 
@@ -144,8 +148,7 @@ def main():
     #Name of user choice 
     
 
-
-    
+  
     #Graph title 
     # graph_title=ParagraphStyle('title',
     #                            fontName='Helvetica-Bold',

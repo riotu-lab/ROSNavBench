@@ -32,7 +32,6 @@ def generate_launch_description():
     with open(specs, 'r') as file:
         robot_specs = yaml.safe_load(file)
         
-    controllers_num=robot_specs['controllers_num']
     controller_type=robot_specs['controller_type']
     x = robot_specs['spawn_pose_x']     
     y = robot_specs['spawn_pose_y']        
@@ -59,7 +58,7 @@ def generate_launch_description():
     ld.add_action(nav2)
     ld.add_action(SetEnvironmentVariable(name='controller',value=controller_type[0]))
     nodes=[]
-    for j in range(controllers_num):
+    for j in range(len(controller_type)):
        nodes.append(Node(
         name='follow_path_0',
         executable='follow_path',
@@ -67,25 +66,25 @@ def generate_launch_description():
     )) 
     state_nodes=[]
     
-    for k in range(controllers_num-1):  
+    for k in range(len(controller_type)-1):  
         state_nodes.append(ExecuteProcess(
             cmd=[[
                 FindExecutable(name='ros2'),
                 ' service call ',
                 '/set_entity_state ',
                 'gazebo_msgs/SetEntityState ',
-                '"state: {name: turtlebot3_waffle, pose: {position:{x: '+str(x)+', y: '+str(y)+', z: 0.0}, orientation:{x: 0.0, y: 0.0, z: '+str(np.sin(yaw/2))+' , w: '+str(np.cos(yaw/2))+' }}, reference_frame: world}"'
+                '"state: {name: turtlebot3, pose: {position:{x: '+str(x)+', y: '+str(y)+', z: 0.0}, orientation:{x: 0.0, y: 0.0, z: '+str(np.sin(yaw/2))+' , w: '+str(np.cos(yaw/2))+' }}, reference_frame: world}"'
             ]],
             shell=True
     ) ) 
     ld.add_action(nodes[0])   
     
-    for i in range(controllers_num-1):
+    for i in range(len(controller_type)-1):
 
         ld.add_action(RegisterEventHandler(OnProcessExit(target_action= nodes[i], on_exit=[state_nodes[i]]))) 
         ld.add_action(RegisterEventHandler(OnProcessExit(target_action=state_nodes[i], on_exit=[SetEnvironmentVariable(name='controller',value=controller_type[i+1]), nodes[i+1]])))  
-
-    ld.add_action(RegisterEventHandler(OnProcessExit(target_action=nodes[controllers_num-1], on_exit=[pdf_generator] )))
+    
+    ld.add_action(RegisterEventHandler(OnProcessExit(target_action=nodes[len(controller_type)-1], on_exit=[pdf_generator] )))
 
     return ld
     

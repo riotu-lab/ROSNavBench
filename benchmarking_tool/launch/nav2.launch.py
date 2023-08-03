@@ -25,7 +25,7 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 import yaml
 
-TURTLEBOT3_MODEL = os.environ['TURTLEBOT3_MODEL']
+
 params_file = os.environ['PARAMS_FILE']
 
 def generate_launch_description():
