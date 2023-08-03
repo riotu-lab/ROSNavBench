@@ -22,7 +22,15 @@ git clone --branch galatic-devel https://github.com/ROBOTIS-GIT/turtlebot3_simul
 ```
 ```
 pip install reportlab
-
+```
+```
+pip install Jinja2
+```
+```
+pip install psutil
+```
+```
+pip install xacro
 ```
 
 3. Navigate to the cloned repository:
