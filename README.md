@@ -20,6 +20,10 @@ git clone --branch galatic-devel https://github.com/ROBOTIS-GIT/turtlebot3.git
 ```
 git clone --branch galatic-devel https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git
 ```
+```
+pip install reportlab
+
+```
 
 3. Navigate to the cloned repository:
 
@@ -40,14 +44,13 @@ cd ros2_nav_benchmarking/src/benchmarking_tool/benchmarking_tool
 
 ## Usage
 
-Once you have cloned the repository and installed the dependencies, you can start using the benchmarking framework. Here are a few usage examples:
+Once you have cloned the repository and installed the dependencies, you can use the benchmarking framework. Here are a few usage examples:
 
-- Launch a benchmarking experiment with a specific configuration:
-bash
-ros2 launch benchmarking_tool xxx.launch.py
+-Launch a benchmarking experiment with a specific configuration:  PARAMS_FILE=”name of your config file which is placed at benchmarking_tool/config” 
+- ros2 launch benchmarking_tool main.launch.py
 
 
-- Modify the launch files in the `launch` folder to customize the benchmarking experiment according to your requirements.
+- Modify the launch files in the config file to customize the benchmarking experiment according to your requirements.
 
 - Explore the pre-defined worlds in the `worlds` folder to simulate different environments.
 
