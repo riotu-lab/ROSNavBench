@@ -11,6 +11,7 @@ import os
 import xacro
 import yaml
 
+# Get the name of config file of the current experiment
 params_file = os.environ['PARAMS_FILE']
 
 def generate_launch_description():

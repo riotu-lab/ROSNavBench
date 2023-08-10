@@ -1,38 +1,43 @@
+#  Name the experiment. This name will be the name of the report
 experiment_name: "circular_path_scenario_report"
-# if another world is used, add the world file to benchmarking_tool/world and provide the name of the new yaml file
-world_name: 'scenario_world.world'
-# if another map is used, add the map files to benchmarking_tool/map and provide the name of the new yaml file
-map_name: 'map.yaml' 
-# add gazebo model path, if multiple path, please spereate them by a :
-models_path: ''
 
-# Choose one of rhee following controllers, by adding its name to the controller type list
+#  Add the world file to benchmarking_tool/world and provide the name of the new file
+world_name: "scenario_world.world"
 
-#DWB
-#RPP
-#RPP_RSC
-#DWB_RSC
+#  Add the map files to benchmarking_tool/map and provide the name of the new yaml file
+map_name: "map.yaml"
 
-# if another controller is used, add the configuration file to turtlebot3_navigation2/param and provide the name of the new yaml file
-controller_type: ['DWB']   #name of behaviour tree 
-#Add the name of the robot navigation configuration, this file should be placed at turtlebot3/turtlebot3_navigation2/param
-nav_config: 'waffle'
-#Enter the  required model of turtlebot3
-#burger
-#waffle
-#waffle_pi
-turtlebot3_model: 'waffle'
-#provide the pose in a decimal form
+#  Add gazebo model path, if multiple path, please spereate them by a :
+models_path: ""
+
+#  Choose one of the following controllers, by adding its name to the controller type list
+#  Note that these are the avaible controllers for the provided example
+#  DWB
+#  RPP
+#  RPP_RSC
+#  DWB_RSC
+controller_type: ["RPP"] #name of behaviour tree
+
+#  Add the absolute path of the robot navigation configuration
+nav_config: "/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/turtlebot3/turtlebot3_navigation2/param/waffle.yaml"
+
+#  Add the directory of the behaviour tree
+behaviour_tree_directory: "/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/turtlebot3/turtlebot3_navigation2/param"
+
+#  Add the absolute path of the urdf and model files inside single qoutes ''
+urdf_file: " /home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/turtlebot3/turtlebot3_description/urdf/turtlebot3_waffle.urdf"
+
+#  If the robot is spawned by only urdf, then set the model_file to 'None'
+model_file: "/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_waffle/model.sdf"
+
+#  Provide the pose in a decimal form
 spawn_pose_x: 4.0
 spawn_pose_y: -3.0
-spawn_pose_yaw: -3.13   #radians 
+spawn_pose_yaw: -3.13 #radians
 
+#  Specify either to send one goal, specific trajectory, or several waypoints
+#  square, circle, several_waypoints, one_goal
+trajectory_type: "circle"
 
-# Specify either to send one goal, specific trajectory, or several waypoints 
-# square, circle, several_waypoints, one_goal
-trajectory_type: 'circle'
-# circule paramete, note that the place of spawn will be the center of the circle 
+#  Circule parameter, note that the place of spawn will be the center of the circle
 radius: 1.1
-#square parameter 
-side_length: 3.0
-

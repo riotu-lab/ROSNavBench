@@ -73,7 +73,7 @@ setup(
     entry_points={
         'console_scripts': [
         'follow_path = benchmarking_tool.follow_path:main',
-        'pdf_generator =  benchmarking_tool.pdf_generator_v3:main',            
+        'pdf_generator =  benchmarking_tool.pdf_generator:main',            
         ],
     },
 )

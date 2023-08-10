@@ -25,13 +25,12 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 import yaml
 
-
+# Get the name of config file of the current experiment
 params_file = os.environ['PARAMS_FILE']
 
 def generate_launch_description():
 
-        
-    #map path and controller type 
+    # Opening the config file to take the experiment data such as the path of the navigation configuration
     specs=os.path.join(
         get_package_share_directory('benchmarking_tool'),
         'config',
@@ -39,14 +38,15 @@ def generate_launch_description():
        )
     with open(specs, 'r') as file:
         robot_specs = yaml.safe_load(file)
-        
-    map_name=robot_specs['map_name']     
+
+    map_name=robot_specs['map_name']
     nav_config=robot_specs['nav_config']
-    x=robot_specs['spawn_pose_x']     
+    x=robot_specs['spawn_pose_x']
     y=robot_specs['spawn_pose_y']
     yaw=robot_specs['spawn_pose_yaw']
-        
+
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
+    # Seting the path of the map
     map_dir = LaunchConfiguration(
         'map',
         default = os.path.join(
@@ -54,37 +54,10 @@ def generate_launch_description():
             'map',
             'map.yaml'))
 
-    # Opening the model template 
-    controller_template = os.path.join(
-            get_package_share_directory('turtlebot3_navigation2'),
-            'param',
-            nav_config+'.yaml')
-    with open(controller_template, 'r') as infp:
-        template = infp.read()
-        
-    #Generating a config file for each spawned robot( namely changing the intial pose in rviz)
- 
-    data = {
-            "x_pose":x ,
-            "y_pose":y,
-            "yaw":yaw ,
-           }
-        
-    j2_template = Template(template)
-        
-    fileName=nav_config+'.yaml'
-    with open(fileName, "w") as f:
-        f.write(j2_template.render(data))
-    dst=os.path.join(get_package_share_directory('turtlebot3_navigation2'),'param')
-
-    os.rename(os.getcwd()+'/'+fileName, dst+'/'+fileName)
-
+    # Seting the path of the navigation configuration file
     param_dir = LaunchConfiguration(
         'params_file',
-        default = os.path.join(
-            get_package_share_directory('turtlebot3_navigation2'),
-            'param',
-            nav_config+'.yaml'))
+        default =nav_config)
 
     nav2_launch_file_dir = os.path.join(get_package_share_directory('nav2_bringup'), 'launch')
 
@@ -94,6 +67,7 @@ def generate_launch_description():
         'nav2_default_view.rviz')
 
     return LaunchDescription([
+        # launch arguments 
         DeclareLaunchArgument(
             'map',
             default_value=os.path.join(
@@ -113,12 +87,12 @@ def generate_launch_description():
             description = 'Use simulation (Gazebo) clock if true'),
         DeclareLaunchArgument(
             'x_pose',
-            default_value = '1.0',
+            default_value = str(x),
             description = 'Use simulation (Gazebo) clock if true'),
         DeclareLaunchArgument(
             'y_pose',
-            default_value = '2.0',
-            description = 'Use simulation (Gazebo) clock if true'),            
+            default_value = str(y),
+            description = 'Use simulation (Gazebo) clock if true'),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([nav2_launch_file_dir, '/bringup_launch.py']),
             launch_arguments = {

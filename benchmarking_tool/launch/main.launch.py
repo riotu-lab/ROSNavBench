@@ -3,7 +3,7 @@
 
 
 ### This launch file is the one to be used which includes multiple other 
-### launch files like spawning of the robot, running navigation, recording data and sending goal.
+### launch files like spawning of the robot, running navigation, sending goal,recording data, and generating report.
 
 # July 8th, 2023
 
@@ -22,8 +22,9 @@ import yaml
 import numpy as np
 
 def generate_launch_description():
-
+    # Get the name of config file of the current experiment
     params_file = os.environ['PARAMS_FILE']
+    # Opening the config file to take the experiment data such as spawn pose
     specs= os.path.join(
         get_package_share_directory('benchmarking_tool'),
         'config',
@@ -36,18 +37,19 @@ def generate_launch_description():
     x = robot_specs['spawn_pose_x']     
     y = robot_specs['spawn_pose_y']        
     yaw = robot_specs['spawn_pose_yaw']    
-
+    # Include launch file for spawning the robot
     spawn_robot = IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([
-         FindPackageShare("benchmarking_tool"), '/launch', '/spawn_turtlebot3.launch.py'])
+         FindPackageShare("benchmarking_tool"), '/launch', '/spawn_robot.launch.py'])
         
             )
+    # Include launch file for launching navigation
     nav2 = IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([
                     FindPackageShare("benchmarking_tool"), '/launch', '/nav2.launch.py'])
  
             )
-
+    # Node for generating pdf
     pdf_generator=Node(
         name='PDF_generator',
         executable='pdf_generator',
@@ -57,6 +59,7 @@ def generate_launch_description():
     ld.add_action(spawn_robot)
     ld.add_action(nav2)
     ld.add_action(SetEnvironmentVariable(name='controller',value=controller_type[0]))
+    # Generating different nodes for sending the goal and recording the data
     nodes=[]
     for j in range(len(controller_type)):
        nodes.append(Node(
@@ -64,8 +67,8 @@ def generate_launch_description():
         executable='follow_path',
         package='benchmarking_tool',
     )) 
+    # Generating different nodes for reseting the pose of the robot to intial pose after each controller scenario   
     state_nodes=[]
-    
     for k in range(len(controller_type)-1):  
         state_nodes.append(ExecuteProcess(
             cmd=[[
@@ -78,12 +81,14 @@ def generate_launch_description():
             shell=True
     ) ) 
     ld.add_action(nodes[0])   
-    
+    # This loop is responsible to assgin the events of sending the goal and reseting the state
+    # Each event will start once  the previous event is done
     for i in range(len(controller_type)-1):
 
         ld.add_action(RegisterEventHandler(OnProcessExit(target_action= nodes[i], on_exit=[state_nodes[i]]))) 
         ld.add_action(RegisterEventHandler(OnProcessExit(target_action=state_nodes[i], on_exit=[SetEnvironmentVariable(name='controller',value=controller_type[i+1]), nodes[i+1]])))  
     
+    # Once all events are done, the node of generating a pdf will start
     ld.add_action(RegisterEventHandler(OnProcessExit(target_action=nodes[len(controller_type)-1], on_exit=[pdf_generator] )))
 
     return ld

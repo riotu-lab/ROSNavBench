@@ -1,38 +1,47 @@
+#  Name the experiment. This name will be the name of the report
 experiment_name: "dynamic_obstacles_scenario_report"
-# if another world is used, add the world file to benchmarking_tool/world and provide the name of the new yaml file
+
+#  Add the world file to benchmarking_tool/world and provide the name of the new file
 world_name: 'dynamic_obstacles_world.world'
-# if another map is used, add the map files to benchmarking_tool/map and provide the name of the new yaml file
+
+#  Add the map files to benchmarking_tool/map and provide the name of the new yaml fi
 map_name: 'map.yaml' 
-# add gazebo model path, if multiple path, please spereate them by a :
+
+#  Add gazebo model path, if multiple path, please spereate them by a :
 models_path: ''
 
-# Choose one of rhee following controllers, by adding its name to the controller type list
+#  Choose one of the following controllers, by adding its name to the controller type list
+#  Note that these are the avaible controllers for the provided example
+#  DWB
+#  RPP
+#  RPP_RSC
+#  DWB_RSC
+controller_type: ['DWB', 'DWB_RSC']   #name of behaviour tree 
 
-#DWB
-#RPP
-#RPP_RSC
-#DWB_RSC
+#  Add the absolute path of the robot navigation configuration
+nav_config: '/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/turtlebot3/turtlebot3_navigation2/param/waffle.yaml'
 
-# if another controller is used, add the configuration file to turtlebot3_navigation2/param and provide the name of the new yaml file
-controller_type: ['RPP', 'RPP_RSC']   #name of behaviour tree 
-#Add the name of the robot navigation configuration, this file should be placed at turtlebot3/turtlebot3_navigation2/param
-nav_config: 'burger'
-#Enter the  required model of turtlebot3
-#burger
-#waffle
-#waffle_pi
-turtlebot3_model: 'burger'
-#provide the pose in a decimal form
+#  Add the directory of the behaviour tree
+behaviour_tree_directory: "/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/turtlebot3/turtlebot3_navigation2/param"
+
+#  Add the absolute path of the urdf and model files inside single qoutes ''
+urdf_file: '/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/turtlebot3/turtlebot3_description/urdf/turtlebot3_waffle.urdf'
+
+#  If the robot is spawned by only urdf, then set the model_file to 'None'
+model_file: '/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_waffle/model.sdf'
+
+#  Provide the pose in a decimal form
 spawn_pose_x: 4.0
 spawn_pose_y: -4.0
 spawn_pose_yaw: 1.58   #radians 
 
 
-# Specify either to send one goal, specific trajectory, or several waypoints 
-# square, circle, several_waypoints, one_goal
+#  Specify either to send one goal, specific trajectory, or several waypoints 
+#  square, circle, several_waypoints, one_goal
 trajectory_type: 'one_goal'
-# One goal parameter 
-goal_pose_x: 7.0
-goal_pose_y: 2.2
+
+#  One goal parameter 
+goal_pose_x: 7.3
+goal_pose_y: 2.6
 goal_pose_yaw: 1.58   #radians 
 
