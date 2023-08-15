@@ -1,4 +1,4 @@
-# ROS 2 Navigation Benchmarking
+# ROSNavBench
 
 This repository is created for benchmarking navigation in ROS 2. It provides a framework for evaluating the performance and efficiency of navigation systems in ROS 2.
 
