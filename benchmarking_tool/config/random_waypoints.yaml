@@ -1,6 +1,9 @@
 #  Name the experiment. This name will be the name of the report
 experiment_name: "several_waypoints_scenario_report"
 
+#Save directory of results
+results_directory: ''
+
 #  Add the world file to benchmarking_tool/world and provide the name of the new file
 world_name: 'scenario_world.world'
 
@@ -17,6 +20,10 @@ models_path: ''
 #  RPP_RSC
 #  DWB_RSC
 controller_type: ['DWB', 'RPP']   #name of behaviour tree 
+
+#  This option is intended for testing the same controller several times
+#  if the user do not need this test, set it to zero 
+trails_num: 10
 
 #  Add the absolute path of the robot navigation configuration
 nav_config: '/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/turtlebot3/turtlebot3_navigation2/param/waffle.yaml'
@@ -40,5 +47,5 @@ spawn_pose_yaw: -3.13   #radians
 trajectory_type: 'several_waypoints'
 
 # Specify way points in this formate [[x0,y0,yaw0_radians], [x1,y1,yaw1_radians], ...]
-waypoints: [[-2.4,3.5,-3.13], [6.0,2.0,-3.13], [-4.0,4.0,-3.13]]
+waypoints: [[-2.4,3.5,-3.13], [6.0,2.0,-3.13], [7.3,2.6,-3.13]]
 

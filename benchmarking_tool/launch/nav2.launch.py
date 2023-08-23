@@ -44,7 +44,13 @@ def generate_launch_description():
     x=robot_specs['spawn_pose_x']
     y=robot_specs['spawn_pose_y']
     yaw=robot_specs['spawn_pose_yaw']
-
+    trajectory_type= robot_specs['trajectory_type']
+    
+    if trajectory_type=='circle':
+        r= robot_specs['radius']
+        x=x+r
+        yaw=1.5707963 # 90 degrees
+            
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     # Seting the path of the map
     map_dir = LaunchConfiguration(
@@ -62,9 +68,9 @@ def generate_launch_description():
     nav2_launch_file_dir = os.path.join(get_package_share_directory('nav2_bringup'), 'launch')
 
     rviz_config_dir = os.path.join(
-        get_package_share_directory('nav2_bringup'),
-        'rviz',
-        'nav2_default_view.rviz')
+        get_package_share_directory('benchmarking_tool'),
+        'config',
+        'rviz_config.rviz')
 
     return LaunchDescription([
         # launch arguments 

@@ -12,14 +12,17 @@ import math
 import psutil
 import time 
 import csv
+from rclpy.impl import rcutils_logger
+
 
 # Get the name of config file of the current experiment
 params_file = os.environ['PARAMS_FILE']
 rclpy.init()
 global navigator
 navigator = BasicNavigator()
- 
-def main(): 
+
+
+def main(args=None): 
 
     '''
     This function is responsile to:
@@ -55,12 +58,19 @@ def main():
     initial_pose.header.frame_id = 'map'
     initial_pose.header.stamp = navigator.get_clock().now().to_msg()
     initial_pose.pose.position.x = x
+    #initial_pose.pose.orientation.z = np.sin(np.deg2rad(90)/2)
     initial_pose.pose.position.y = y
     initial_pose.pose.orientation.x =  0.0
     initial_pose.pose.orientation.y =  0.0 
     # Convert the eular angles to quaternion 
     initial_pose.pose.orientation.z = np.sin(yaw/2)  
-    initial_pose.pose.orientation.w = np.cos(yaw/2)     
+    initial_pose.pose.orientation.w = np.cos(yaw/2)    
+    if trajectory_type=='circle':
+       r= robot_specs['radius']
+       initial_pose.pose.position.x = x+r
+       initial_pose.pose.orientation.w = np.cos(np.deg2rad(90)/2) 
+       initial_pose.pose.orientation.z = np.sin(np.deg2rad(90)/2)
+    
     navigator.setInitialPose(initial_pose)
 
     # A few gap of time is nesseray to make sure that the intial pose is set, and then clear the map
@@ -119,21 +129,21 @@ def main():
          # Thus, the robot will first move a raduis length to the circle circumference
          # This movment is not included in the report 
          r= robot_specs['radius']
-         goal_pose = PoseStamped()
-         goal_pose.header.frame_id = 'map'
-         goal_pose.header.stamp = navigator.get_clock().now().to_msg()       
-         goal_pose.pose.position.x = r+x
-         goal_pose.pose.position.y = y
-         goal_pose.pose.orientation.w = np.cos(np.deg2rad(90)/2) 
-         goal_pose.pose.orientation.z = np.sin(np.deg2rad(90)/2)
-         navigator.goToPose(goal_pose,behavior_tree=os.path.join(get_package_share_directory('turtlebot3_navigation2'),
-        'param',
-        os.environ["controller"]+'.xml')) 
+        #  goal_pose = PoseStamped()
+        #  goal_pose.header.frame_id = 'map'
+        #  goal_pose.header.stamp = navigator.get_clock().now().to_msg()       
+        #  goal_pose.pose.position.x = r+x
+        #  goal_pose.pose.position.y = y
+        #  goal_pose.pose.orientation.w = np.cos(np.deg2rad(90)/2) 
+        #  goal_pose.pose.orientation.z = np.sin(np.deg2rad(90)/2)
+        #  navigator.goToPose(goal_pose,behavior_tree=os.path.join(get_package_share_directory('turtlebot3_navigation2'),
+        # 'param',
+        # os.environ["controller"]+'.xml')) 
          
 
-        # The circel trajectory is sent once the robot arrives at the circumference  
-         while not navigator.isTaskComplete():
-            pass 
+        # # The circel trajectory is sent once the robot arrives at the circumference  
+        #  while not navigator.isTaskComplete():
+        #     pass 
           
         # The segments number is the cumenference diveded by 0.1
         # The increament angle is then found based on the segments number. It is used to find the waypoints coordinates 
@@ -185,6 +195,11 @@ def main():
                 
  
     # Sending the goal pose or poses
+    
+
+ 
+    logger = rcutils_logger.RcutilsLogger(name="my_logger")
+    logger.info("The controller is "+os.environ["controller"])
     # The behaviour tree is sent with the goal in order to specify the local planner
     if trajectory_type=='one_goal':
        navigator.goToPose(goal_pose,behavior_tree=os.path.join(behaviour_tree_directory,
@@ -229,11 +244,11 @@ def main():
     result = navigator.getResult()    
     
     if result == TaskResult.SUCCEEDED:
-        result1='goal succeeded!'
+        result1='succeeded'
     elif result == TaskResult.CANCELED:
-        result1='goal was canceled!'
+        result1='canceled'
     elif result == TaskResult.FAILED:
-        result1='goal failed!'
+        result1='failed'
     else:
         result1='goal has an invalid return status!' 
     data.append(result1)
@@ -241,12 +256,13 @@ def main():
     # Creating a .csv file that contains all the raw data about the task
     f=open(os.path.join(get_package_share_directory('benchmarking_tool'),
         'raw_data',
-        pdf_name+'_'+os.environ["controller"]+'.csv'),'w')
+        pdf_name+'_'+os.environ["controller"]+os.environ["round_num"]+'.csv'),'w')
     writer=csv.writer(f,quoting=csv.QUOTE_NONNUMERIC, delimiter=' ')
     writer.writerows(data)
    
     navigator.destroyNode()
-
+    
+    rclpy.shutdown()
     exit(0)
 
 

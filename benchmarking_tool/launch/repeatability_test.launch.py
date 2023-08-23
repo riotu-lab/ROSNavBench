@@ -39,22 +39,7 @@ def generate_launch_description():
     yaw = robot_specs['spawn_pose_yaw']  
     trajectory_type = robot_specs['trajectory_type']
     trails_num = robot_specs['trails_num']
-    if trails_num>0:
-        controller_type=[controller_type[0]]*trails_num
-        # Node for generating pdf
-        pdf_generator=Node(
-            name='benchmarking_single_controller',
-            executable='benchmarking_single_controller',
-            package='benchmarking_tool',
-        ) 
-    else: 
-        # Node for generating pdf
-        pdf_generator=Node(
-            name='PDF_generator',
-            executable='pdf_generator',
-            package='benchmarking_tool',
-        )  
-     
+    controller_type=[controller_type[0]]*trails_num
     if trajectory_type=='circle':
         r= robot_specs['radius']
         x=x+r
@@ -71,13 +56,17 @@ def generate_launch_description():
                     FindPackageShare("benchmarking_tool"), '/launch', '/nav2.launch.py'])
  
             )      
- 
-   
+    # Node for generating pdf
+    pdf_generator=Node(
+        name='PDF_generator',
+        executable='pdf_generator',
+        package='benchmarking_tool',
+    )
     ld = LaunchDescription()
     ld.add_action(spawn_robot)
     ld.add_action(nav2)
     ld.add_action(SetEnvironmentVariable(name='controller',value=controller_type[0]))
-    ld.add_action(SetEnvironmentVariable(name='round_num',value="1"))
+  
     # Generating  different nodes to publish the type of running controller 
     controller_node=[]
     for j in range(len(controller_type)):
@@ -117,7 +106,7 @@ def generate_launch_description():
     for i in range(len(controller_type)-1):
 
         ld.add_action(RegisterEventHandler(OnProcessExit(target_action= nodes[i], on_exit=[state_nodes[i]]))) 
-        ld.add_action(RegisterEventHandler(OnProcessExit(target_action=state_nodes[i], on_exit=[SetEnvironmentVariable(name='controller',value=controller_type[i+1]),SetEnvironmentVariable(name='round_num',value=str(i+2)),nodes[i+1],controller_node[i+1]])))  
+        ld.add_action(RegisterEventHandler(OnProcessExit(target_action=state_nodes[i], on_exit=[SetEnvironmentVariable(name='controller',value=controller_type[i+1]),nodes[i+1],controller_node[i+1]])))  
     
     # Once all events are done, the node of generating a pdf will start
     ld.add_action(RegisterEventHandler(OnProcessExit(target_action=nodes[len(controller_type)-1], on_exit=[pdf_generator] )))

@@ -33,7 +33,12 @@ def generate_launch_description():
     models_path=  robot_specs['models_path'] 
     urdf=robot_specs['urdf_file']
     model_path=robot_specs['model_file']
-
+    trajectory_type= robot_specs['trajectory_type']
+    
+    if trajectory_type=='circle':
+        r= robot_specs['radius']
+        x=x+r
+        yaw=1.5707963 # 90 degrees
     #Launch directory of gazebo_ros pkg
     pkg_gazebo_ros = FindPackageShare(package='gazebo_ros').find('gazebo_ros')
     

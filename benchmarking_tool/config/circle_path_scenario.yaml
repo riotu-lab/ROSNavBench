@@ -1,6 +1,9 @@
 #  Name the experiment. This name will be the name of the report
 experiment_name: "circular_path_scenario_report"
 
+#Save directory of results
+results_directory: '/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/benchmarking_tool/results'
+
 #  Add the world file to benchmarking_tool/world and provide the name of the new file
 world_name: "scenario_world.world"
 
@@ -16,7 +19,11 @@ models_path: ""
 #  RPP
 #  RPP_RSC
 #  DWB_RSC
-controller_type: ["RPP"] #name of behaviour tree
+controller_type: ["RPP","DWB"] #name of behaviour tree
+
+#  This option is intended for testing the same controller several times
+#  if the user do not need this test, set it to zero 
+trails_num: 0
 
 #  Add the absolute path of the robot navigation configuration
 nav_config: "/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/turtlebot3/turtlebot3_navigation2/param/waffle.yaml"
@@ -25,7 +32,7 @@ nav_config: "/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/turtlebot3/turtl
 behaviour_tree_directory: "/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/turtlebot3/turtlebot3_navigation2/param"
 
 #  Add the absolute path of the urdf and model files inside single qoutes ''
-urdf_file: " /home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/turtlebot3/turtlebot3_description/urdf/turtlebot3_waffle.urdf"
+urdf_file: "/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/turtlebot3/turtlebot3_description/urdf/turtlebot3_waffle.urdf"
 
 #  If the robot is spawned by only urdf, then set the model_file to 'None'
 model_file: "/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_waffle/model.sdf"

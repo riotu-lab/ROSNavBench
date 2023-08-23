@@ -17,7 +17,7 @@ from reportlab.lib import colors
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.enums import TA_CENTER
 from reportlab.graphics.charts.legends import Legend, LineLegend, LineSwatch
-
+from reportlab.graphics.charts.barcharts import VerticalBarChart
 
 
 def main():
@@ -267,9 +267,51 @@ def main():
                 cnp.append((l, controller_type[i+v]))
         legend.colorNamePairs = cnp
         d.add(legend, 'legend')
-        elements.append(d) 
+        #elements.append(d) 
 
     # CPU plot
+    ####NEW
+    drawing = Drawing(500, 310)
+    lab=Label()
+    lab.setOrigin(0,130)
+    lab.angle=90
+    lab.setText('CPU(%)')  
+    plot_data=[[],[]]
+    for i in range(len(controller_type)):
+        plot_data[0].append(max(CPU[i])) 
+        plot_data[1].append((sum(CPU[i])/len(CPU[i]))) 
+    
+    plot_data[0]=tuple(plot_data[0])
+    plot_data[1]=tuple(plot_data[1])
+    print(plot_data)
+    catogries=[]
+    for i in range(len(controller_type)):
+        catogries.append(str(i+1))
+    print(catogries)
+    bc = VerticalBarChart()
+    bc.x = 40
+    bc.y = 35
+    bc.height = 220
+    bc.width = 450
+    bc.data = plot_data
+    bc.strokeColor = colors.black
+
+    bc.valueAxis.valueMin =0
+    bc.valueAxis.valueMax = axis_scalling(min(global_CPU),max(global_CPU),0)
+    print("global",global_CPU)
+    bc.valueAxis.configure(global_CPU) 
+    bc.groupSpacing=2 
+    bc.categoryAxis.labels.boxAnchor = 'ne'
+    bc.categoryAxis.labels.dx = 1
+    bc.categoryAxis.labels.dy = -2
+    bc.categoryAxis.labels.angle = 30
+    bc.categoryAxis.categoryNames = catogries
+    drawing.add(String(200,300,'CPU usage(%) ', fontSize=12, fillColor=colors.black))
+    drawing.add(lab)
+    drawing.add(bc)
+    drawing.add(String(200,5,'Time(sec) ', fontSize=12, fillColor=colors.black))
+    elements.append(drawing)    
+    #####
     drawing = shapes.Drawing(500, 310)
     lab=Label()
     lab.setOrigin(0,130)
@@ -297,9 +339,48 @@ def main():
     drawing.add(lab)
     drawing.add(lp)
     drawing.add(String(200,5,'Time(sec) ', fontSize=12, fillColor=colors.black))
-    elements.append(drawing)
+    #elements.append(drawing)
 
     # Memory usage plot
+    ####NEW
+    drawing = Drawing(500, 310)
+    lab=Label()
+    lab.setOrigin(0,130)
+    lab.angle=90
+    lab.setText('Memory(%)')
+    plot_data=[[],[]]
+    for i in range(len(controller_type)):
+        plot_data[0].append(max(Memory[i])) 
+        plot_data[1].append((sum(Memory[i])/len(Memory[i]))) 
+    
+    plot_data[0]=tuple(plot_data[0])
+    plot_data[1]=tuple(plot_data[1])
+    print(plot_data)
+    print(catogries)
+    bc = VerticalBarChart()
+    bc.x = 40
+    bc.y = 35
+    bc.height = 220
+    bc.width = 450
+    bc.data = plot_data
+    bc.strokeColor = colors.black
+
+    bc.valueAxis.valueMin =0
+    bc.valueAxis.valueMax = axis_scalling(min(global_Memory),max(global_Memory),0)
+    
+    bc.valueAxis.configure(global_Memory) 
+    bc.groupSpacing=2 
+    bc.categoryAxis.labels.boxAnchor = 'ne'
+    bc.categoryAxis.labels.dx = 1
+    bc.categoryAxis.labels.dy = -2
+    bc.categoryAxis.labels.angle = 30
+    bc.categoryAxis.categoryNames = catogries
+    drawing.add(String(200,300,'Memory usage ', fontSize=12, fillColor=colors.black))
+    drawing.add(lab)
+    drawing.add(bc)
+    drawing.add(String(200,5,'Time(sec) ', fontSize=12, fillColor=colors.black))
+    elements.append(drawing)   
+    #######  
     drawing = shapes.Drawing(500, 310)
     lab=Label()
     lab.setOrigin(0,130)
@@ -326,7 +407,7 @@ def main():
     drawing.add(lab)
     drawing.add(lp)
     drawing.add(String(200,5,'Time(sec) ', fontSize=12, fillColor=colors.black))
-    elements.append(drawing)
+    #elements.append(drawing)
      
     # Trajectory plot 
     drawing = shapes.Drawing(500, 320)
@@ -356,12 +437,14 @@ def main():
     lp.data = xy_points
     lp.joinedLines = 1
     for i in range(len(controller_type)):
-        lp.lines[i].strokeColor=getattr(colors, items[i])
+        lp.lines[i].strokeColor=getattr(colors, "grey")
+        lp.lines[i].strokeDashArray=(1,1)
+        lp.lines[i].strokeDashArray=(1,1)
     lp.strokeColor = colors.black
     lp.lines[len(controller_type)].strokeColor=colors.yellowgreen
     lp.lines[len(controller_type)].symbol=makeMarker('FilledStarFive',size=8)     
     for k in range(len(controller_type)):
-        lp.lines[len(controller_type)+k+1].strokeColor=getattr(colors, items[k])
+        lp.lines[len(controller_type)+k+1].strokeColor=getattr(colors, "grey")
         lp.lines[len(controller_type)+k+1].symbol=makeMarker('FilledCircle',size=5)  
 
     lp.xValueAxis.valueMin = axis_scalling(min(global_x_points),max(global_x_points),1)
