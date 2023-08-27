@@ -1,8 +1,10 @@
 #! /usr/bin/env python3
+from typing import List
 from geometry_msgs.msg import PoseStamped
 from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
 from ament_index_python.packages import get_package_share_directory
 import rclpy
+from rclpy.context import Context
 from rclpy.duration import Duration
 from rclpy.node import Node
 import numpy as np
@@ -13,6 +15,10 @@ import psutil
 import time 
 import csv
 from rclpy.impl import rcutils_logger
+from rclpy.parameter import Parameter
+from std_msgs.msg import String
+from  rcl_interfaces.msg import Log
+from rclpy.time import Time
 
 
 # Get the name of config file of the current experiment
@@ -21,7 +27,31 @@ rclpy.init()
 global navigator
 navigator = BasicNavigator()
 
+class LogSubscriber(Node):
+    def __init__(self):
+        super().__init__('LogSubscriber')
+        self.subscription=self.create_subscription(
+            Log,
+            'rosout',
+            self.LogSubscriber_callback,
+            10
+        )
 
+    def LogSubscriber_callback(self,msg):
+        self.log_msgs=msg.msg
+        self.log_time=msg.stamp
+        self.log_msg_name=msg.name
+        if msg.level==10:
+            self.log_level="DEBUG"
+        elif msg.level==20:
+            self.log_level="INFO"
+        elif msg.level==30:
+            self.log_level="WARN"
+        elif msg.level==40:
+            self.log_level="ERROR"
+        elif msg.level==50:
+            self.log_level="FATAL"
+                                                
 def main(args=None): 
 
     '''
@@ -198,7 +228,7 @@ def main(args=None):
     
 
  
-    logger = rcutils_logger.RcutilsLogger(name="my_logger")
+    logger = rcutils_logger.RcutilsLogger(name="controller_type")
     logger.info("The controller is "+os.environ["controller"])
     # The behaviour tree is sent with the goal in order to specify the local planner
     if trajectory_type=='one_goal':
@@ -217,7 +247,7 @@ def main(args=None):
 
     # A time gap is used to make sudurationre the the goal is sent 
     time.sleep(0.1)
-    
+    error_msgs=[]
     # The while loop is used to record the data while the task is running
     i = 0
     while not navigator.isTaskComplete():
@@ -228,7 +258,18 @@ def main(args=None):
             print('Estimated time of arrival: ' + '{0:.0f}'.format(
                   Duration.from_msg(feedback.estimated_time_remaining).nanoseconds / 1e9)
                   + ' seconds.')
+        # subscriber=LogSubscriber()
+        # rclpy.spin_once(subscriber)
+        
+        # error_msg=[]
 
+        # error_msg.append(round(Time.from_msg(subscriber.log_time).nanoseconds / 1e9, 2))
+        # error_msg.append(subscriber.log_msg_name)
+        # error_msg.append(subscriber.log_level)
+        # error_msg.append(subscriber.log_msgs) 
+        
+        # error_msgs.append(error_msg)   
+        #error_msgs.append(round(Duration.from_msg(subscriber.log_time).nanoseconds / 1e9, 2))       
         row=[]
         row.append(psutil.cpu_percent())
         row.append(psutil.virtual_memory().percent)
@@ -259,7 +300,14 @@ def main(args=None):
         pdf_name+'_'+os.environ["controller"]+os.environ["round_num"]+'.csv'),'w')
     writer=csv.writer(f,quoting=csv.QUOTE_NONNUMERIC, delimiter=' ')
     writer.writerows(data)
-   
+
+    # Creating a .csv file that contains all the log msgs
+    # f=open(os.path.join(get_package_share_directory('benchmarking_tool'),
+    #     'raw_data',
+    #     pdf_name+'_'+os.environ["controller"]+"_error_msgs_"+os.environ["round_num"]+'.csv'),'w')
+    # writer=csv.writer(f,quoting=csv.QUOTE_NONNUMERIC, delimiter=' ')
+    # writer.writerows(error_msgs)
+
     navigator.destroyNode()
     
     rclpy.shutdown()

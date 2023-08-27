@@ -39,7 +39,7 @@ def generate_launch_description():
     with open(specs, 'r') as file:
         robot_specs = yaml.safe_load(file)
 
-    map_name=robot_specs['map_name']
+    map_path=robot_specs['map_path']
     nav_config=robot_specs['nav_config']
     x=robot_specs['spawn_pose_x']
     y=robot_specs['spawn_pose_y']
@@ -53,12 +53,13 @@ def generate_launch_description():
             
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     # Seting the path of the map
-    map_dir = LaunchConfiguration(
-        'map',
-        default = os.path.join(
-            get_package_share_directory('benchmarking_tool'),
-            'map',
-            'map.yaml'))
+  
+    #LaunchConfiguration(
+    #    'map',
+    #    default = os.path.join(
+    #        get_package_share_directory('benchmarking_tool'),
+    #        'map',
+    #        'map.yaml'))
 
     # Seting the path of the navigation configuration file
     param_dir = LaunchConfiguration(
@@ -72,14 +73,11 @@ def generate_launch_description():
         'config',
         'rviz_config.rviz')
 
-    return LaunchDescription([
-        # launch arguments 
+    return LaunchDescription([ 
         DeclareLaunchArgument(
             'map',
-            default_value=os.path.join(
-            get_package_share_directory('benchmarking_tool'),
-            'map',
-            map_name),
+    
+            default_value = map_path,
             description = 'Full path to map file to load'),
 
         DeclareLaunchArgument(
@@ -102,7 +100,7 @@ def generate_launch_description():
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([nav2_launch_file_dir, '/bringup_launch.py']),
             launch_arguments = {
-                'map': map_dir,
+                'map': map_path,
                 'use_sim_time': use_sim_time,
                 'params_file': param_dir}.items(),
         ),

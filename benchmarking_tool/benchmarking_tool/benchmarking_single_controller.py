@@ -203,7 +203,7 @@ def main():
     d=shapes.Drawing(250,40)
     d.add(String(1,20,"Comparsion of controllers",fontSize=15)) 
     elements.append(d)  
-    table= [["Controller\ntype","Result","Execution\nTime","Average\nCPU","Max\nCPU","Average\nmemory\nusage","Max\nmemory\nusage","Number of\nrecoveries","Path\nlength"]]  
+    table= [["Controller\ntype","Result","Execution\nTime (sec)","Average\nCPU (%)","Max\nCPU (%)","Average\nmemory\nusage (%)","Max\nmemory\nusage (%)","Number of\nrecoveries","Path\nlength (m)"]]  
     table.append(["","","","","","","","",""])
     for k in range(len(controller_type)): 
         table_data=[]
@@ -271,6 +271,25 @@ def main():
 
     # CPU plot
     ####NEW
+   
+    legend = LineLegend()
+    legend.alignment = 'right'
+    legend.x = 1
+    legend.y = 270
+    legend.deltax = 60
+    legend.dxTextSpace = 10
+    legend.columnMaximum = 1
+    items = 'red green blue yellow pink black aqua bisque blueviolet brown burlywood cadetblue chartreuse chocolate cornflowerblue crimson cyan darkblue darkcyan darkgoldenrod darkgray coral darkgreen darkkhaki darkmagenta darkolivegreen darkorange darkred darksalmon darkseagreen darkslateblue darkslategray darkturquoise darkviolet deeppink deepskyblue dimgray firebrick forestgreen fuchsia grey greenyellow gold hotpink indianred ivory lavender lime maroon navy olive'.split()
+    cnp = []
+    l =  LineSwatch()
+    l.strokeColor = getattr(colors, items[0])
+    cnp.append((l, "Max CPU"))
+    l =  LineSwatch()
+    l.strokeColor = getattr(colors, items[1])
+    cnp.append((l, "Average CPU"))        
+    legend.colorNamePairs = cnp
+        
+
     drawing = Drawing(500, 310)
     lab=Label()
     lab.setOrigin(0,130)
@@ -297,7 +316,7 @@ def main():
     bc.strokeColor = colors.black
 
     bc.valueAxis.valueMin =0
-    bc.valueAxis.valueMax = axis_scalling(min(global_CPU),max(global_CPU),0)
+    bc.valueAxis.valueMax = 100
     print("global",global_CPU)
     bc.valueAxis.configure(global_CPU) 
     bc.groupSpacing=2 
@@ -307,9 +326,10 @@ def main():
     bc.categoryAxis.labels.angle = 30
     bc.categoryAxis.categoryNames = catogries
     drawing.add(String(200,300,'CPU usage(%) ', fontSize=12, fillColor=colors.black))
+    drawing.add(legend, 'legend')
     drawing.add(lab)
     drawing.add(bc)
-    drawing.add(String(200,5,'Time(sec) ', fontSize=12, fillColor=colors.black))
+    drawing.add(String(200,5,'Trail # ', fontSize=12, fillColor=colors.black))
     elements.append(drawing)    
     #####
     drawing = shapes.Drawing(500, 310)
@@ -338,12 +358,29 @@ def main():
     drawing.add(String(200,300,'CPU usage(%) ', fontSize=12, fillColor=colors.black))
     drawing.add(lab)
     drawing.add(lp)
-    drawing.add(String(200,5,'Time(sec) ', fontSize=12, fillColor=colors.black))
+    drawing.add(String(200,5,'Trail #  ', fontSize=12, fillColor=colors.black))
     #elements.append(drawing)
 
     # Memory usage plot
     ####NEW
-    drawing = Drawing(500, 310)
+    legend = LineLegend()
+    legend.alignment = 'right'
+    legend.x = 1
+    legend.y = 270
+    legend.deltax = 60
+    legend.dxTextSpace = 10
+    legend.columnMaximum = 1
+    items = 'red green blue yellow pink black aqua bisque blueviolet brown burlywood cadetblue chartreuse chocolate cornflowerblue crimson cyan darkblue darkcyan darkgoldenrod darkgray coral darkgreen darkkhaki darkmagenta darkolivegreen darkorange darkred darksalmon darkseagreen darkslateblue darkslategray darkturquoise darkviolet deeppink deepskyblue dimgray firebrick forestgreen fuchsia grey greenyellow gold hotpink indianred ivory lavender lime maroon navy olive'.split()
+    cnp = []
+    l =  LineSwatch()
+    l.strokeColor = getattr(colors, items[0])
+    cnp.append((l, "Max Memory Usage (%)"))
+    l =  LineSwatch()
+    l.strokeColor = getattr(colors, items[1])
+    cnp.append((l, "Average Memory Usage (%)"))        
+    legend.colorNamePairs = cnp
+
+    drawing = Drawing(500, 350)
     lab=Label()
     lab.setOrigin(0,130)
     lab.angle=90
@@ -366,7 +403,8 @@ def main():
     bc.strokeColor = colors.black
 
     bc.valueAxis.valueMin =0
-    bc.valueAxis.valueMax = axis_scalling(min(global_Memory),max(global_Memory),0)
+    bc.valueAxis.valueMax = 100
+    #axis_scalling(min(global_Memory),max(global_Memory),0)
     
     bc.valueAxis.configure(global_Memory) 
     bc.groupSpacing=2 
@@ -376,9 +414,10 @@ def main():
     bc.categoryAxis.labels.angle = 30
     bc.categoryAxis.categoryNames = catogries
     drawing.add(String(200,300,'Memory usage ', fontSize=12, fillColor=colors.black))
+    drawing.add(legend, 'legend')
     drawing.add(lab)
     drawing.add(bc)
-    drawing.add(String(200,5,'Time(sec) ', fontSize=12, fillColor=colors.black))
+    drawing.add(String(200,5,'Trail # ', fontSize=12, fillColor=colors.black))
     elements.append(drawing)   
     #######  
     drawing = shapes.Drawing(500, 310)
@@ -468,6 +507,18 @@ def main():
     #makeMarker for these points to be filledcircle 
     
     drawing.add(String(200,300,'Traveled path ', fontSize=12, fillColor=colors.black))
+    drawing.add(Circle(1,270,3,fillColor=colors.grey))
+    
+    drawing.add(String(8,270,'Final pose ',fontSize=12, fillColor=colors.black))
+
+    def generate_five_star(center_x, center_y, side_length):
+        angle_offset = -math.pi / 2  # Offset to align the star vertically
+        angle_between_points = math.pi / 5  # Angle between adjacent star points
+
+
+    star_vertices=[201.99,269.78,205.88,271.194,201.04,271.708,200,276,198.8,271.6,194.1,271.091,198.07,269.46,196.3,265.277,200,268,203.86,265.406,201.99,269.78]
+    drawing.add(Polygon(star_vertices, fillColor=colors.yellowgreen))
+    drawing.add(String(210,270,'Initial pose ',fontSize=12, fillColor=colors.black))
     drawing.add(lab)
     drawing.add(lp)
     drawing.add(String(200,5,'x-axis ',fontSize=12, fillColor=colors.black))

@@ -70,7 +70,6 @@ int main(int argc, char ** argv)
   marker.id = 0;
 
   // Set the marker type
-  // Initially this is CUBE, and cycles between that and SPHERE, ARROW, and CYLINDER
   marker.type = text;
 
   // Set the marker action
