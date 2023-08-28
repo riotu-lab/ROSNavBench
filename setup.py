@@ -2,7 +2,7 @@ from setuptools import setup
 import os
 from glob import glob
 
-package_name = 'benchmarking_tool'
+package_name = 'ROSNavBench'
 
 setup(
     name=package_name,

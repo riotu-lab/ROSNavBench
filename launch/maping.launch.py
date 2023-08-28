@@ -25,7 +25,7 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     
     #World 
-    world_path = os.path.join(FindPackageShare(package='benchmarking_tool').find('benchmarking_tool'), 'world', 'edited_office.world')
+    world_path = os.path.join(FindPackageShare(package='ROSNavBench').find('ROSNavBench'), 'world', 'edited_office.world')
     
     #Setting the gazebo model path
 
@@ -33,7 +33,7 @@ def generate_launch_description():
         get_package_share_directory('turtlebot3_gazebo'),
         'models')
     gazebo_models_path += ':'+os.path.join(
-        get_package_share_directory('benchmarking_tool'),
+        get_package_share_directory('ROSNavBench'),
         'model')
     if models_path!='':
        gazebo_models_path+=':'+models_path

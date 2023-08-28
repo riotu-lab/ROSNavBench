@@ -26,7 +26,7 @@ def generate_launch_description():
     params_file = os.environ['PARAMS_FILE']
     # Opening the config file to take the experiment data such as spawn pose
     specs= os.path.join(
-        get_package_share_directory('benchmarking_tool'),
+        get_package_share_directory('ROSNavBench'),
         'config',
         params_file+'.yaml'
        )
@@ -39,22 +39,7 @@ def generate_launch_description():
     yaw = robot_specs['spawn_pose_yaw']  
     trajectory_type = robot_specs['trajectory_type']
     trails_num = robot_specs['trails_num']
-    if trails_num>0:
-        controller_type=[controller_type[0]]*trails_num
-        # Node for generating pdf
-        pdf_generator=Node(
-            name='benchmarking_single_controller',
-            executable='benchmarking_single_controller',
-            package='benchmarking_tool',
-        ) 
-    else: 
-        # Node for generating pdf
-        pdf_generator=Node(
-            name='PDF_generator',
-            executable='pdf_generator',
-            package='benchmarking_tool',
-        )  
-     
+    controller_type=[controller_type[0]]*trails_num
     if trajectory_type=='circle':
         r= robot_specs['radius']
         x=x+r
@@ -62,22 +47,26 @@ def generate_launch_description():
     # Include launch file for spawning the robot
     spawn_robot = IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([
-         FindPackageShare("benchmarking_tool"), '/launch', '/spawn_robot.launch.py'])
+         FindPackageShare("ROSNavBench"), '/launch', '/spawn_robot.launch.py'])
         
             )
     # Include launch file for launching navigation
     nav2 = IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([
-                    FindPackageShare("benchmarking_tool"), '/launch', '/nav2.launch.py'])
+                    FindPackageShare("ROSNavBench"), '/launch', '/nav2.launch.py'])
  
             )      
- 
-   
+    # Node for generating pdf
+    pdf_generator=Node(
+        name='PDF_generator',
+        executable='pdf_generator',
+        package='ROSNavBench',
+    )
     ld = LaunchDescription()
     ld.add_action(spawn_robot)
     ld.add_action(nav2)
     ld.add_action(SetEnvironmentVariable(name='controller',value=controller_type[0]))
-    ld.add_action(SetEnvironmentVariable(name='round_num',value="1"))
+  
     # Generating  different nodes to publish the type of running controller 
     controller_node=[]
     for j in range(len(controller_type)):
@@ -92,7 +81,7 @@ def generate_launch_description():
        nodes.append(Node(
         name='follow_path_0',
         executable='follow_path',
-        package='benchmarking_tool',
+        package='ROSNavBench',
     )) 
     # Generating different nodes for reseting the pose of the robot to intial pose after each controller scenario   
     state_nodes=[]
@@ -117,7 +106,7 @@ def generate_launch_description():
     for i in range(len(controller_type)-1):
 
         ld.add_action(RegisterEventHandler(OnProcessExit(target_action= nodes[i], on_exit=[state_nodes[i]]))) 
-        ld.add_action(RegisterEventHandler(OnProcessExit(target_action=state_nodes[i], on_exit=[SetEnvironmentVariable(name='controller',value=controller_type[i+1]),SetEnvironmentVariable(name='round_num',value=str(i+2)),nodes[i+1],controller_node[i+1]])))  
+        ld.add_action(RegisterEventHandler(OnProcessExit(target_action=state_nodes[i], on_exit=[SetEnvironmentVariable(name='controller',value=controller_type[i+1]),nodes[i+1],controller_node[i+1]])))  
     
     # Once all events are done, the node of generating a pdf will start
     ld.add_action(RegisterEventHandler(OnProcessExit(target_action=nodes[len(controller_type)-1], on_exit=[pdf_generator] )))

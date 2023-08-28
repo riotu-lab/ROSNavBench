@@ -21,7 +21,7 @@ from reportlab.graphics.charts.legends import Legend, LineLegend, LineSwatch
 def main():
     params_file = os.environ['PARAMS_FILE']
     specs= os.path.join(
-        get_package_share_directory('benchmarking_tool'),
+        get_package_share_directory('ROSNavBench'),
         'config',
         params_file+'.yaml'
        )

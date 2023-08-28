@@ -19,7 +19,7 @@ def generate_launch_description():
 
     # Opening the config file to take the experiment data such as intial pose of spawned robot 
     specs= os.path.join(
-        get_package_share_directory('benchmarking_tool'),
+        get_package_share_directory('ROSNavBench'),
         'config',
         params_file+'.yaml'
        )
@@ -46,7 +46,7 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     
     # World path
-    world_path = os.path.join(FindPackageShare(package='benchmarking_tool').find('benchmarking_tool'), 'world', world_name)
+    world_path = os.path.join(FindPackageShare(package='ROSNavBench').find('ROSNavBench'), 'world', world_name)
     
     #Setting the gazebo model path
 
@@ -54,7 +54,7 @@ def generate_launch_description():
         get_package_share_directory('turtlebot3_gazebo'),
         'models')
     gazebo_models_path += ':'+os.path.join(
-        get_package_share_directory('benchmarking_tool'),
+        get_package_share_directory('ROSNavBench'),
         'model')    
 
     if models_path!='':

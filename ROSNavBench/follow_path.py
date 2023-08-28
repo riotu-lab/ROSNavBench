@@ -36,7 +36,7 @@ def main(args=None):
   
     # Opening the config file to take the experiment data such as spawn pose, and the goal pose or trjectory
     specs= os.path.join(
-        get_package_share_directory('benchmarking_tool'),
+        get_package_share_directory('ROSNavBench'),
         'config',
         params_file+'.yaml'
        )
@@ -254,7 +254,7 @@ def main(args=None):
     data.append(result1)
 
     # Creating a .csv file that contains all the raw data about the task
-    f=open(os.path.join(get_package_share_directory('benchmarking_tool'),
+    f=open(os.path.join(get_package_share_directory('ROSNavBench'),
         'raw_data',
         pdf_name+'_'+os.environ["controller"]+os.environ["round_num"]+'.csv'),'w')
     writer=csv.writer(f,quoting=csv.QUOTE_NONNUMERIC, delimiter=' ')

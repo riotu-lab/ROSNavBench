@@ -32,7 +32,7 @@ def generate_launch_description():
 
     # Opening the config file to take the experiment data such as the path of the navigation configuration
     specs=os.path.join(
-        get_package_share_directory('benchmarking_tool'),
+        get_package_share_directory('ROSNavBench'),
         'config',
         params_file+'.yaml'
        )
@@ -56,7 +56,7 @@ def generate_launch_description():
     map_dir = LaunchConfiguration(
         'map',
         default = os.path.join(
-            get_package_share_directory('benchmarking_tool'),
+            get_package_share_directory('ROSNavBench'),
             'map',
             'map.yaml'))
 
@@ -68,7 +68,7 @@ def generate_launch_description():
     nav2_launch_file_dir = os.path.join(get_package_share_directory('nav2_bringup'), 'launch')
 
     rviz_config_dir = os.path.join(
-        get_package_share_directory('benchmarking_tool'),
+        get_package_share_directory('ROSNavBench'),
         'config',
         'rviz_config.rviz')
 
@@ -77,7 +77,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'map',
             default_value=os.path.join(
-            get_package_share_directory('benchmarking_tool'),
+            get_package_share_directory('ROSNavBench'),
             'map',
             map_name),
             description = 'Full path to map file to load'),
