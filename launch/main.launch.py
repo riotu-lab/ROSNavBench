@@ -1,12 +1,3 @@
-### Script Creator: Fathima AlAhmed
-### Maintainer: Saqeef Tehnan Manna
-
-
-### This launch file is the one to be used which includes multiple other 
-### launch files like spawning of the robot, running navigation, sending goal,recording data, and generating report.
-
-# July 8th, 2023
-
 import os
 from sys import executable
 from ament_index_python.packages import get_package_share_directory
@@ -62,7 +53,7 @@ def generate_launch_description():
     # Include launch file for spawning the robot
     spawn_robot = IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([
-         FindPackageShare("ROSNavBench"), '/launch', '/spawn_robot.launch.py'])
+         FindPackageShare("husky_simulation"), '/launch', '/hasky_gazebo.launch.py'])
         
             )
     # Include launch file for launching navigation
@@ -103,7 +94,7 @@ def generate_launch_description():
                 ' service call ',
                 '/set_entity_state ',
                 'gazebo_msgs/SetEntityState ',
-                '"state: {name: turtlebot3, pose: {position:{x: '+str(x)+', y: '+str(y)+', z: 0.0}, orientation:{x: 0.0, y: 0.0, z: '+str(np.sin(yaw/2))+' , w: '+str(np.cos(yaw/2))+' }}, reference_frame: world}"'
+                '"state: {name: robot, pose: {position:{x: '+str(x)+', y: '+str(y)+', z: 0.0}, orientation:{x: 0.0, y: 0.0, z: '+str(np.sin(yaw/2))+' , w: '+str(np.cos(yaw/2))+' }}, reference_frame: world}"'
             ]],
             shell=True
     ) ) 

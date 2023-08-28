@@ -56,9 +56,9 @@ def generate_launch_description():
     map_dir = LaunchConfiguration(
         'map',
         default = os.path.join(
-            get_package_share_directory('ROSNavBench'),
-            'map',
-            'map.yaml'))
+            get_package_share_directory('husky_navigation'),
+            'maps',
+            'warehouse_slam_toolbox.yaml'))
 
     # Seting the path of the navigation configuration file
     param_dir = LaunchConfiguration(
@@ -77,8 +77,8 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'map',
             default_value=os.path.join(
-            get_package_share_directory('ROSNavBench'),
-            'map',
+            get_package_share_directory('husky_navigation'),
+            'maps',
             map_name),
             description = 'Full path to map file to load'),
 

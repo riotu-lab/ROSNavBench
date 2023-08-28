@@ -72,11 +72,11 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-        'follow_path = benchmarking_tool.follow_path:main',
-        'pdf_generator =  benchmarking_tool.pdf_generator:main',   
-        'state_publisher =  benchmarking_tool.state_publisher:main',    
-        'try =  benchmarking_tool.trail:main',    
-        'benchmarking_single_controller =  benchmarking_tool.benchmarking_single_controller:main',  
+        'follow_path = ROSNavBench.follow_path:main',
+        'pdf_generator =  ROSNavBench.pdf_generator:main',   
+        'state_publisher =  ROSNavBench.state_publisher:main',    
+        'try =  ROSNavBench.trail:main',    
+        'benchmarking_single_controller =  ROSNavBench.benchmarking_single_controller:main',  
         ],
     },
 )
