@@ -2,3 +2,5 @@
 turtlebot3/
 turtlebot3_simulations/
 *.pdf
+husky_simulations/
+husky_navigation/
