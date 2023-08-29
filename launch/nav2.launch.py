@@ -77,7 +77,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'map',
             default_value=os.path.join(
-            get_package_share_directory('husky_navigation'),
+            get_package_share_directory('ROSNavBench'),
             'maps',
             map_path),
             description = 'Full path to map file to load'),
