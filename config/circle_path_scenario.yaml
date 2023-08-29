@@ -1,14 +1,14 @@
 #  Name the experiment. This name will be the name of the report
-experiment_name: "Kcircular_path_scenario"
+experiment_name: "Khcircular_path_scenario"
 
 #Save directory of results
 results_directory: "/home/riot/src/ros2_ws/src/ROSNavBench/results"
 
 #  Add the absolute path of the world
-world_path: "/home/riot/src/ros2_ws/src/TFG_Husky_UAL/husky_navigation/worlds/industrial_warehouse.world"
+world_path: "/home/riot/src/ros2_ws/src/ROSNavBench/simulations/worlds/industrial_warehouse.world"
 
 #  Add the absolute path of the map
-map_path: "/home/riot/src/ros2_ws/src/TFG_Husky_UAL/husky_navigation/maps/warehouse_slam_toolbox.yaml"
+map_path: "/home/riot/src/ros2_ws/src/ROSNavBench/simulations/maps/warehouse_slam_toolbox.yaml"
 
 #  Add gazebo model path, if multiple path, please spereate them by a :
 models_path: ""
@@ -24,7 +24,7 @@ controller_type: ["RPP","DWB"] #name of behaviour tree
 
 #  This option is intended for testing the same controller several times
 #  if the user do not need this test, set it to zero 
-trails_num: 1
+trails_num: 0
 
 #  Add the absolute path of the robot navigation configuration
 nav_config: "/home/riot/src/ros2_ws/src/ROSNavBench/examples/nav2_config/waffle.yaml"

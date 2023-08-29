@@ -17,7 +17,9 @@ setup(
         (os.path.join('share/' + package_name, 'config/'), glob('./config/*')),
         (os.path.join('share/' + package_name, 'script/'), glob('./script/*')),  
         (os.path.join('share/' + package_name, 'results/'), glob('./results/*')),
-        (os.path.join('share/' + package_name, 'raw_data/'), glob('./raw_data/*')),      
+        (os.path.join('share/' + package_name, 'raw_data/'), glob('./raw_data/*')),     
+        (os.path.join('share/' + package_name, 'simulations/models/'), glob('./models/*')),      
+ 
     ],
     install_requires=['setuptools'],
     zip_safe=True,
