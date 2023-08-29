@@ -55,7 +55,7 @@ To initiate the benchmarking test, follow these steps:
     - In your terminal, export the file name of the configuration file using the appropriate command.
     - Run the `main` script to start the test execution.
 
-**Note**: The configuration file should be placed within the `benchmarking_tool/config` directory.
+**Note**: The configuration file should be placed within the `ROSNavBench/config` directory.
 
 By following these steps, you'll be able to execute the benchmarking test with the specified configuration settings.
 
@@ -70,13 +70,13 @@ To execute the benchmarking test and export the results, follow these steps:
 2. **Run the Launch Command**:
    - Launch the benchmarking test using the following ROS 2 launch command:
 
-     ```
-     ros2 launch benchmarking_tool main.launch.py
+     ```bash
+     ros2 launch ROSNavBench main.launch.py
      ```
 
 3. **Accessing Results**:
-   - Once the execution of the test goals is complete, the generated files will be automatically saved to the `results` folder within the `benchmarking_tool` directory.
-   - You can find the results in the `share` directory of the `benchmarking_tool` package.
+   - Once the execution of the test goals is complete, the generated files will be automatically saved to the `results` folder within the `ROSNavBench` directory.
+   - You can find the results in the `share` directory of the `ROSNavBench` package.
 
 By following these steps, you'll be able to execute the test, gather results, and access them for analysis and reporting.
 
@@ -85,7 +85,7 @@ By following these steps, you'll be able to execute the test, gather results, an
 To quickly launch a pre-configured example, follow these steps:
 
 1. **Configure Example Settings**:
-   - Open the configuration file located at `benchmarking_tool/config`.
+   - Open the configuration file located at `ROSNavBench/config`.
    - Edit the absolute paths and other parameters to match your machine's setup.
    - Customize the parameters according to the example you want to run.
 
@@ -96,27 +96,27 @@ To quickly launch a pre-configured example, follow these steps:
    - Set the `PARAMS_FILE` variable to the desired example configuration, e.g.: `PARAMS_FILE=static_obstacles`
    - Launch the benchmarking test using the ROS 2 launch command:
 
-     ```
-     ros2 launch benchmarking_tool main.launch.py
+     ```bash
+     ros2 launch ROSNavBench main.launch.py
      ```
 
 4. **Accessing Results**:
-   - Once the test execution is completed, you can find the results in the `results` folder within the `benchmarking_tool` directory.
+   - Once the test execution is completed, you can find the results in the `results` folder within the `ROSNavBench` directory.
    - The results will be stored in the `share` directory or in the specified directory based on your configuration.
 
 By following these steps, you'll be able to effortlessly launch and execute the provided example, view the results, and adapt the tool to your specific machine configuration.
 
 ### Conﬁguration ﬁle sample
 
-![circle_path_scenario](https://github.com/riotu-lab/ROSNavBench/blob/pr_husky/images/Screenshot%20from%202023-08-23%2019-57-14.png)
+![circle_path_scenario](https://github.com/riotu-lab/ROSNavBench/blob/pr_dev/images/Screenshot%20from%202023-08-29%2017-25-46.png)
 
 
 | Property                | Description                                                                                         |
 |-------------------------|-----------------------------------------------------------------------------------------------------|
 | experiment_name        | The name that will appear as the title and the name in the PDF report                             |
-| world_name             | The world file should be located at `benchmarking_tool/world`                                      |
-| map_name               | The map should be located at `benchmarking_tool/map`                                              |
-| models_path             | If the models are not in the model file of the `benchmarking_tool`, add the full path in this property |
+| world_name             | The world file should be located at `ROSNavBench/world`                                      |
+| map_name               | The map should be located at `ROSNavBench/map`                                              |
+| models_path             | If the models are not in the model file of the `ROSNavBench`, add the full path in this property |
 | controller_type        | A list of the names of the required controllers. Names should match those in the navigation configuration file. Available controllers are: DWB, DWB_RSC, RPP, RPP_RSC |
 | nav_config             | The name of the configuration file for navigation. It should be placed at `turtlebot3/turtlebot3_navigation2/param` |
 | behaviour_tree_directory | The directory of the behavior trees                                                              |
@@ -133,7 +133,7 @@ By following these steps, you'll be able to effortlessly launch and execute the 
 | side_length           | Side length of the square. Fill if the trajectory type is `square`.                                 |
 | waypoints             | A list where each element is `[x, y, yaw]`. The numbers should be floats. Fill if trajectory type is `waypoints`. |
 | trial_num            | `0` for not benchmarking a single controller.                                                        |
-| results_directory    | The absolute path of the directory to save the PDF report. Use `''` to save results to `benchmarking_tool/results 
+| results_directory    | The absolute path of the directory to save the PDF report. Use `''` to save results to `ROSNavBench/results 
 
 Mandatory to fill. Others properties are dependent on the case.
 
@@ -144,6 +144,7 @@ Mandatory to fill. Others properties are dependent on the case.
 The user can test the control on a circular path.
 
 **Requirements:**
+
 - Specify the initial pose (which will be the center of the circle).
 - Specify the radius of the circle.
 
@@ -152,6 +153,7 @@ The user can test the control on a circular path.
 The user can test the control on a square path.
 
 **Requirements:**
+
 - Specify the initial pose (which will be one of the corners of the square).
 - Specify the side length of the square.
 
@@ -160,6 +162,7 @@ The user can test the control on a square path.
 The user can navigate the robot to a single goal pose.
 
 **Requirements:**
+
 - Specify the initial pose.
 - Specify the goal pose.
 
@@ -168,6 +171,7 @@ The user can navigate the robot to a single goal pose.
 The user can guide the robot through multiple poses forming a certain path or visiting specific points.
 
 **Requirements:**
+
 - Specify the initial pose.
 - Specify the other poses in sequence.
 
@@ -181,10 +185,10 @@ To add a new world for benchmarking, follow these steps:
    - Add the necessary plugin to the world file. This plugin provides essential functionality and interaction within the new world.
 
 2. **Place the World:**
-   - Save the world file in the `benchmarking_tool/world` directory. This is the designated location for world files used in the benchmarking process.
+   - Save the world file in the `ROSNavBench/world` directory. This is the designated location for world files used in the benchmarking process.
 
 3. **Update Configuration:**
-   - In the `benchmarking_tool/config` directory, update the configuration file.
+   - In the `ROSNavBench/config` directory, update the configuration file.
    - Add the name of the new world to the configuration. This ensures that the benchmarking tool recognizes the new world.
 
 4. **Adjust Physics Tag for Turtlebot3:**
@@ -212,7 +216,7 @@ To add a new controller for benchmarking, follow these steps:
    - Create a new behavior tree where you specify the controller using the same name as the configuration file. This behavior tree defines the control logic for the new controller.
 
 2. **Update the Main Configuration File:**
-   - In the main configuration file located in `benchmarking_tool/config`, add the name of the new controller to the `controller_type` property. This ensures that the benchmarking tool recognizes and operates using the new controller.
+   - In the main configuration file located in `ROSNavBench/config`, add the name of the new controller to the `controller_type` property. This ensures that the benchmarking tool recognizes and operates using the new controller.
 
 By following these steps, you can seamlessly introduce a new controller into the benchmarking process. Ensure that the behavior tree and configuration files are consistent with the intended control logic.
 
@@ -282,7 +286,7 @@ When changing the robot used in the benchmarking process, follow these steps:
    - If the robot is spawned only through a URDF file, mark the model as "None".
 
 2. **Additional Nodes:**
-   - If you require additional nodes to support the new robot's functionality, add these nodes to the `benchmarking_tool/launch/spawn_robot.launch.py` file.
+   - If you require additional nodes to support the new robot's functionality, add these nodes to the `ROSNavBench/launch/spawn_robot.launch.py` file.
    - Ensure that the nodes are integrated correctly into the launch process to facilitate proper robot operation.
 
 By following these steps, you can effectively change the robot used in the benchmarking process and ensure that the necessary URDF, model files, and additional nodes are properly configured for the new robot.
