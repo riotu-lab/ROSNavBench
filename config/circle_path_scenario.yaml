@@ -1,5 +1,5 @@
 #  Name the experiment. This name will be the name of the report
-experiment_name: "KHcircular_path_scenario"
+experiment_name: "circular_path_scenario"
 
 #Save directory of results
 results_directory: "/home/riot/src/ros2_ws/src/ROSNavBench/results"
