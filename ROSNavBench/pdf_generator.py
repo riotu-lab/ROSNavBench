@@ -97,7 +97,7 @@ def main():
     params_file = os.environ['PARAMS_FILE']
     # Open config file and extact data
     specs= os.path.join(
-        get_package_share_directory('benchmarking_tool'),
+        get_package_share_directory('ROSNavBench'),
         'config',
         params_file+'.yaml'
        )
@@ -146,14 +146,14 @@ def main():
         time.append([])
     # open each csv file for the different used controllers, and add all data to data array
     for i in range(len(controller_type)):
-        f=open(os.path.join(get_package_share_directory('benchmarking_tool'),
+        f=open(os.path.join(get_package_share_directory('ROSNavBench'),
         'raw_data',
         pdf_name+'_'+controller_type[i]+str(i+1)+'.csv'),'r')
         writer=csv.reader(f,quoting=csv.QUOTE_NONNUMERIC,delimiter=' ')
         for lines in  writer:
             data[i].append(lines[:])
         #  Opening the csv of the error msgs 
-        # f=open(os.path.join(get_package_share_directory('benchmarking_tool'),
+        # f=open(os.path.join(get_package_share_directory('ROSNavBench'),
         # 'raw_data',
         # pdf_name+'_'+controller_type[i]+"_error_msgs_"+str(i+1)+'.csv'),'r')
         # writer=csv.reader(f,quoting=csv.QUOTE_NONNUMERIC,delimiter=' ')
@@ -194,7 +194,7 @@ def main():
        doc=SimpleDocTemplate(os.path.join(results_directory,
         pdf_name+".pdf"),pagesize=A4)
     else:
-       doc=SimpleDocTemplate(os.path.join(get_package_share_directory('benchmarking_tool'),
+       doc=SimpleDocTemplate(os.path.join(get_package_share_directory('ROSNavBench'),
         'results',
         pdf_name+".pdf"),pagesize=A4)        
     ####REPLACE THIS 
