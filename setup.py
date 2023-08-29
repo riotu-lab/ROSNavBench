@@ -15,8 +15,6 @@ setup(
         (os.path.join('share/' + package_name, 'launch/'), glob('launch/*launch.[pxy][yma]*')),
         (os.path.join('share', package_name), glob('rviz/*.rviz')),       
         (os.path.join('share/' + package_name, 'config/'), glob('./config/*')),
-        (os.path.join('share/' + package_name, 'world/'), glob('./world/*')),
-        (os.path.join('share/' + package_name, 'map/'), glob('./map/*')),
         (os.path.join('share/' + package_name, 'script/'), glob('./script/*')),  
         (os.path.join('share/' + package_name, 'results/'), glob('./results/*')),
         (os.path.join('share/' + package_name, 'raw_data/'), glob('./raw_data/*')),      
@@ -32,8 +30,7 @@ setup(
         'console_scripts': [
         'follow_path = ROSNavBench.follow_path:main',
         'pdf_generator = ROSNavBench.pdf_generator:main',   
-        'state_publisher =  ROSNavBench.state_publisher:main',    
-        'try =  ROSNavBench.trail:main',    
+        'state_publisher =  ROSNavBench.state_publisher:main',   
         'benchmarking_single_controller =  ROSNavBench.benchmarking_single_controller:main',  
         ],
     },

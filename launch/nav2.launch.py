@@ -39,7 +39,7 @@ def generate_launch_description():
     with open(specs, 'r') as file:
         robot_specs = yaml.safe_load(file)
 
-    map_name=robot_specs['map_name']
+    map_path=robot_specs['map_path']
     nav_config=robot_specs['nav_config']
     x=robot_specs['spawn_pose_x']
     y=robot_specs['spawn_pose_y']
@@ -79,7 +79,7 @@ def generate_launch_description():
             default_value=os.path.join(
             get_package_share_directory('husky_navigation'),
             'maps',
-            map_name),
+            map_path),
             description = 'Full path to map file to load'),
 
         DeclareLaunchArgument(

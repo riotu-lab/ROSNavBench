@@ -1,14 +1,14 @@
 #  Name the experiment. This name will be the name of the report
-experiment_name: "circular_path_scenario"
+experiment_name: "Kcircular_path_scenario"
 
 #Save directory of results
 results_directory: "/home/riot/src/ros2_ws/src/ROSNavBench/results"
 
 #  Add the absolute path of the world
-world_name: "/home/riot/src/ros2_ws/src/TFG_Husky_UAL/husky_navigation/worlds/industrial_warehouse.world"
+world_path: "/home/riot/src/ros2_ws/src/TFG_Husky_UAL/husky_navigation/worlds/industrial_warehouse.world"
 
 #  Add the absolute path of the map
-map_name: "/home/riot/src/ros2_ws/src/TFG_Husky_UAL/husky_navigation/maps/warehouse_slam_toolbox.yaml"
+map_path: "/home/riot/src/ros2_ws/src/TFG_Husky_UAL/husky_navigation/maps/warehouse_slam_toolbox.yaml"
 
 #  Add gazebo model path, if multiple path, please spereate them by a :
 models_path: ""

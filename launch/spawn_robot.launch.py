@@ -29,7 +29,7 @@ def generate_launch_description():
     x = robot_specs['spawn_pose_x']     
     y = robot_specs['spawn_pose_y']
     yaw = robot_specs['spawn_pose_yaw']
-    world_name = robot_specs['world_name']  
+    world_path = robot_specs['world_path']  
     models_path=  robot_specs['models_path'] 
     urdf=robot_specs['urdf_file']
     model_path=robot_specs['model_file']
@@ -46,19 +46,17 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     
     # World path
-    world_path = os.path.join(FindPackageShare(package='ROSNavBench').find('ROSNavBench'), 'world', world_name)
+    #world_path = os.path.join(FindPackageShare(package='ROSNavBench').find('ROSNavBench'), 'world', world_name)
     
     #Setting the gazebo model path
 
-    gazebo_models_path = os.path.join(
-        get_package_share_directory('turtlebot3_gazebo'),
-        'models')
-    gazebo_models_path += ':'+os.path.join(
-        get_package_share_directory('ROSNavBench'),
-        'model')    
-
+    # gazebo_models_path = os.path.join(
+    #     get_package_share_directory('turtlebot3_gazebo'),
+    #     'models')
+  
+    gazebo_models_path=""
     if models_path!='':
-       gazebo_models_path+=':'+models_path
+       gazebo_models_path=models_path
     if 'GAZEBO_MODEL_PATH' in os.environ:
         os.environ['GAZEBO_MODEL_PATH'] =  os.environ['GAZEBO_MODEL_PATH'] + ':' + gazebo_models_path
     else:
@@ -106,7 +104,7 @@ def generate_launch_description():
             package = 'gazebo_ros',
             executable = 'spawn_entity.py',
             output = 'screen',
-            arguments = ['-entity','turtlebot3',
+            arguments = ['-entity','robot',
                    '-topic','robot_description',
                    '-x', str(x), '-y', str(y), '-z', '0.01','-Y',str(yaw)]   
         )
@@ -115,7 +113,7 @@ def generate_launch_description():
             package = 'gazebo_ros',
             executable = 'spawn_entity.py',
             output = 'screen',
-            arguments = ['-entity','turtlebot3',
+            arguments = ['-entity','robot',
                    '-file',model_path,
                    '-x', str(x), '-y', str(y), '-z', '0.01','-Y',str(yaw)]   
         )        
@@ -129,5 +127,4 @@ def generate_launch_description():
     ld.add_action(spawn_node) 
   
     return ld
-
 
