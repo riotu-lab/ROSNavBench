@@ -1,10 +1,10 @@
-# Benchmarking Tool
+# ROSNavBench
 
-The **Benchmarking Tool** empowers users to perform testing and comparisons between various local planners. It also facilitates benchmarking of an individual local planner.
+The **ROSNavBench** empowers users to perform testing and comparisons between various local planners. It also facilitates benchmarking of an individual local planner.
 
 ## Introduction
 
-The **Benchmarking Tool** provides a comprehensive platform for evaluating the performance of different local planners. It allows users to compare the efficiency and effectiveness of various options. Additionally, the tool facilitates benchmarking exercises for a single local planner, helping users gain insights into its performance metrics.
+The **ROSNavBench** provides a comprehensive platform for evaluating the performance of different local planners. It allows users to compare the efficiency and effectiveness of various options. Additionally, the tool facilitates benchmarking exercises for a single local planner, helping users gain insights into its performance metrics.
 
 ## Key Features
 
@@ -14,11 +14,11 @@ The **Benchmarking Tool** provides a comprehensive platform for evaluating the p
 
 ## Prerequisites
 
-Before using the ROS2 Benchmarking Tool, make sure you have the following prerequisites in place:
+Before using the ROS2 ROSNavBench, make sure you have the following prerequisites in place:
 
-- **ROS2 Installation**: Ensure you have ROS2 `Humble` installed on your system. This forms the foundation for running the Benchmarking Tool.
+- **ROS2 Installation**: Ensure you have ROS2 `Humble` installed on your system. This forms the foundation for running the ROSNavBench.
 
-- **Python Libraries**: Install the following Python libraries to enable the functionality of the Benchmarking Tool:
+- **Python Libraries**: Install the following Python libraries to enable the functionality of the ROSNavBench:
 
   - **Csv**: Used for handling CSV file formats.
   - **Reportlab**: Required for generating PDF reports.
@@ -41,7 +41,7 @@ Before using the ROS2 Benchmarking Tool, make sure you have the following prereq
 
   - **Nav2 Simple Commander**: Essential for navigation tasks and commands.
 
-Please ensure that these prerequisites are satisfied before proceeding with the Benchmarking Tool setup and usage.
+Please ensure that these prerequisites are satisfied before proceeding with the ROSNavBench setup and usage.
 
 ## Launching the Test
 
@@ -90,7 +90,7 @@ To quickly launch a pre-configured example, follow these steps:
    - Customize the parameters according to the example you want to run.
 
 2. **Source the Workspace**:
-   - In your terminal, source the workspace where the benchmarking tool is located.
+   - In your terminal, source the workspace where the ROSNavBench is located.
 
 3. **Set the Parameters File and Launch**:
    - Set the `PARAMS_FILE` variable to the desired example configuration, e.g.: `PARAMS_FILE=static_obstacles`
@@ -189,7 +189,7 @@ To add a new world for benchmarking, follow these steps:
 
 3. **Update Configuration:**
    - In the `ROSNavBench/config` directory, update the configuration file.
-   - Add the name of the new world to the configuration. This ensures that the benchmarking tool recognizes the new world.
+   - Add the name of the new world to the configuration. This ensures that the ROSNavBench recognizes the new world.
 
 4. **Adjust Physics Tag for Turtlebot3:**
    - If the new world is intended for use with the Turtlebot3 robot, make an additional adjustment.
@@ -206,7 +206,7 @@ To add a new world for benchmarking, follow these steps:
     </plugin>
     ```
 
-    These steps enable the integration of a new world into the benchmarking process, ensuring proper functionality and compatibility with the benchmarking tool.
+    These steps enable the integration of a new world into the benchmarking process, ensuring proper functionality and compatibility with the ROSNavBench.
 
 ## Adding a New Controller
 
@@ -216,7 +216,7 @@ To add a new controller for benchmarking, follow these steps:
    - Create a new behavior tree where you specify the controller using the same name as the configuration file. This behavior tree defines the control logic for the new controller.
 
 2. **Update the Main Configuration File:**
-   - In the main configuration file located in `ROSNavBench/config`, add the name of the new controller to the `controller_type` property. This ensures that the benchmarking tool recognizes and operates using the new controller.
+   - In the main configuration file located in `ROSNavBench/config`, add the name of the new controller to the `controller_type` property. This ensures that the ROSNavBench recognizes and operates using the new controller.
 
 By following these steps, you can seamlessly introduce a new controller into the benchmarking process. Ensure that the behavior tree and configuration files are consistent with the intended control logic.
 
