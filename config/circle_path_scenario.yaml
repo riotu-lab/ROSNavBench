@@ -24,7 +24,7 @@ controller_type: ["RPP","DWB"] #name of behaviour tree
 
 #  This option is intended for testing the same controller several times
 #  if the user do not need this test, set it to zero 
-trails_num: 0
+trails_num: 1
 
 #  Add the absolute path of the robot navigation configuration
 nav_config: "/home/riot/src/ros2_ws/src/ROSNavBench/examples/nav2_config/waffle.yaml"
