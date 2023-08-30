@@ -53,12 +53,22 @@ def generate_launch_description():
             
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     # Seting the path of the map
+<<<<<<< HEAD:launch/nav2.launch.py
     map_dir = LaunchConfiguration(
         'map',
         default = os.path.join(
             get_package_share_directory('ROSNavBench'),
             'maps',
             'warehouse_slam_toolbox.yaml'))
+=======
+  
+    #LaunchConfiguration(
+    #    'map',
+    #    default = os.path.join(
+    #        get_package_share_directory('benchmarking_tool'),
+    #        'map',
+    #        'map.yaml'))
+>>>>>>> main:benchmarking_tool/launch/nav2.launch.py
 
     # Seting the path of the navigation configuration file
     param_dir = LaunchConfiguration(
@@ -72,14 +82,18 @@ def generate_launch_description():
         'config',
         'rviz_config.rviz')
 
-    return LaunchDescription([
-        # launch arguments 
+    return LaunchDescription([ 
         DeclareLaunchArgument(
             'map',
+<<<<<<< HEAD:launch/nav2.launch.py
             default_value=os.path.join(
             get_package_share_directory('ROSNavBench'),
             'maps',
             map_path),
+=======
+    
+            default_value = map_path,
+>>>>>>> main:benchmarking_tool/launch/nav2.launch.py
             description = 'Full path to map file to load'),
 
         DeclareLaunchArgument(
@@ -102,7 +116,7 @@ def generate_launch_description():
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([nav2_launch_file_dir, '/bringup_launch.py']),
             launch_arguments = {
-                'map': map_dir,
+                'map': map_path,
                 'use_sim_time': use_sim_time,
                 'params_file': param_dir}.items(),
         ),

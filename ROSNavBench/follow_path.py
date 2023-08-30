@@ -259,19 +259,6 @@ def main(args=None):
                 print('Estimated time of arrival: ' + '{0:.0f}'.format(
                     Duration.from_msg(feedback.estimated_time_remaining).nanoseconds / 1e9)
                     + ' seconds.')
-        # subscriber=LogSubscriber()
-        # rclpy.spin_once(subscriber)
-        
-        # error_msg=[]
-
-        # error_msg.append(round(Time.from_msg(subscriber.log_time).nanoseconds / 1e9, 2))
-        # error_msg.append(subscriber.log_msg_name)
-        # error_msg.append(subscriber.log_level)
-        # error_msg.append(subscriber.log_msgs) 
-        
-        # error_msgs.append(error_msg)   
-        #error_msgs.append(round(Duration.from_msg(subscriber.log_time).nanoseconds / 1e9, 2))       
-
             row=[]
             row.append(psutil.cpu_percent())
             row.append(psutil.virtual_memory().percent)
@@ -283,6 +270,7 @@ def main(args=None):
             data.append(row)
         else:
             print("Warning: No feedback received.")
+
 
         time.sleep(0.2)
 
@@ -306,12 +294,7 @@ def main(args=None):
     writer=csv.writer(f,quoting=csv.QUOTE_NONNUMERIC, delimiter=' ')
     writer.writerows(data)
 
-    # Creating a .csv file that contains all the log msgs
-    # f=open(os.path.join(get_package_share_directory('ROSNavBench'),
-    #     'raw_data',
-    #     pdf_name+'_'+os.environ["controller"]+"_error_msgs_"+os.environ["round_num"]+'.csv'),'w')
-    # writer=csv.writer(f,quoting=csv.QUOTE_NONNUMERIC, delimiter=' ')
-    # writer.writerows(error_msgs)
+
 
     navigator.destroyNode()
     

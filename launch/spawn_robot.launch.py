@@ -46,15 +46,26 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     
     # World path
+<<<<<<< HEAD:launch/spawn_robot.launch.py
     #world_path = os.path.join(FindPackageShare(package='ROSNavBench').find('ROSNavBench'), 'world', world_name)
+=======
+    #world_path = os.path.join(FindPackageShare(package='benchmarking_tool').find('benchmarking_tool'), 'world', world_name)
+>>>>>>> main:benchmarking_tool/launch/spawn_robot.launch.py
     
     #Setting the gazebo model path
 
     # gazebo_models_path = os.path.join(
     #     get_package_share_directory('turtlebot3_gazebo'),
     #     'models')
+<<<<<<< HEAD:launch/spawn_robot.launch.py
   
     gazebo_models_path=""
+=======
+    gazebo_models_path = os.path.join(
+        get_package_share_directory('benchmarking_tool_examples'),
+        'model')    
+
+>>>>>>> main:benchmarking_tool/launch/spawn_robot.launch.py
     if models_path!='':
        gazebo_models_path=models_path
     if 'GAZEBO_MODEL_PATH' in os.environ:
