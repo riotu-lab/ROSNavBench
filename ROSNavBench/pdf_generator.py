@@ -390,7 +390,7 @@ def main():
     drawing.add(lab)
     drawing.add(lp)
     drawing.add(String(200,5,'x-axis ',fontSize=12, fillColor=colors.black))  
-
+    elements.append(drawing) 
     # A table that shows the error msgs if a failure happens 
     for i in range(len(controller_type)):
 
