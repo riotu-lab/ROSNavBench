@@ -92,11 +92,7 @@ def generate_launch_description():
                 ' service call ',
                 '/set_entity_state ',
                 'gazebo_msgs/SetEntityState ',
-<<<<<<< HEAD:launch/repeatability_test.launch.py
                 '"state: {name: husky, pose: {position:{x: '+str(x)+', y: '+str(y)+', z: 0.0}, orientation:{x: 0.0, y: 0.0, z: '+str(np.sin(yaw/2))+' , w: '+str(np.cos(yaw/2))+' }}, reference_frame: world}"'
-=======
-                '"state: {name: robot, pose: {position:{x: '+str(x)+', y: '+str(y)+', z: 0.0}, orientation:{x: 0.0, y: 0.0, z: '+str(np.sin(yaw/2))+' , w: '+str(np.cos(yaw/2))+' }}, reference_frame: world}"'
->>>>>>> main:benchmarking_tool/launch/repeatability_test.launch.py
             ]],
             shell=True
     ) ) 

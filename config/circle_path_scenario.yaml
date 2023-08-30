@@ -2,13 +2,13 @@
 experiment_name: "Khcircular_path_scenario"
 
 #Save directory of results
-results_directory: "/home/riot/src/ros2_ws/src/ROSNavBench/results"
+results_directory: "/home/riot/kk_ws/src/ROSNavBench/results"
 
 #  Add the absolute path of the world
-world_path: "/home/riot/src/ros2_ws/src/ROSNavBench/simulations/worlds/industrial_warehouse.world"
+world_path: "/home/riot/kk_ws/src/ROSNavBench/simulations/worlds/industrial_warehouse.world"
 
 #  Add the absolute path of the map
-map_path: "/home/riot/src/ros2_ws/src/ROSNavBench/simulations/maps/warehouse_slam_toolbox.yaml"
+map_path: "/home/riot/kk_ws/src/ROSNavBench/simulations/maps/warehouse_slam_toolbox.yaml"
 
 #  Add gazebo model path, if multiple path, please spereate them by a :
 models_path: ""
@@ -24,18 +24,18 @@ controller_type: ["RPP","DWB"] #name of behaviour tree
 
 #  This option is intended for testing the same controller several times
 #  if the user do not need this test, set it to zero 
-trails_num: 0
+trails_num: 1
 
 #  Add the absolute path of the robot navigation configuration
-nav_config: "/home/riot/src/ros2_ws/src/ROSNavBench/examples/nav2_config/waffle.yaml"
+nav_config: "/home/riot/kk_ws/src/ROSNavBench/examples/nav2_config/waffle.yaml"
 #"/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/turtlebot3/turtlebot3_navigation2/param/waffle.yaml"
 
 #  Add the directory of the behaviour tree
-behaviour_tree_directory: "/home/riot/src/ros2_ws/src/ROSNavBench/examples/behavior_trees"
+behaviour_tree_directory: "/home/riot/kk_ws/src/ROSNavBench/examples/behavior_trees"
 #"/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/turtlebot3/turtlebot3_navigation2/param"
 
 #  Add the absolute path of the urdf and model files inside single qoutes ''
-urdf_file: "/home/riot/src/ros2_ws/src/TFG_Husky_UAL/husky_simulation/urdf/husky_ual.urdf.xacro"
+urdf_file: "/home/riot/kk_ws/src/husky_simulation/husky_simulation/urdf/husky_ual.urdf.xacro"
 #"/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/turtlebot3/turtlebot3_description/urdf/turtlebot3_waffle.urdf"
 
 #  If the robot is spawned by only urdf, then set the model_file to 'None'
