@@ -244,7 +244,7 @@ def main(args=None):
     #These varibales are used for formating the csv file that conatins the raw data 
     empty_matrix=["", "", "", "", "", "", ""]
     data=[["CPU usage %", "Memory usage\n%", "x-pose", "y-pose", 'number of\nrecoveries', 'distance\nremaining','navigation\ntime'],empty_matrix]
-
+    subscriber=LogSubscriber()
     # A time gap is used to make sudurationre the the goal is sent 
     time.sleep(0.1)
     error_msgs=[]
@@ -259,19 +259,19 @@ def main(args=None):
                 print('Estimated time of arrival: ' + '{0:.0f}'.format(
                     Duration.from_msg(feedback.estimated_time_remaining).nanoseconds / 1e9)
                     + ' seconds.')
-        # subscriber=LogSubscriber()
-        # rclpy.spin_once(subscriber)
+            
+            rclpy.spin_once(subscriber)
         
-        # error_msg=[]
-
-        # error_msg.append(round(Time.from_msg(subscriber.log_time).nanoseconds / 1e9, 2))
-        # error_msg.append(subscriber.log_msg_name)
-        # error_msg.append(subscriber.log_level)
-        # error_msg.append(subscriber.log_msgs) 
-        
-        # error_msgs.append(error_msg)   
-        #error_msgs.append(round(Duration.from_msg(subscriber.log_time).nanoseconds / 1e9, 2))       
-
+            error_msg=[]
+           
+            if subscriber.log_msg_name=="controller_server" or subscriber.log_msg_name=="behavior_server" or subscriber.log_msg_name=="smoother_server" or subscriber.log_msg_name=="planner_server" or subscriber.log_msg_name=="bt_navigator" or subscriber.log_msg_name=="waypoint_follower" or subscriber.log_msg_name=="velocity_smoother" or subscriber.log_msg_name=="lifecycle_manager_navigation" or subscriber.log_msg_name=="map_server" or subscriber.log_msg_name=="amcl" or subscriber.log_msg_name=="lifecycle_manager_localization":
+            #error_msg.append(round(Time.from_msg(subscriber.log_time).nanoseconds / 1e9, 2))
+                if subscriber.log_level=="ERROR" or subscriber.log_level=="FATAL":
+                    error_msg.append(subscriber.log_msg_name)
+                    error_msg.append(subscriber.log_level)
+                    error_msg.append(subscriber.log_msgs) 
+                    error_msgs.append(error_msg)   
+            #error_msgs.append(round(Duration.from_msg(subscriber.log_time).nanoseconds / 1e9, 2))        
             row=[]
             row.append(psutil.cpu_percent())
             row.append(psutil.virtual_memory().percent)
@@ -284,11 +284,10 @@ def main(args=None):
         else:
             print("Warning: No feedback received.")
 
-        time.sleep(0.2)
-
-    # Getting the result of task     
-    result = navigator.getResult()    
+        time.sleep(0.1)
     
+    # Getting the result of task     
+    result = navigator.getResult()   
     if result == TaskResult.SUCCEEDED:
         result1='succeeded'
     elif result == TaskResult.CANCELED:
@@ -307,11 +306,11 @@ def main(args=None):
     writer.writerows(data)
 
     # Creating a .csv file that contains all the log msgs
-    # f=open(os.path.join(get_package_share_directory('ROSNavBench'),
-    #     'raw_data',
-    #     pdf_name+'_'+os.environ["controller"]+"_error_msgs_"+os.environ["round_num"]+'.csv'),'w')
-    # writer=csv.writer(f,quoting=csv.QUOTE_NONNUMERIC, delimiter=' ')
-    # writer.writerows(error_msgs)
+    f=open(os.path.join(get_package_share_directory('ROSNavBench'),
+        'raw_data',
+        pdf_name+'_'+os.environ["controller"]+"_error_msgs_"+os.environ["round_num"]+'.csv'),'w')
+    writer=csv.writer(f,quoting=csv.QUOTE_NONNUMERIC, delimiter=' ')
+    writer.writerows(error_msgs)
 
     navigator.destroyNode()
     

@@ -82,9 +82,9 @@ def generate_launch_description():
     controller_node=[]
     for j in range(len(controller_type)):
        controller_node.append(Node(
-        name='rviz_plugin',
-        executable='rviz_plugin',
-        package='rviz_text_plugin',
+        name='marker_publisher',
+        executable='marker_publisher',
+        package='ROSNavBench',
     ))           
     # Generating different nodes for sending the goal and recording the data
     nodes=[]

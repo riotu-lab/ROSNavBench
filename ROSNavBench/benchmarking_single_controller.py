@@ -130,10 +130,12 @@ def main():
     global_x_points=[]
     global_y_points=[]
     global_time=[]
+    log_msgs=[]    
     # nested arrays equal to number of controllers 
     # E.g., x_points=[[x points for the 1st controller],[x points for the 2nd controller],...]
     for i in range(len(controller_type)):
         data.append([])
+        log_msgs.append([])        
         CPU.append([])
         Memory.append([])   
         CPU_data.append([])
@@ -150,6 +152,14 @@ def main():
         writer=csv.reader(f,quoting=csv.QUOTE_NONNUMERIC,delimiter=' ')
         for lines in  writer:
             data[i].append(lines[:])
+        #  Opening the csv of the error msgs 
+        f=open(os.path.join(get_package_share_directory('ROSNavBench'),
+        'raw_data',
+        pdf_name+'_'+controller_type[i]+"_error_msgs_"+str(i+1)+'.csv'),'r')
+        writer=csv.reader(f,quoting=csv.QUOTE_NONNUMERIC,delimiter=' ')
+        for lines in  writer:
+            log_msgs[i].append(lines[:])     
+
 
     # Extarct data from data array and arrange them into different arrays
     for k in range(len(controller_type)):
@@ -187,19 +197,10 @@ def main():
        doc=SimpleDocTemplate(os.path.join(get_package_share_directory('ROSNavBench'),
         'results',
         pdf_name+".pdf"),pagesize=A4)        
-    ####REPLACE THIS 
     d=shapes.Drawing(5,40)
     d.add(String(1,20,pdf_name,fontSize=20)) 
     elements.append(d) 
-    # # This loop prints a summary for each controller in the experiment
-    # for k in range(len(controller_type)): 
-    #     d=shapes.Drawing(500,60)
-    #     d.add(String(5,50,controller_type[k]+" controller",fontSize=11))
-    #     d.add(String(5,35,'The '+result(k)+' '+'Execution time is '+str(data[k][len(data[k])-2][6])+' sec. '+"Average CPU usage is " +str('{0:.2f}'.format(sum(CPU[k])/len(CPU[k])))+"%. ",fontSize=12))
-    #     d.add(String(5,20,"Max CPU usage is " +str(max(CPU[k]))+"%. "+"Average memory usage is " +str('{0:.2f}'.format(sum(Memory[k])/len(Memory[k])))+"%. "+" Max memory usage is " +str(max(Memory[k]))+"%. ",fontSize=12))   
-    #     d.add(String(5,5,"Number of revoveries is "+str(data[k][len(data[k])-2][4])+". The length of the path taked is "+str(round(path_length(k),2))+' m.',fontSize=12))      
-    #     elements.append(d)
-    # A table summarize the results 
+
     d=shapes.Drawing(250,40)
     d.add(String(1,20,"Comparsion of controllers",fontSize=15)) 
     elements.append(d)  
@@ -331,38 +332,8 @@ def main():
     drawing.add(bc)
     drawing.add(String(200,5,'Trail # ', fontSize=12, fillColor=colors.black))
     elements.append(drawing)    
-    #####
-    drawing = shapes.Drawing(500, 310)
-    lab=Label()
-    lab.setOrigin(0,130)
-    lab.angle=90
-    lab.setText('CPU(%)')  
-    lp = LinePlot()
-    lp.x = 40
-    lp.y = 35
-    lp.height = 220
-    lp.width = 450
-    lp.data = CPU_data
-    lp.joinedLines = 1
-    for i in range(len(controller_type)):
-        lp.lines[i].strokeColor=getattr(colors, items[i])
-
-    lp.strokeColor = colors.black
-    lp.xValueAxis.valueMin = 0
-    lp.xValueAxis.valueMax = max(global_time)
-    lp.xValueAxis.configure(global_time)
-    lp.xValueAxis.labelTextFormat = '%2.1f'
-    lp.yValueAxis.valueMin = min(global_CPU)-1
-    lp.yValueAxis.valueMax=max(global_CPU)      
-    lp.yValueAxis.configure(global_CPU)  
-    drawing.add(String(200,300,'CPU usage(%) ', fontSize=12, fillColor=colors.black))
-    drawing.add(lab)
-    drawing.add(lp)
-    drawing.add(String(200,5,'Trail #  ', fontSize=12, fillColor=colors.black))
-    #elements.append(drawing)
 
     # Memory usage plot
-    ####NEW
     legend = LineLegend()
     legend.alignment = 'right'
     legend.x = 1
@@ -419,34 +390,7 @@ def main():
     drawing.add(bc)
     drawing.add(String(200,5,'Trail # ', fontSize=12, fillColor=colors.black))
     elements.append(drawing)   
-    #######  
-    drawing = shapes.Drawing(500, 310)
-    lab=Label()
-    lab.setOrigin(0,130)
-    lab.angle=90
-    lab.setText('Memory')
-    lp = LinePlot()
-    lp.x = 40
-    lp.y = 35
-    lp.height = 220
-    lp.width = 450
-    lp.data = Memory_data
-    lp.joinedLines = 1
-    for i in range(len(controller_type)):
-        lp.lines[i].strokeColor=getattr(colors, items[i])
-    lp.strokeColor = colors.black
-    lp.xValueAxis.valueMin = 0
-    lp.xValueAxis.valueMax = max(global_time)
-    lp.xValueAxis.configure(global_time)
-    lp.xValueAxis.labelTextFormat = '%2.1f'
-    lp.yValueAxis.valueMin = axis_scalling(min(global_Memory),max(global_Memory),1)
-    lp.yValueAxis.valueMax = axis_scalling(min(global_Memory),max(global_Memory),0)
-    lp.yValueAxis.configure(global_Memory) 
-    drawing.add(String(200,300,'Memory usage ', fontSize=12, fillColor=colors.black))
-    drawing.add(lab)
-    drawing.add(lp)
-    drawing.add(String(200,5,'Time(sec) ', fontSize=12, fillColor=colors.black))
-    #elements.append(drawing)
+
      
     # Trajectory plot 
     drawing = shapes.Drawing(500, 320)
@@ -511,9 +455,6 @@ def main():
     
     drawing.add(String(8,270,'Final pose ',fontSize=12, fillColor=colors.black))
 
-    def generate_five_star(center_x, center_y, side_length):
-        angle_offset = -math.pi / 2  # Offset to align the star vertically
-        angle_between_points = math.pi / 5  # Angle between adjacent star points
 
 
     star_vertices=[201.99,269.78,205.88,271.194,201.04,271.708,200,276,198.8,271.6,194.1,271.091,198.07,269.46,196.3,265.277,200,268,203.86,265.406,201.99,269.78]
@@ -522,7 +463,36 @@ def main():
     drawing.add(lab)
     drawing.add(lp)
     drawing.add(String(200,5,'x-axis ',fontSize=12, fillColor=colors.black))
-    elements.append(drawing)   
+    elements.append(drawing) 
+    for i in range(len(controller_type)):  
+        if result(i)=="failed" or result(i)=='goal has an invalid return status!':
+            d=shapes.Drawing(250,40)
+            d.add(String(1,20,"Log messages of "+controller_type[i],fontSize=15)) 
+            elements.append(d)  
+            table= [["Logger_name", "Level", "Message"]]  
+            table.append([""])
+            for k in range(len(log_msgs[i])):
+                table.append(log_msgs[i][k])
 
+     
+
+            t=Table(table)
+            t.setStyle(TableStyle([('INNERGRID',(0,0), (-1,-1), 0.25, colors.black),
+                                   ('BOX',(0,0), (-1,-1), 0.25, colors.black),
+                                   ('SPAN',(0,0),(0,1)),
+                                   ('SPAN',(1,0),(1,1)),
+                                   ('SPAN',(2,0),(2,1)),
+                               #('SPAN',(3,0),(3,1)),
+                               #('SPAN',(4,0),(4,1)),
+                               #('SPAN',(5,0),(5,1)),
+                               #('SPAN',(6,0),(6,1)),
+                               #('SPAN',(7,0),(7,1)),
+                               #('SPAN',(8,0),(8,1)),
+                               ('FONTNAME',(0,0),(8,1),'Helvetica-Bold'),
+                               ('FONTSIZE',(0,0), (-1,-1),8)
+                               #('SPAN',(0,len(data)-1),(6,len(data)-1)),
+                               #('FONTNAME',(0,len(data)-1),(6,len(data)-1),'Helvetica-Bold'),
+                            ]))
+            elements.append(t) 
     doc.build(elements)
     

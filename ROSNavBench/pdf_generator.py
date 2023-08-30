@@ -153,12 +153,12 @@ def main():
         for lines in  writer:
             data[i].append(lines[:])
         #  Opening the csv of the error msgs 
-        # f=open(os.path.join(get_package_share_directory('ROSNavBench'),
-        # 'raw_data',
-        # pdf_name+'_'+controller_type[i]+"_error_msgs_"+str(i+1)+'.csv'),'r')
-        # writer=csv.reader(f,quoting=csv.QUOTE_NONNUMERIC,delimiter=' ')
-        # for lines in  writer:
-        #     log_msgs[i].append(lines[:])        
+        f=open(os.path.join(get_package_share_directory('ROSNavBench'),
+        'raw_data',
+        pdf_name+'_'+controller_type[i]+"_error_msgs_"+str(i+1)+'.csv'),'r')
+        writer=csv.reader(f,quoting=csv.QUOTE_NONNUMERIC,delimiter=' ')
+        for lines in  writer:
+            log_msgs[i].append(lines[:])        
 
 
     # Extarct data from data array and arrange them into different arrays
@@ -352,12 +352,9 @@ def main():
     if trajectory_type=="circle":
        r= robot_specs['radius']
        xy_points.append(tuple([(x+r,y)]))
-       #global_y_points.append(y)
-       #global_x_points.append(x+r)
     else:
        xy_points.append(tuple([(x,y)]))
-       #global_y_points.append(y)
-       #global_x_points.append(x)
+
    
     for k in range(len(controller_type)):
         xy_points.append(tuple([xy_points[k][-1]]))
@@ -383,98 +380,49 @@ def main():
     lp.yValueAxis.valueMax = axis_scalling(min(global_y_points),max(global_y_points),0)
     lp.yValueAxis.configure((generate_list(min(global_y_points),max(global_y_points),0.5)))   
    
-
-    # start_point_mark=makeMarker('FilledCircle',size=6)
-    # goal_point_mark=makeMarker('FilledCircle',size=6)
-    # for k in range(len(controller_type)): 
-    #     empty_matrix=create_matrix(len(xy_points[k]))
-    #     empty_matrix[0]=start_point_mark
-    #     empty_matrix[-1]=goal_point_mark
-    #     lp.lines[k].symbol = empty_matrix
-    # Define the strock color of points in the begining and end of each line to be one
-    #makeMarker for these points to be filledcircle 
-    
+     
     drawing.add(String(200,300,'Traveled path ', fontSize=12, fillColor=colors.black))
+    drawing.add(Circle(1,270,3,fillColor=colors.white))   
+    drawing.add(String(8,270,'Final pose ',fontSize=12, fillColor=colors.black))
+    star_vertices=[201.99,269.78,205.88,271.194,201.04,271.708,200,276,198.8,271.6,194.1,271.091,198.07,269.46,196.3,265.277,200,268,203.86,265.406,201.99,269.78]
+    drawing.add(Polygon(star_vertices, fillColor=colors.yellowgreen))
+    drawing.add(String(210,270,'Initial pose ',fontSize=12, fillColor=colors.black))
     drawing.add(lab)
     drawing.add(lp)
-    drawing.add(String(200,5,'x-axis ',fontSize=12, fillColor=colors.black))
-    elements.append(drawing)   
+    drawing.add(String(200,5,'x-axis ',fontSize=12, fillColor=colors.black))  
+
     # A table that shows the error msgs if a failure happens 
-    # for i in range(len(controller_type)):
-    #     # Trajectory plot 
-    #     drawing = shapes.Drawing(500, 320)
-    #     lab=Label()
-    #     lab.setOrigin(0,130)
-    #     lab.angle=90
-    #     lab.setText('Y-axis')  
-    #     lp = LinePlot()
-    #     lp.x = 40
-    #     lp.y = 35
-    #     lp.height = 220
-    #     lp.width = 450
-    #     if trajectory_type=="circle":
-    #         r= robot_specs['radius']
-    #         xy_points.append(tuple([(x+r,y)]))
-    #         #global_y_points.append(y)
-    #         #global_x_points.append(x+r)
-    #     else:
-    #         xy_points.append(tuple([(x,y)]))
-    #         #global_y_points.append(y)
-    #         #global_x_points.append(x)
-   
-    #     for k in range(len(controller_type)):
-    #         xy_points.append(tuple([xy_points[k][-1]]))
+    for i in range(len(controller_type)):
 
-
-    #     lp.data = xy_points[i]
-    #     lp.joinedLines = 1
-
-    #     lp.lines[i].strokeColor=getattr(colors, items[i])
-    #     lp.strokeColor = colors.black
-    #     lp.lines[len(controller_type)].strokeColor=colors.yellowgreen
-    #     lp.lines[len(controller_type)].symbol=makeMarker('FilledStarFive',size=8)     
-    
-    #     lp.lines[len(controller_type)+i+1].strokeColor=getattr(colors, items[k])
-    #     lp.lines[len(controller_type)+i+1].symbol=makeMarker('FilledCircle',size=5)  
-
-    #     lp.xValueAxis.valueMin = axis_scalling(min(global_x_points),max(global_x_points),1)
-    #     lp.xValueAxis.valueMax = axis_scalling(min(global_x_points),max(global_x_points),0)
-    #     lp.xValueAxis.configure(generate_list(min(global_x_points),max(global_x_points),0.5))
-
-    #     lp.xValueAxis.labelTextFormat = '%2.1f'
-    #     lp.yValueAxis.valueMin = axis_scalling(min(global_y_points),max(global_y_points),1)
-    #     lp.yValueAxis.valueMax = axis_scalling(min(global_y_points),max(global_y_points),0)
-    #     lp.yValueAxis.configure((generate_list(min(global_y_points),max(global_y_points),0.5)))        
-
-    #     if result(i)=="failed" or result(i)=='goal has an invalid return status!':
-    #         d=shapes.Drawing(250,40)
-    #         d.add(String(1,20,"Log messages of "+controller_type[i],fontSize=15)) 
-    #         elements.append(d)  
-    #         table= [["Time(sec)","Logger_name", "Level", "Errors"]]  
-    #         table.append([""])
-    #         for k in range(len(log_msgs[i])):
-    #             table.append(log_msgs[i][k])
+        if result(i)=="failed" or result(i)=='goal has an invalid return status!':
+            d=shapes.Drawing(250,40)
+            d.add(String(1,20,"Log messages of "+controller_type[i],fontSize=15)) 
+            elements.append(d)  
+            table= [["Logger_name", "Level", "Message"]]  
+            table.append([""])
+            for k in range(len(log_msgs[i])):
+                table.append(log_msgs[i][k])
 
      
 
-    #         t=Table(table)
-    #         t.setStyle(TableStyle([('INNERGRID',(0,0), (-1,-1), 0.25, colors.black),
-    #                                ('BOX',(0,0), (-1,-1), 0.25, colors.black),
-    #                                ('SPAN',(0,0),(0,1)),
-    #                                ('SPAN',(1,0),(1,1)),
-    #                                ('SPAN',(2,0),(2,1)),
-    #                            #('SPAN',(3,0),(3,1)),
-    #                            #('SPAN',(4,0),(4,1)),
-    #                            #('SPAN',(5,0),(5,1)),
-    #                            #('SPAN',(6,0),(6,1)),
-    #                            #('SPAN',(7,0),(7,1)),
-    #                            #('SPAN',(8,0),(8,1)),
-    #                            ('FONTNAME',(0,0),(8,1),'Helvetica-Bold'),
-    #                            ('FONTSIZE',(0,0), (-1,-1),8)
-    #                            #('SPAN',(0,len(data)-1),(6,len(data)-1)),
-    #                            #('FONTNAME',(0,len(data)-1),(6,len(data)-1),'Helvetica-Bold'),
-    #                         ]))
-    #         elements.append(t) 
+            t=Table(table)
+            t.setStyle(TableStyle([('INNERGRID',(0,0), (-1,-1), 0.25, colors.black),
+                                   ('BOX',(0,0), (-1,-1), 0.25, colors.black),
+                                   ('SPAN',(0,0),(0,1)),
+                                   ('SPAN',(1,0),(1,1)),
+                                   ('SPAN',(2,0),(2,1)),
+                               #('SPAN',(3,0),(3,1)),
+                               #('SPAN',(4,0),(4,1)),
+                               #('SPAN',(5,0),(5,1)),
+                               #('SPAN',(6,0),(6,1)),
+                               #('SPAN',(7,0),(7,1)),
+                               #('SPAN',(8,0),(8,1)),
+                               ('FONTNAME',(0,0),(8,1),'Helvetica-Bold'),
+                               ('FONTSIZE',(0,0), (-1,-1),8)
+                               #('SPAN',(0,len(data)-1),(6,len(data)-1)),
+                               #('FONTNAME',(0,len(data)-1),(6,len(data)-1),'Helvetica-Bold'),
+                            ]))
+            elements.append(t) 
 
 
     doc.build(elements)
