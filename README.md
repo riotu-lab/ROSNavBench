@@ -113,7 +113,7 @@ By following these steps, you'll be able to execute the benchmarking test with t
 To test with your custom robots, for example husky robot, follow these steps:
 
 1. **Install Husky**
-   - Follow the instructions inside the documentation to install husky robot. check [here](docs/install_husky.md)
+   - Follow the instructions inside the documentation to install husky robot. check [here](docs/husky_setup.md)
 
 2. **Update your World**
     - To add a new world for ROSNavBench, follow the instructions [here](docs/add_new_world.md)
