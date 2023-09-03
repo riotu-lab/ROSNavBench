@@ -12,11 +12,16 @@ from reportlab.graphics.charts.axes import XCategoryAxis, YCategoryAxis
 from reportlab.graphics.charts.lineplots import LinePlot
 from reportlab.graphics.charts.textlabels import Label
 from reportlab.graphics.widgets.markers import makeMarker
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle 
+from reportlab.platypus import Image as Image_pdf
 from reportlab.lib import colors
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.enums import TA_CENTER
 from reportlab.graphics.charts.legends import Legend, LineLegend, LineSwatch
+from matplotlib import pyplot as plt
+from PIL import Image
+from numpy import asarray
+from ROSNavBench.follow_path import circle_points,square_points 
 
 
 
@@ -66,30 +71,7 @@ def main():
             current_val+=step_size  
         return generated_list   
 
-    #CPU of all trails 
-    def axis_scalling(min_val,max_val,value):
-        '''
-        Generate a min or a max value for scalling the axis in the plot.
-        It alters the min or max value by 1 if the difference between the max and min value is minor.
-        As a result, the plot will be well poltted and not represents the minor varition in CPU or trajectoy poses.
-        
-        Args:
-           min_val: minimum value of the plotted axis
-           max_val: maximum value of the plotted axis
-           value: 1 for finding the min value, 0 for finding the max value
-        
-        Returns:
-            min_value or max_value
-        '''
-        difference=max_val-min_val
-        if value==0:              #for max value
-           if difference<1:
-              max_val=max_val+1
-           return max_val
-        elif value==1:            #for min val 
-           if difference<1:
-              min_val=min_val-1
-           return min_val 
+
     # Create a matrix of specifc size
     def create_matrix(cols):
         return ["" for _ in range(cols)]   
@@ -110,6 +92,8 @@ def main():
     x = robot_specs['spawn_pose_x']     
     y = robot_specs['spawn_pose_y'] 
     trajectory_type= robot_specs['trajectory_type']
+    map_path=robot_specs['map_path']
+    map_png_path=robot_specs['map_png_path']
     trails_num = robot_specs['trails_num']
     if trails_num>0:
        controller_type=[controller_type[0]]*trails_num    
@@ -300,8 +284,8 @@ def main():
     lp.xValueAxis.valueMax = max(global_time)
     lp.xValueAxis.configure(global_time)
     lp.xValueAxis.labelTextFormat = '%2.1f'
-    lp.yValueAxis.valueMin = min(global_CPU)-1
-    lp.yValueAxis.valueMax=max(global_CPU)      
+    lp.yValueAxis.valueMin = 0
+    lp.yValueAxis.valueMax=100     
     lp.yValueAxis.configure(global_CPU)  
     drawing.add(String(200,300,'CPU usage(%) ', fontSize=12, fillColor=colors.black))
     drawing.add(lab)
@@ -329,8 +313,8 @@ def main():
     lp.xValueAxis.valueMax = max(global_time)
     lp.xValueAxis.configure(global_time)
     lp.xValueAxis.labelTextFormat = '%2.1f'
-    lp.yValueAxis.valueMin = axis_scalling(min(global_Memory),max(global_Memory),1)
-    lp.yValueAxis.valueMax = axis_scalling(min(global_Memory),max(global_Memory),0)
+    lp.yValueAxis.valueMin = 0
+    lp.yValueAxis.valueMax = 100
     lp.yValueAxis.configure(global_Memory) 
     drawing.add(String(200,300,'Memory usage ', fontSize=12, fillColor=colors.black))
     drawing.add(lab)
@@ -339,59 +323,74 @@ def main():
     elements.append(drawing)
      
     # Trajectory plot 
-    drawing = shapes.Drawing(500, 320)
-    lab=Label()
-    lab.setOrigin(0,130)
-    lab.angle=90
-    lab.setText('Y-axis')  
-    lp = LinePlot()
-    lp.x = 40
-    lp.y = 35
-    lp.height = 220
-    lp.width = 450
+    #Trajectory plot on map image 
+    # Open map yaml file and extact data
+
+    with open(map_path, 'r') as file:
+        map_specs = yaml.safe_load(file)
+        
+    origin=map_specs['origin']
+    resolution=map_specs['resolution']
+    img=Image.open(map_png_path)
+    numpydata=asarray(img)
+
+    x_length=len(numpydata)
+    y_length=len(numpydata[0]) # width
+    img=plt.imread(map_png_path)
+    fig, ax=plt.subplots()
+    ax.imshow(img,cmap=plt.cm.gray,extent=[origin[0],0.05*y_length+origin[0],origin[1],0.05*x_length+origin[1]])
     if trajectory_type=="circle":
        r= robot_specs['radius']
-       xy_points.append(tuple([(x+r,y)]))
+       waypoints_array=[[x+r,y]]
+       waypoints_array+=circle_points(x,y,r)
+       print(waypoints_array)
+    elif trajectory_type=="several_waypoints":
+        waypoints_array=[[x,y]]
+        waypoints_array+=robot_specs['waypoints']
+    elif trajectory_type=="square": 
+         waypoints_array=[[x,y]]
+         side_length=robot_specs['side_length']
+         waypoints_array=square_points(x,y,side_length)
+    elif trajectory_type=="one_goal": 
+        waypoints_array=[[x,y],[robot_specs['goal_pose_x'],robot_specs['goal_pose_y']]]
+
+    x_trajectory=[]
+    y_trajectory=[]
+    for i in range(len(waypoints_array)):
+        x_trajectory.append(waypoints_array[i][0])
+        y_trajectory.append(waypoints_array[i][1])           
+    plt.plot(x_trajectory,y_trajectory,marker='x',c='yellowgreen',ms=7)
+    for p in range(len(controller_type)):
+        plt.plot(x_points[p],y_points[p],c=items[p])
+        plt.plot(x_points[p][len(x_points[p])-1],y_points[p][len(y_points[p])-1],c=items[p],marker='o', ms=10)  
+
+    plt.xlabel('x-axis',fontdict={'family':'serif','size':12})
+    plt.ylabel('y-axis')
+
+    if trajectory_type=="circle": 
+        plt.plot(x+r,y,marker='*',c='yellowgreen',ms=13)
     else:
-       xy_points.append(tuple([(x,y)]))
-
-   
-    for k in range(len(controller_type)):
-        xy_points.append(tuple([xy_points[k][-1]]))
-
-
-    lp.data = xy_points
-    lp.joinedLines = 1
-    for i in range(len(controller_type)):
-        lp.lines[i].strokeColor=getattr(colors, items[i])
-    lp.strokeColor = colors.black
-    lp.lines[len(controller_type)].strokeColor=colors.yellowgreen
-    lp.lines[len(controller_type)].symbol=makeMarker('FilledStarFive',size=8)     
-    for k in range(len(controller_type)):
-        lp.lines[len(controller_type)+k+1].strokeColor=getattr(colors, items[k])
-        lp.lines[len(controller_type)+k+1].symbol=makeMarker('FilledCircle',size=5)  
-
-    lp.xValueAxis.valueMin = axis_scalling(min(global_x_points),max(global_x_points),1)
-    lp.xValueAxis.valueMax = axis_scalling(min(global_x_points),max(global_x_points),0)
-    lp.xValueAxis.configure(generate_list(min(global_x_points),max(global_x_points),0.5))
-
-    lp.xValueAxis.labelTextFormat = '%2.1f'
-    lp.yValueAxis.valueMin = axis_scalling(min(global_y_points),max(global_y_points),1)
-    lp.yValueAxis.valueMax = axis_scalling(min(global_y_points),max(global_y_points),0)
-    lp.yValueAxis.configure((generate_list(min(global_y_points),max(global_y_points),0.5)))   
-   
-     
-    drawing.add(String(200,300,'Traveled path ', fontSize=12, fillColor=colors.black))
-    drawing.add(Circle(1,270,3,fillColor=colors.white))   
-    drawing.add(String(8,270,'Final pose ',fontSize=12, fillColor=colors.black))
-    star_vertices=[201.99,269.78,205.88,271.194,201.04,271.708,200,276,198.8,271.6,194.1,271.091,198.07,269.46,196.3,265.277,200,268,203.86,265.406,201.99,269.78]
-    drawing.add(Polygon(star_vertices, fillColor=colors.yellowgreen))
-    drawing.add(String(210,270,'Initial pose ',fontSize=12, fillColor=colors.black))
-    drawing.add(lab)
-    drawing.add(lp)
-    drawing.add(String(200,5,'x-axis ',fontSize=12, fillColor=colors.black))  
+        plt.plot(x,y,marker='*',c='yellowgreen',ms=13)        
+    plt.savefig('map_plot.png')
+    image_ratio=y_length/x_length
+    scaling_factor=image_ratio/(500/300)
+    x_length=int(300*scaling_factor)
+    y_length=int(500*scaling_factor)
+    drawing = shapes.Drawing(500,60)  
+    drawing.add(String(200,40,'Traveled path ', fontSize=12, fillColor=colors.black))
+    drawing.add(Circle(300,10,3,fillColor=colors.white))   
+    drawing.add(String(308,10,'Final pose ',fontSize=12, fillColor=colors.black))
+    star_vertices=[201.99,9.78,205.88,11.194,201.04,11.708,200,16,198.8,11.6,194.1,11.091,198.07,9.46,196.3,5.277,200,8,203.86,5.406,201.99,9.78]
+    drawing.add(Polygon(star_vertices, fillColor=colors.yellowgreen,strokeColor=colors.yellowgreen))
+    drawing.add(String(210,10,'Initial pose ',fontSize=12, fillColor=colors.black))
+    drawing.add(Line(1,13,7,13, strokeColor=colors.yellowgreen, strokeWidth=3))
+    drawing.add(String(9,10,'Ideal trajectory ',fontSize=12, fillColor=colors.black))    
+    drawing.add(String(100,10,'x ',fontSize=12, fillColor=colors.yellowgreen))
+    drawing.add(String(108,10,'Waypoints ',fontSize=12, fillColor=colors.black))       
     elements.append(drawing) 
-    # A table that shows the error msgs if a failure happens 
+    elements.append(Image_pdf('map_plot.png',y_length,x_length))
+
+
     for i in range(len(controller_type)):
 
         if result(i)=="failed" or result(i)=='goal has an invalid return status!':
@@ -411,14 +410,8 @@ def main():
                                    ('SPAN',(0,0),(0,1)),
                                    ('SPAN',(1,0),(1,1)),
                                    ('SPAN',(2,0),(2,1)),
-                               #('SPAN',(3,0),(3,1)),
-                               #('SPAN',(4,0),(4,1)),
-                               #('SPAN',(5,0),(5,1)),
-                               #('SPAN',(6,0),(6,1)),
-                               #('SPAN',(7,0),(7,1)),
-                               #('SPAN',(8,0),(8,1)),
-                               ('FONTNAME',(0,0),(8,1),'Helvetica-Bold'),
-                               ('FONTSIZE',(0,0), (-1,-1),8)
+                                   ('FONTNAME',(0,0),(8,1),'Helvetica-Bold'),
+                                   ('FONTSIZE',(0,0), (-1,-1),8)
                                #('SPAN',(0,len(data)-1),(6,len(data)-1)),
                                #('FONTNAME',(0,len(data)-1),(6,len(data)-1),'Helvetica-Bold'),
                             ]))

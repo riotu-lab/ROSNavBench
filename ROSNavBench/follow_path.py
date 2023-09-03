@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+from turtle import circle
 from typing import List
 from geometry_msgs.msg import PoseStamped
 from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
@@ -51,7 +52,43 @@ class LogSubscriber(Node):
             self.log_level="ERROR"
         elif msg.level==50:
             self.log_level="FATAL"
-                                                
+def circle_points(x,y,r):
+    # The robot is spawned at y and r+x 
+    #r= robot_specs['radius']
+    waypoints_array=[]
+    # The circel trajectory points are generated and sent        
+    # The segments number is the cumenference diveded by 0.1
+    # The increament angle is then found based on the segments number. It is used to find the waypoints coordinates 
+    circumference=2*math.pi*r
+    segment_num=circumference/0.1
+    increment_angle=360/segment_num  
+    # Loop over the segments to generate the waypoints list
+    # Note that 'segment_num-2' means the last two segments will be ignored. the reason is 
+    # to have a distance between spawn pose and the last waypoint           
+    for i in range(int(segment_num-2)):  
+        angle= (i+1)*increment_angle 
+        waypoints_array.append([r*np.cos(np.deg2rad(angle))+x,r*np.sin(np.deg2rad(angle))+y])  
+    return waypoints_array
+def square_points(x,y,side_length):
+    waypoints_array=[]
+    array=[+x,+y,-x,-y]
+       
+    # Round to nearset number divisable by 0.5 and then find the number of segments
+    # Each segment will be 0.5 m length, this distance is small enough to make the robot move 
+    segments_num=(0.5*round(side_length/0.5))*2
+       
+    # The following 4 loops are to generate the waypoints for each side of the robot
+    for i in range(int(segments_num)-1):
+        waypoints_array.append([x+((i+1)*0.5),y])
+    for k in range(int(segments_num)-1):
+        waypoints_array.append([x+((i+1)*0.5),y+((k+1)*0.5)])  
+    for t in range(int(segments_num)-1):
+        waypoints_array.append([(x+(i+1)*0.5)-((t+1)*0.5),y+((k+1)*0.5)])           
+    for q in range(int(segments_num)-2):
+        waypoints_array.append([x,(y+(k+1)*0.5)-((q+1)*0.5)])  
+
+    return waypoints_array 
+    
 def main(args=None): 
 
     '''
@@ -63,7 +100,7 @@ def main(args=None):
     5. Save data to csv file 
     '''
 
-  
+ 
     # Opening the config file to take the experiment data such as spawn pose, and the goal pose or trjectory
     specs= os.path.join(
         get_package_share_directory('ROSNavBench'),
@@ -127,24 +164,8 @@ def main(args=None):
     if trajectory_type=='square':
 
        side_length=robot_specs['side_length']
-       waypoints_array=[]
-       array=[+x,+y,-x,-y]
-       
-       # Round to nearset number divisable by 0.5 and then find the number of segments
-       # Each segment will be 0.5 m length, this distance is small enough to make the robot move 
-       segments_num=(0.5*round(side_length/0.5))*2
-       
-       # The following 4 loops are to generate the waypoints for each side of the robot
-       for i in range(int(segments_num)-1):
-           waypoints_array.append([x+((i+1)*0.5),y])
-       for k in range(int(segments_num)-1):
-           waypoints_array.append([x+((i+1)*0.5),y+((k+1)*0.5)])  
-       for t in range(int(segments_num)-1):
-           waypoints_array.append([(x+(i+1)*0.5)-((t+1)*0.5),y+((k+1)*0.5)])           
-       for q in range(int(segments_num)-2):
-           waypoints_array.append([x,(y+(k+1)*0.5)-((q+1)*0.5)])  
-
-       # Add the generated waypoints to the goal_poses list in term of goal form         
+       square_points(x,y,side_length)
+       waypoints_array=square_points(x,y,side_length)       
        for i in range(len(waypoints_array)):
            point=waypoints_array[i]
            goal_pose= PoseStamped()
@@ -153,46 +174,18 @@ def main(args=None):
            goal_pose.pose.position.x = point[0]
            goal_pose.pose.position.y = point[1]
            goal_poses.append(goal_pose)
-                                                 
+                                               
     elif trajectory_type=='circle':
-         # The robot is spawned in the center of the cirle
-         # Thus, the robot will first move a raduis length to the circle circumference
-         # This movment is not included in the report 
-         r= robot_specs['radius']
-        #  goal_pose = PoseStamped()
-        #  goal_pose.header.frame_id = 'map'
-        #  goal_pose.header.stamp = navigator.get_clock().now().to_msg()       
-        #  goal_pose.pose.position.x = r+x
-        #  goal_pose.pose.position.y = y
-        #  goal_pose.pose.orientation.w = np.cos(np.deg2rad(90)/2) 
-        #  goal_pose.pose.orientation.z = np.sin(np.deg2rad(90)/2)
-        #  navigator.goToPose(goal_pose,behavior_tree=os.path.join(get_package_share_directory('turtlebot3_navigation2'),
-        # 'param',
-        # os.environ["controller"]+'.xml')) 
-         
-
-        # # The circel trajectory is sent once the robot arrives at the circumference  
-        #  while not navigator.isTaskComplete():
-        #     pass 
-          
-        # The segments number is the cumenference diveded by 0.1
-        # The increament angle is then found based on the segments number. It is used to find the waypoints coordinates 
-         circumference=2*math.pi*r
-         segment_num=circumference/0.1
-         increment_angle=360/segment_num  
-         # Loop over the segments to generate the waypoints list
-         # Note that 'segment_num-2' means the last two segments will be ignored. the reason is 
-         # to have a distance between spawn pose and the last waypoint           
-         for i in range(int(segment_num-2)):
-         
-             angle= (i+1)*increment_angle
-             goal_pose= PoseStamped()
-             goal_pose.header.frame_id = 'map'
-             goal_pose.header.stamp = navigator.get_clock().now().to_msg()
-             goal_pose.pose.position.x =r*np.cos(np.deg2rad(angle))+x
-             goal_pose.pose.position.y = r*np.sin(np.deg2rad(angle))+y
-             goal_poses.append(goal_pose)
-         
+        # The robot is spawned at y and r+x 
+        r= robot_specs['radius']
+        waypoints_array=circle_points(x,y,r)
+        for i in range(len(waypoints_array)):  
+            goal_pose= PoseStamped()
+            goal_pose.header.frame_id = 'map'
+            goal_pose.header.stamp = navigator.get_clock().now().to_msg()
+            goal_pose.pose.position.x =waypoints_array[i][0]
+            goal_pose.pose.position.y = waypoints_array[i][1]
+            goal_poses.append(goal_pose)
             
     elif trajectory_type=='several_waypoints': 
          # The waypoints are put into the goal form and then added to goal_poses array
@@ -225,9 +218,7 @@ def main(args=None):
                 
  
     # Sending the goal pose or poses
-    
 
- 
     logger = rcutils_logger.RcutilsLogger(name="controller_type")
     logger.info("The controller is "+os.environ["controller"])
     # The behaviour tree is sent with the goal in order to specify the local planner
