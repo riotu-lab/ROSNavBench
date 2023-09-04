@@ -17,12 +17,7 @@ map_png_path: "/home/riot/src/ros2_ws/src/ROSNavBench/simulations/maps/warehouse
 models_path: "/opt/ros/humble/share/turtlebot3_gazebo/models:/home/riot/src/ros2_ws/src/ROSNavBench/simulations/models"
 
 
-#  Choose one of the following controllers, by adding its name to the controller type list
-#  Note that these are the avaible controllers for the provided example
-#  DWB
-#  RPP
-#  RPP_RSC
-#  DWB_RSC
+
 controller_type: ["RPP"] #name of behaviour tree
 
 #  This option is intended for testing the same controller several times
@@ -35,6 +30,7 @@ nav_config: "/home/riot/src/ros2_ws/src/ROSNavBench/examples/nav2_config/waffle.
 
 #  Add the directory of the behaviour tree
 behaviour_tree_directory: "/home/riot/src/ros2_ws/src/ROSNavBench/examples/behavior_trees"
+
 
 
 #  Add the absolute path of the urdf and model files inside single qoutes ''
@@ -56,4 +52,7 @@ trajectory_type: 'several_waypoints'
 
 # Specify way points in this formate [[x0,y0,yaw0_radians], [x1,y1,yaw1_radians], ...]
 waypoints: [[6.0,2.0,-3.13], [6.0,-2.0,-3.13], [-3.5,3.5,-3.13]]
+
+
+
 
