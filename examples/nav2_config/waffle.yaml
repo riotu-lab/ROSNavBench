@@ -128,7 +128,7 @@ controller_server:
       debug_trajectory_details: True
       angular_dist_threshold: 0.785
       forward_sampling_distance: 0.5
-      rotate_to_heading_angular_vel: 1.8
+      rotate_to_heading_angular_vel: 0.3
       max_angular_accel: 3.2
       simulate_ahead_time: 1.0
 
@@ -137,7 +137,7 @@ controller_server:
       min_vel_y: 0.0
       max_vel_x: 0.22
       max_vel_y: 0.0
-      max_vel_theta: 1.0
+      max_vel_theta: 0.3
       min_speed_xy: 0.0
       max_speed_xy: 0.22
       min_speed_theta: 0.0
@@ -179,7 +179,7 @@ controller_server:
       min_lookahead_dist: 0.3
       max_lookahead_dist: 0.9
       lookahead_time: 1.5
-      rotate_to_heading_angular_vel: 1.8
+      rotate_to_heading_angular_vel: 0.3
       transform_tolerance: 0.2
       use_velocity_scaled_lookahead_dist: false
       min_approach_linear_velocity: 0.05
@@ -204,7 +204,7 @@ controller_server:
       min_vel_y: 0.0
       max_vel_x: 0.22
       max_vel_y: 0.0
-      max_vel_theta: 1.0
+      max_vel_theta: 0.3
       min_speed_xy: 0.0
       max_speed_xy: 0.22
       min_speed_theta: 0.0
@@ -245,7 +245,7 @@ controller_server:
       debug_trajectory_details: True
       angular_dist_threshold: 0.785
       forward_sampling_distance: 0.5
-      rotate_to_heading_angular_vel: 1.8
+      rotate_to_heading_angular_vel: 0.3
       max_angular_accel: 3.2
       simulate_ahead_time: 1.0
      
@@ -254,7 +254,6 @@ controller_server:
       min_lookahead_dist: 0.3
       max_lookahead_dist: 0.9
       lookahead_time: 1.5
-      rotate_to_heading_angular_vel: 1.8
       transform_tolerance: 0.2
       use_velocity_scaled_lookahead_dist: false
       min_approach_linear_velocity: 0.05
@@ -268,7 +267,6 @@ controller_server:
       use_rotate_to_heading: true
       allow_reversing: false
       rotate_to_heading_min_angle: 0.785
-      max_angular_accel: 3.2
       max_robot_pose_search_dist: 10.0
       use_interpolation: false
 controller_server_rclcpp_node:
@@ -292,7 +290,7 @@ local_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 1.0
-        inflation_radius: 0.55
+        inflation_radius: 0.45
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: True
@@ -385,7 +383,7 @@ global_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        inflation_radius: 0.55
+        inflation_radius: 0.45
       always_send_full_costmap: True
   global_costmap_client:
     ros__parameters:
