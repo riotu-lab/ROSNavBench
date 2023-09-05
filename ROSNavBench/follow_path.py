@@ -221,15 +221,43 @@ def main(args=None):
 
     logger = rcutils_logger.RcutilsLogger(name="controller_type")
     logger.info("The controller is "+os.environ["controller"])
+    
     # The behaviour tree is sent with the goal in order to specify the local planner
-    if trajectory_type=='one_goal':
-       navigator.goToPose(goal_pose,behavior_tree=os.path.join(behaviour_tree_directory,
-        os.environ["controller"]+'.xml'))
-       
-       
-    elif  trajectory_type=='several_waypoints' or trajectory_type=='circle' or trajectory_type=='square':
-       navigator.goThroughPoses(goal_poses,behavior_tree=os.path.join(behaviour_tree_directory,
-        os.environ["controller"]+'_poses.xml')) 
+    def modify_xml_path_planner(xml_file, new_planner_value):
+        # Load the XML file
+        tree = ET.parse(xml_file)
+        root = tree.getroot()
+
+        # Find the element with the 'planner_id' attribute within the ComputePathToPose element
+        element_with_planner_id = root.find(".//ComputePathToPose[@planner_id]")
+
+        # Modify the 'planner_id' attribute value
+        element_with_planner_id.set('planner_id', new_planner_value)
+
+        # Save the modified XML back to the file
+        tree.write(xml_file)
+
+    # Your loop here
+    for trajectory_type in trajectory_type:
+        # Determine the XML file path based on the trajectory type
+        if trajectory_type == 'one_goal':
+            xml_file = os.path.join(behaviour_tree_directory, os.environ["controller"] + '.xml')
+        elif trajectory_type in ['several_waypoints', 'circle', 'square']:
+            xml_file = os.path.join(behaviour_tree_directory, os.environ["controller"] + '_poses.xml')
+
+        # Determine the new planner value based on planner_type
+        planner_type = robot_specs['planner_type']
+        new_planner_value = planner_type  # Set it to the desired value
+
+        # Modify the XML file with the new planner value
+        modify_xml_path_planner(xml_file, new_planner_value)
+
+        # Call the navigator function with the modified XML file
+        if trajectory_type == 'one_goal':
+            navigator.goToPose(goal_pose, behavior_tree=xml_file)
+        elif trajectory_type in ['several_waypoints', 'circle', 'square']:
+            navigator.goThroughPoses(goal_poses, behavior_tree=xml_file)
+
        
     
     #These varibales are used for formating the csv file that conatins the raw data 
@@ -307,6 +335,5 @@ def main(args=None):
     
     rclpy.shutdown()
     exit(0)
-
 
 

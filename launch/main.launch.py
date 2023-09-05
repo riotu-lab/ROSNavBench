@@ -113,7 +113,12 @@ def generate_launch_description():
     ld.add_action(controller_node[0]) 
     # This loop is responsible for assgining the events of sending the goal and reseting the state
     # Each event will start once  the previous event is done
-   
+    for planner in planner_type:
+        for controller in controller_type:
+            # Update the controller configuration
+            robot_specs['controller_type'] = [controller] * trails_num     
+            robot_specs['planner_type'] = [planner] * trails_num
+            
     for i in range(len(controller_type)-1):
 
         ld.add_action(RegisterEventHandler(OnProcessExit(target_action= nodes[i], on_exit=[state_nodes[i]]))) 
