@@ -5,17 +5,16 @@ experiment_name: "straight_line_scenario_report"
 results_directory: '/home/riotu/ros2_ws2/src/ROSNavBench/results'
 
 #  Add the absolute path of the world
-world_path: "/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/benchmarking_tool_examples/world/dynamic_obstacles_world.world"
+world_path: "/home/riotu/ros2_ws2/src/ROSNavBench/simulations/worlds/scenario_world.world"
 
 #  Add the absolute path of the map
-map_path: "/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/benchmarking_tool_examples/map/map.yaml"
+map_path: "/home/riotu/ros2_ws2/src/ROSNavBench/simulations/maps/map.yaml"
 
 #  Add the absolute path of the map
-map_png_path: "/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/benchmarking_tool_examples/map/map.pgm"
+map_png_path: "/home/riotu/ros2_ws2/src/ROSNavBench/simulations/maps/map.pgm"
 
 #  Add gazebo model path, if multiple path, please spereate them by a :
-models_path: "/opt/ros/humble/share/turtlebot3_gazebo/models:/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/benchmarking_tool_examples/model"
-
+models_path: "/opt/ros/humble/share/turtlebot3_gazebo/models:/home/riotu/ros2_ws2/src/ROSNavBench/simulations/models"
 
 #  Choose one of the following controllers, by adding its name to the controller type list
 #  Note that these are the avaible controllers for the provided example
@@ -26,15 +25,15 @@ models_path: "/opt/ros/humble/share/turtlebot3_gazebo/models:/home/riotu/ros2_ws
 controller_type: ["RPP","DWB"] #name of behaviour tree
 
 #  This option is intended for testing the same controller several times
-#  if the user do not need this test, set it to zero 
-trails_num: 2
+#  if the user do not need this test, set it to zero
+trails_num: 0
 
 #  Add the absolute path of the robot navigation configuration
-nav_config: "/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/examples/nav2_config/waffle.yaml"
+nav_config:  "/home/riotu/ros2_ws2/src/ROSNavBench/examples/nav2_config/waffle.yaml"
 
 
 #  Add the directory of the behaviour tree
-behaviour_tree_directory: "/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/examples/behavior_trees"
+behaviour_tree_directory: "/home/riotu/ros2_ws2/src/ROSNavBench/examples/behavior_trees"
 
 
 #  Add the absolute path of the urdf and model files inside single qoutes ''
@@ -47,15 +46,14 @@ model_file: "/opt/ros/humble/share/turtlebot3_gazebo/models/turtlebot3_waffle/mo
 #  Provide the pose in a decimal form
 spawn_pose_x: -6.28
 spawn_pose_y: -4.0
-spawn_pose_yaw: 1.58   #radians 
+spawn_pose_yaw: 1.58 #radians
 
-#  Specify either to send one goal, specific trajectory, or several waypoints 
+#  Specify either to send one goal, specific trajectory, or several waypoints
 #  square, circle, several_waypoints, one_goal
-trajectory_type: 'one_goal'
+trajectory_type: "one_goal"
 
-#  One goal parameter 
+#  One goal parameter
 goal_pose_x: -6.28
 goal_pose_y: 1.0
-goal_pose_yaw: 1.58   #radians 
-
+goal_pose_yaw: 1.58 #radians
 

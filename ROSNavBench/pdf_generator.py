@@ -114,12 +114,12 @@ def main():
     global_x_points=[]
     global_y_points=[]
     global_time=[]
-    log_msgs=[]
+    #log_msgs=[]
     # nested arrays equal to number of controllers 
     # E.g., x_points=[[x points for the 1st controller],[x points for the 2nd controller],...]
     for i in range(len(controller_type)):
         data.append([])
-        log_msgs.append([])
+        #log_msgs.append([])
         CPU.append([])
         Memory.append([])   
         CPU_data.append([])
@@ -136,18 +136,19 @@ def main():
         writer=csv.reader(f,quoting=csv.QUOTE_NONNUMERIC,delimiter=' ')
         for lines in  writer:
             data[i].append(lines[:])
-        #  Opening the csv of the error msgs 
-        f=open(os.path.join(get_package_share_directory('ROSNavBench'),
-        'raw_data',
-        pdf_name+'_'+controller_type[i]+"_error_msgs_"+str(i+1)+'.csv'),'r')
-        writer=csv.reader(f,quoting=csv.QUOTE_NONNUMERIC,delimiter=' ')
-        for lines in  writer:
-            log_msgs[i].append(lines[:])        
+          
+        # #  Opening the csv of the error msgs       
+        # f=open(os.path.join(get_package_share_directory('ROSNavBench'),
+        # 'raw_data',
+        # pdf_name+'_'+controller_type[i]+"_error_msgs_"+str(i+1)+'.csv'),'r')
+        # writer=csv.reader(f,quoting=csv.QUOTE_NONNUMERIC,delimiter=' ')
+        # for lines in  writer:
+        #     log_msgs[i].append(lines[:])        
 
-
+  
     # Extarct data from data array and arrange them into different arrays
     for k in range(len(controller_type)):
-        for i in range(len(data[k])-3):
+        for i in range(len(data[k])-5):    #EDIT FOR ADDING THE PATH
             CPU[k].append(data[k][i+2][0])
             Memory[k].append(data[k][i+2][1])
             time[k].append(data[k][i+2][6])
@@ -169,8 +170,8 @@ def main():
     # Extracting the result as a string from data array 
     def result(controller_num):
         result=''
-        for i in range(len(data[controller_num][len(data[controller_num])-1])):
-            result+=data[controller_num][len(data[controller_num])-1][i]
+        for i in range(len(data[controller_num][len(data[controller_num])-3])):  #EDITNG for addin path
+            result+=data[controller_num][len(data[controller_num])-3][i]   #EDITNG for addin path
         return result
     # Generating the pdf
     elements=[]
@@ -206,12 +207,12 @@ def main():
         else:
             table_data.append(controller_type[k])
         table_data.append(result(k))
-        table_data.append(str(data[k][len(data[k])-2][6]))    
+        table_data.append(str(data[k][len(data[k])-4][6]))    #EDITNG for addin path
         table_data.append(str('{0:.2f}'.format(sum(CPU[k])/len(CPU[k]))))
         table_data.append(str(max(CPU[k])))
         table_data.append(str('{0:.2f}'.format(sum(Memory[k])/len(Memory[k]))))
         table_data.append(str(max(Memory[k])))
-        table_data.append(str(data[k][len(data[k])-2][4]))
+        table_data.append(str(data[k][len(data[k])-4][4]))    #EDITNG for addin path
         table_data.append(str(round(path_length(k),2)))
         table.append(table_data)
      
@@ -247,7 +248,7 @@ def main():
         legend.deltax = 60
         legend.dxTextSpace = 10
         legend.columnMaximum = 1
-        items = 'red green blue yellow pink black aqua bisque blueviolet brown burlywood cadetblue chartreuse chocolate cornflowerblue crimson cyan darkblue darkcyan darkgoldenrod darkgray coral darkgreen darkkhaki darkmagenta darkolivegreen darkorange darkred darksalmon darkseagreen darkslateblue darkslategray darkturquoise darkviolet deeppink deepskyblue dimgray firebrick forestgreen fuchsia grey greenyellow gold hotpink indianred ivory lavender lime maroon navy olive'.split()
+        items = 'red blue yellow pink black aqua bisque blueviolet brown burlywood cadetblue chartreuse chocolate cornflowerblue crimson cyan green darkblue darkcyan darkgoldenrod darkgray coral darkgreen darkkhaki darkmagenta darkolivegreen darkorange darkred darksalmon darkseagreen darkslateblue darkslategray darkturquoise darkviolet deeppink deepskyblue dimgray firebrick forestgreen fuchsia grey greenyellow gold hotpink indianred ivory lavender lime maroon navy olive'.split()
         cnp = []
         r=8
         if j==(math.ceil(len(controller_type)/8)-1) and len(controller_type)%8!=0:
@@ -359,19 +360,22 @@ def main():
     for i in range(len(waypoints_array)):
         x_trajectory.append(waypoints_array[i][0])
         y_trajectory.append(waypoints_array[i][1])           
-    plt.plot(x_trajectory,y_trajectory,marker='x',c='yellowgreen',ms=7)
+    plt.scatter(x_trajectory,y_trajectory,marker='*',c='yellowgreen')
     for p in range(len(controller_type)):
         plt.plot(x_points[p],y_points[p],c=items[p])
         plt.plot(x_points[p][len(x_points[p])-1],y_points[p][len(y_points[p])-1],c=items[p],marker='o', ms=10)  
 
-    plt.xlabel('x-axis',fontdict={'family':'serif','size':12})
-    plt.ylabel('y-axis')
+    plt.xlabel('x-axis (meters)',fontdict={'family':'serif','size':12})
+    plt.ylabel('y-axis (meters)',fontdict={'family':'serif','size':12})
 
     if trajectory_type=="circle": 
         plt.plot(x+r,y,marker='*',c='yellowgreen',ms=13)
     else:
-        plt.plot(x,y,marker='*',c='yellowgreen',ms=13)        
-    plt.savefig('map_plot.png')
+        plt.plot(x,y,marker='*',c='yellowgreen',ms=13)       
+    plt.plot(data[0][len(data[0])-2],data[0][len(data[0])-1],c='yellowgreen',ms=13)     
+    plt.savefig(os.path.join(get_package_share_directory('ROSNavBench'),
+        'raw_data','map_plot.png'))
+    
     image_ratio=y_length/x_length
     scaling_factor=image_ratio/(500/300)
     x_length=int(300*scaling_factor)
@@ -384,23 +388,31 @@ def main():
     drawing.add(Polygon(star_vertices, fillColor=colors.yellowgreen,strokeColor=colors.yellowgreen))
     drawing.add(String(210,10,'Initial pose ',fontSize=12, fillColor=colors.black))
     drawing.add(Line(1,13,7,13, strokeColor=colors.yellowgreen, strokeWidth=3))
-    drawing.add(String(9,10,'Ideal trajectory ',fontSize=12, fillColor=colors.black))    
-    drawing.add(String(100,10,'x ',fontSize=12, fillColor=colors.yellowgreen))
-    drawing.add(String(108,10,'Waypoints ',fontSize=12, fillColor=colors.black))       
+    drawing.add(String(9,10,'Global planner path ',fontSize=12, fillColor=colors.black))    
+    drawing.add(String(115,10,'x ',fontSize=13, fillColor=colors.yellowgreen))
+    drawing.add(String(124,10,'Waypoints ',fontSize=12, fillColor=colors.black))       
     elements.append(drawing) 
-    elements.append(Image_pdf('map_plot.png',y_length,x_length))
+    elements.append(Image_pdf(os.path.join(get_package_share_directory('ROSNavBench'),
+        'raw_data','map_plot.png'),y_length,x_length))
 
-
+ 
     for i in range(len(controller_type)):
-
+        log_msgs=[]
         if result(i)=="failed" or result(i)=='goal has an invalid return status!':
+            #  Opening the csv of the error msgs       
+            f=open(os.path.join(get_package_share_directory('ROSNavBench'),
+            'raw_data',
+            pdf_name+'_'+controller_type[i]+"_error_msgs_"+str(i+1)+'.csv'),'r')
+            writer=csv.reader(f,quoting=csv.QUOTE_NONNUMERIC,delimiter=' ')
+            for lines in  writer:
+                log_msgs.append(lines[:])  
             d=shapes.Drawing(250,40)
             d.add(String(1,20,"Log messages of "+controller_type[i],fontSize=15)) 
             elements.append(d)  
             table= [["Logger_name", "Level", "Message"]]  
             table.append([""])
-            for k in range(len(log_msgs[i])):
-                table.append(log_msgs[i][k])
+            for k in range(len(log_msgs)):
+                table.append(log_msgs[k])
 
      
 

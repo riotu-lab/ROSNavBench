@@ -160,7 +160,7 @@ def main(args=None):
     The trajectory is not close, as if the last waypoint is same or close to the start point, 
     the robot will cnsider the goal achived without even moving
     '''
-
+    
     if trajectory_type=='square':
 
        side_length=robot_specs['side_length']
@@ -174,6 +174,7 @@ def main(args=None):
            goal_pose.pose.position.x = point[0]
            goal_pose.pose.position.y = point[1]
            goal_poses.append(goal_pose)
+           path_points=navigator.getPathThroughPoses(initial_pose,goal_poses)
                                                
     elif trajectory_type=='circle':
         # The robot is spawned at y and r+x 
@@ -186,13 +187,12 @@ def main(args=None):
             goal_pose.pose.position.x =waypoints_array[i][0]
             goal_pose.pose.position.y = waypoints_array[i][1]
             goal_poses.append(goal_pose)
-            
+            path_points=navigator.getPathThroughPoses(initial_pose,goal_poses)
     elif trajectory_type=='several_waypoints': 
          # The waypoints are put into the goal form and then added to goal_poses array
          waypoints= robot_specs['waypoints']
          for i in range(len(waypoints)):
             goal=waypoints[i]
-
             goal_pose= PoseStamped()
             goal_pose.header.frame_id = 'map'
             goal_pose.header.stamp = navigator.get_clock().now().to_msg()
@@ -201,7 +201,7 @@ def main(args=None):
             goal_pose.pose.orientation.w = np.cos(goal[2]/2) 
             goal_pose.pose.orientation.z = np.sin(goal[2]/2) 
             goal_poses.append(goal_pose)
-            print(goal_poses)
+            path_points=navigator.getPathThroughPoses(initial_pose,goal_poses)
             
     elif trajectory_type=='one_goal': 
          # The goal is put into the goal form
@@ -215,21 +215,26 @@ def main(args=None):
          goal_pose.pose.position.y = y_goal
          goal_pose.pose.orientation.z = np.sin(yaw_goal/2) 
          goal_pose.pose.orientation.w = np.cos(yaw_goal/2) 
-                
- 
+         path_points=navigator.getPath(initial_pose,goal_pose)
+         
+    #Extacting the x  and y points of the path 
+    global_path_x=[]
+    global_path_y=[]
+    for i in range(len(path_points.poses)):
+        global_path_x.append(round(path_points.poses[i].pose.position.x,3))
+        global_path_y.append(round(path_points.poses[i].pose.position.y,3))
+  
     # Sending the goal pose or poses
-
     logger = rcutils_logger.RcutilsLogger(name="controller_type")
     logger.info("The controller is "+os.environ["controller"])
     # The behaviour tree is sent with the goal in order to specify the local planner
     if trajectory_type=='one_goal':
        navigator.goToPose(goal_pose,behavior_tree=os.path.join(behaviour_tree_directory,
-        os.environ["controller"]+'.xml'))
-       
-       
+        os.environ["controller"]+'.xml'))      
     elif  trajectory_type=='several_waypoints' or trajectory_type=='circle' or trajectory_type=='square':
        navigator.goThroughPoses(goal_poses,behavior_tree=os.path.join(behaviour_tree_directory,
         os.environ["controller"]+'_poses.xml')) 
+       
        
     
     #These varibales are used for formating the csv file that conatins the raw data 
@@ -288,7 +293,8 @@ def main(args=None):
     else:
         result1='goal has an invalid return status!' 
     data.append(result1)
-
+    data.append(global_path_x)
+    data.append(global_path_y)
     # Creating a .csv file that contains all the raw data about the task
     f=open(os.path.join(get_package_share_directory('ROSNavBench'),
         'raw_data',
@@ -297,11 +303,12 @@ def main(args=None):
     writer.writerows(data)
 
     # Creating a .csv file that contains all the log msgs
-    f=open(os.path.join(get_package_share_directory('ROSNavBench'),
-        'raw_data',
-        pdf_name+'_'+os.environ["controller"]+"_error_msgs_"+os.environ["round_num"]+'.csv'),'w')
-    writer=csv.writer(f,quoting=csv.QUOTE_NONNUMERIC, delimiter=' ')
-    writer.writerows(error_msgs)
+    if result1=="failed" or result1=='goal has an invalid return status!':
+        f=open(os.path.join(get_package_share_directory('ROSNavBench'),
+            'raw_data',
+            pdf_name+'_'+os.environ["controller"]+"_error_msgs_"+os.environ["round_num"]+'.csv'),'w')
+        writer=csv.writer(f,quoting=csv.QUOTE_NONNUMERIC, delimiter=' ')
+        writer.writerows(error_msgs)
 
     navigator.destroyNode()
     

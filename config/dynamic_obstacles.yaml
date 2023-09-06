@@ -5,16 +5,16 @@ experiment_name: "dynamic_obstacles_scenario_report"
 results_directory: '/home/riotu/ros2_ws2/src/ROSNavBench/results'
 
 #  Add the absolute path of the world
-world_path: "/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/benchmarking_tool_examples/world/dynamic_obstacles_world.world"
+world_path: "/home/riotu/ros2_ws2/src/ROSNavBench/simulations/worlds/scenario_world.world"
 
 #  Add the absolute path of the map
-map_path: "/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/benchmarking_tool_examples/map/map.yaml"
+map_path: "/home/riotu/ros2_ws2/src/ROSNavBench/simulations/maps/map.yaml"
 
 #  Add the absolute path of the map
-map_png_path: "/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/benchmarking_tool_examples/map/map.pgm"
+map_png_path: "/home/riotu/ros2_ws2/src/ROSNavBench/simulations/maps/map.pgm"
 
 #  Add gazebo model path, if multiple path, please spereate them by a :
-models_path: "/opt/ros/humble/share/turtlebot3_gazebo/models:/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/benchmarking_tool_examples/model"
+models_path: "/opt/ros/humble/share/turtlebot3_gazebo/models:/home/riotu/ros2_ws2/src/ROSNavBench/simulations/models"
 
 
 #  Choose one of the following controllers, by adding its name to the controller type list
@@ -30,11 +30,11 @@ controller_type: ["RPP","DWB","DWB_RSC"] #name of behaviour tree
 trails_num: 0
 
 #  Add the absolute path of the robot navigation configuration
-nav_config: "/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/examples/nav2_config/waffle.yaml"
+nav_config:  "/home/riotu/ros2_ws2/src/ROSNavBench/examples/nav2_config/waffle.yaml"
 
 
 #  Add the directory of the behaviour tree
-behaviour_tree_directory: "/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/examples/behavior_trees"
+behaviour_tree_directory: "/home/riotu/ros2_ws2/src/ROSNavBench/examples/behavior_trees"
 
 
 #  Add the absolute path of the urdf and model files inside single qoutes ''
@@ -55,6 +55,6 @@ spawn_pose_yaw: 1.58   #radians
 trajectory_type: 'several_waypoints'
 
 # Specify way points in this formate [[x0,y0,yaw0_radians], [x1,y1,yaw1_radians], ...]
-waypoints: [[6.0,2.0,-3.13],[-2.4,3.5,-3.13]]
-
+waypoints: [[6.0,2.0,-3.13],[-2.44,3.5,-3.13]]
+#[[-1.83,3.26,1.5],[-4.0,0.17,1.5],[-1.39,-3.82,1.5],[4.0,-4.0,1.5]]
 

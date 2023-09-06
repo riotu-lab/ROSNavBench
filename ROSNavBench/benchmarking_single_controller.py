@@ -122,6 +122,22 @@ def main():
        controller_type=[controller_type[0]]*trails_num    
     # list of arrays to hold data of experiment
     # This is a way to arrange data to be used for analysis and ploting
+    controller_num=len(controller_type)
+    data=[[]]*controller_num
+    summary=[[]]*controller_num
+    CPU=[[]]*controller_num
+    Memory=[[]]*controller_num    
+    CPU_data=[[]]*controller_num
+    Memory_data=[[]]*controller_num
+    xy_points=[[]]*controller_num
+    x_points=[[]]*controller_num
+    y_points=[[]]*controller_num
+    time=[[]]*controller_num
+    global_CPU=[[]]*controller_num
+    global_Memory=[[]] *controller_num
+    global_x_points=[[]]*controller_num
+    global_y_points=[[]]*controller_num
+    global_time=[[]]*controller_num
     data=[]
     summary=[]
     CPU=[]
@@ -136,13 +152,13 @@ def main():
     global_Memory=[] 
     global_x_points=[]
     global_y_points=[]
-    global_time=[]
-    log_msgs=[]    
+    global_time=[]    
+    #log_msgs=[]    
     # nested arrays equal to number of controllers 
     # E.g., x_points=[[x points for the 1st controller],[x points for the 2nd controller],...]
     for i in range(len(controller_type)):
         data.append([])
-        log_msgs.append([])        
+        #log_msgs.append([])        
         CPU.append([])
         Memory.append([])   
         CPU_data.append([])
@@ -159,18 +175,18 @@ def main():
         writer=csv.reader(f,quoting=csv.QUOTE_NONNUMERIC,delimiter=' ')
         for lines in  writer:
             data[i].append(lines[:])
-        #  Opening the csv of the error msgs 
-        f=open(os.path.join(get_package_share_directory('ROSNavBench'),
-        'raw_data',
-        pdf_name+'_'+controller_type[i]+"_error_msgs_"+str(i+1)+'.csv'),'r')
-        writer=csv.reader(f,quoting=csv.QUOTE_NONNUMERIC,delimiter=' ')
-        for lines in  writer:
-            log_msgs[i].append(lines[:])     
+        # #  Opening the csv of the error msgs 
+        # f=open(os.path.join(get_package_share_directory('ROSNavBench'),
+        # 'raw_data',
+        # pdf_name+'_'+controller_type[i]+"_error_msgs_"+str(i+1)+'.csv'),'r')
+        # writer=csv.reader(f,quoting=csv.QUOTE_NONNUMERIC,delimiter=' ')
+        # for lines in  writer:
+        #     log_msgs[i].append(lines[:])     
 
 
     # Extarct data from data array and arrange them into different arrays
     for k in range(len(controller_type)):
-        for i in range(len(data[k])-3):
+        for i in range(len(data[k])-5):
             CPU[k].append(data[k][i+2][0])
             Memory[k].append(data[k][i+2][1])
             time[k].append(data[k][i+2][6])
@@ -192,8 +208,8 @@ def main():
     # Extracting the result as a string from data array 
     def result(controller_num):
         result=''
-        for i in range(len(data[controller_num][len(data[controller_num])-1])):
-            result+=data[controller_num][len(data[controller_num])-1][i]
+        for i in range(len(data[controller_num][len(data[controller_num])-3])):
+            result+=data[controller_num][len(data[controller_num])-3][i]
         return result
     # Generating the pdf
     elements=[]
@@ -220,12 +236,12 @@ def main():
         else:
             table_data.append(controller_type[k])
         table_data.append(result(k))
-        table_data.append(str(data[k][len(data[k])-2][6]))    
+        table_data.append(str(data[k][len(data[k])-4][6]))    
         table_data.append(str('{0:.2f}'.format(sum(CPU[k])/len(CPU[k]))))
         table_data.append(str(max(CPU[k])))
         table_data.append(str('{0:.2f}'.format(sum(Memory[k])/len(Memory[k]))))
         table_data.append(str(max(Memory[k])))
-        table_data.append(str(data[k][len(data[k])-2][4]))
+        table_data.append(str(data[k][len(data[k])-4][4]))
         table_data.append(str(round(path_length(k),2)))
         table.append(table_data)
      
@@ -287,7 +303,7 @@ def main():
     legend.deltax = 60
     legend.dxTextSpace = 10
     legend.columnMaximum = 1
-    items = 'red green blue yellow pink black aqua bisque blueviolet brown burlywood cadetblue chartreuse chocolate cornflowerblue crimson cyan darkblue darkcyan darkgoldenrod darkgray coral darkgreen darkkhaki darkmagenta darkolivegreen darkorange darkred darksalmon darkseagreen darkslateblue darkslategray darkturquoise darkviolet deeppink deepskyblue dimgray firebrick forestgreen fuchsia grey greenyellow gold hotpink indianred ivory lavender lime maroon navy olive'.split()
+    items = 'red blue yellow pink black aqua bisque blueviolet brown burlywood cadetblue chartreuse chocolate cornflowerblue crimson cyan green darkblue darkcyan darkgoldenrod darkgray coral darkgreen darkkhaki darkmagenta darkolivegreen darkorange darkred darksalmon darkseagreen darkslateblue darkslategray darkturquoise darkviolet deeppink deepskyblue dimgray firebrick forestgreen fuchsia grey greenyellow gold hotpink indianred ivory lavender lime maroon navy olive'.split()
     cnp = []
     l =  LineSwatch()
     l.strokeColor = getattr(colors, items[0])
@@ -433,40 +449,53 @@ def main():
     for i in range(len(waypoints_array)):
         x_trajectory.append(waypoints_array[i][0])
         y_trajectory.append(waypoints_array[i][1])           
-    plt.plot(x_trajectory,y_trajectory,marker='x',c='yellowgreen',ms=7)
+    plt.scatter(x_trajectory,y_trajectory,marker='*',c='yellowgreen')
     for p in range(len(controller_type)):
         plt.plot(x_points[p],y_points[p],c='grey',linestyle='dashed')
         plt.plot(x_points[p][len(x_points[p])-1],y_points[p][len(y_points[p])-1],c='grey',marker='o', ms=10)  
 
-    plt.xlabel('x-axis',fontdict={'family':'serif','size':12})
-    plt.ylabel('y-axis')
+    plt.xlabel('x-axis (meters)',fontdict={'family':'serif','size':12})
+    plt.ylabel('y-axis (meters)',fontdict={'family':'serif','size':12})
 
     if trajectory_type=="circle": 
         plt.plot(x+r,y,marker='*',c='yellowgreen',ms=13)
     else:
-        plt.plot(x,y,marker='*',c='yellowgreen',ms=13)        
-    plt.savefig('map_plot.png')
+        plt.plot(x,y,marker='*',c='yellowgreen',ms=13)       
+    plt.plot(data[0][len(data[0])-2],data[0][len(data[0])-1],c='yellowgreen',ms=13)       
+    plt.savefig(os.path.join(get_package_share_directory('ROSNavBench'),
+        'raw_data','map_plot.png'))
     image_ratio=y_length/x_length
     scaling_factor=image_ratio/(500/300)
     x_length=int(300*scaling_factor)
     y_length=int(500*scaling_factor)
     drawing = shapes.Drawing(500,60)  
     drawing.add(String(200,40,'Traveled path ', fontSize=12, fillColor=colors.black))
-    drawing.add(Circle(300,10,3,fillColor=colors.white))   
+    drawing.add(Circle(300,10,3,fillColor=colors.grey,strokeColor=colors.grey))   
     drawing.add(String(308,10,'Final pose ',fontSize=12, fillColor=colors.black))
     star_vertices=[201.99,9.78,205.88,11.194,201.04,11.708,200,16,198.8,11.6,194.1,11.091,198.07,9.46,196.3,5.277,200,8,203.86,5.406,201.99,9.78]
     drawing.add(Polygon(star_vertices, fillColor=colors.yellowgreen,strokeColor=colors.yellowgreen))
     drawing.add(String(210,10,'Initial pose ',fontSize=12, fillColor=colors.black))
     drawing.add(Line(1,13,7,13, strokeColor=colors.yellowgreen, strokeWidth=3))
-    drawing.add(String(9,10,'Ideal trajectory ',fontSize=12, fillColor=colors.black))    
-    drawing.add(String(100,10,'x ',fontSize=12, fillColor=colors.yellowgreen))
-    drawing.add(String(108,10,'Waypoints ',fontSize=12, fillColor=colors.black))       
+    drawing.add(String(9,10,'Global planner path ',fontSize=12, fillColor=colors.black))    
+    drawing.add(String(115,10,'x ',fontSize=13, fillColor=colors.yellowgreen))
+    drawing.add(String(124,10,'Waypoints ',fontSize=12, fillColor=colors.black))   
+    drawing.add(String(370,10,'-- ',fontSize=15, fillColor=colors.grey))
+    drawing.add(String(382,10,'Robot path ',fontSize=12, fillColor=colors.black))          
     elements.append(drawing) 
-    elements.append(Image_pdf('map_plot.png',y_length,x_length))
+    elements.append(Image_pdf(os.path.join(get_package_share_directory('ROSNavBench'),
+        'raw_data','map_plot.png'),y_length,x_length))
     
 
-    for i in range(len(controller_type)):  
+    for i in range(len(controller_type)): 
+        log_msgs=[]
         if result(i)=="failed" or result(i)=='goal has an invalid return status!':
+            #  Opening the csv of the error msgs       
+            f=open(os.path.join(get_package_share_directory('ROSNavBench'),
+            'raw_data',
+            pdf_name+'_'+controller_type[i]+"_error_msgs_"+str(i+1)+'.csv'),'r')
+            writer=csv.reader(f,quoting=csv.QUOTE_NONNUMERIC,delimiter=' ')
+            for lines in  writer:
+                log_msgs.append(lines[:])              
             d=shapes.Drawing(250,40)
             d.add(String(1,20,"Log messages of "+controller_type[i]+ " #"+str(i),fontSize=15)) 
             elements.append(d)  
@@ -483,12 +512,7 @@ def main():
                                    ('SPAN',(0,0),(0,1)),
                                    ('SPAN',(1,0),(1,1)),
                                    ('SPAN',(2,0),(2,1)),
-                               #('SPAN',(3,0),(3,1)),
-                               #('SPAN',(4,0),(4,1)),
-                               #('SPAN',(5,0),(5,1)),
-                               #('SPAN',(6,0),(6,1)),
-                               #('SPAN',(7,0),(7,1)),
-                               #('SPAN',(8,0),(8,1)),
+
                                ('FONTNAME',(0,0),(8,1),'Helvetica-Bold'),
                                ('FONTSIZE',(0,0), (-1,-1),8)
                                #('SPAN',(0,len(data)-1),(6,len(data)-1)),
