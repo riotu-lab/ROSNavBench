@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+from operator import mod
 from turtle import circle
 from typing import List
 from geometry_msgs.msg import PoseStamped
@@ -20,6 +21,7 @@ from rclpy.parameter import Parameter
 from std_msgs.msg import String
 from  rcl_interfaces.msg import Log
 from rclpy.time import Time
+import xml.etree.ElementTree as ET
 
 
 # Get the name of config file of the current experiment
@@ -99,7 +101,23 @@ def main(args=None):
     4. Record data
     5. Save data to csv file 
     '''
+    # The behaviour tree is sent with the goal in order to specify the local planner
+    def modify_xml_path_planner(xml_file, new_planner_value):
+        # Load the XML file
+        tree = ET.parse(xml_file)
+        root = tree.getroot()
 
+        # Find the element with the 'planner_id' attribute within the ComputePathToPose element
+        #ADD ONE FOR POSE AND ONE FOR POSES //////////////////////////////////////////
+        if trajectory_type=="one_goal":
+            element_with_planner_id = root.find(".//ComputePathToPose[@planner_id]")
+        else:
+            element_with_planner_id = root.find(".//ComputePathThroughPoses[@planner_id]")
+        # Modify the 'planner_id' attribute value
+        element_with_planner_id.set('planner_id', new_planner_value)
+
+        # Save the modified XML back to the file
+        tree.write(xml_file)
  
     # Opening the config file to take the experiment data such as spawn pose, and the goal pose or trjectory
     specs= os.path.join(
@@ -174,7 +192,7 @@ def main(args=None):
            goal_pose.pose.position.x = point[0]
            goal_pose.pose.position.y = point[1]
            goal_poses.append(goal_pose)
-           path_points=navigator.getPathThroughPoses(initial_pose,goal_poses)
+           path_points=navigator.getPathThroughPoses(initial_pose,goal_poses,planner_id=os.environ["planner"])
                                                
     elif trajectory_type=='circle':
         # The robot is spawned at y and r+x 
@@ -187,7 +205,7 @@ def main(args=None):
             goal_pose.pose.position.x =waypoints_array[i][0]
             goal_pose.pose.position.y = waypoints_array[i][1]
             goal_poses.append(goal_pose)
-            path_points=navigator.getPathThroughPoses(initial_pose,goal_poses)
+            path_points=navigator.getPathThroughPoses(initial_pose,goal_poses,planner_id=os.environ["planner"])
     elif trajectory_type=='several_waypoints': 
          # The waypoints are put into the goal form and then added to goal_poses array
          waypoints= robot_specs['waypoints']
@@ -201,7 +219,7 @@ def main(args=None):
             goal_pose.pose.orientation.w = np.cos(goal[2]/2) 
             goal_pose.pose.orientation.z = np.sin(goal[2]/2) 
             goal_poses.append(goal_pose)
-            path_points=navigator.getPathThroughPoses(initial_pose,goal_poses)
+            path_points=navigator.getPathThroughPoses(initial_pose,goal_poses,planner_id=os.environ["planner"])
             
     elif trajectory_type=='one_goal': 
          # The goal is put into the goal form
@@ -215,7 +233,7 @@ def main(args=None):
          goal_pose.pose.position.y = y_goal
          goal_pose.pose.orientation.z = np.sin(yaw_goal/2) 
          goal_pose.pose.orientation.w = np.cos(yaw_goal/2) 
-         path_points=navigator.getPath(initial_pose,goal_pose)
+         path_points=navigator.getPath(initial_pose,goal_pose,planner_id=os.environ["planner"])
          
     #Extacting the x  and y points of the path 
     global_path_x=[]
@@ -227,11 +245,18 @@ def main(args=None):
     # Sending the goal pose or poses
     logger = rcutils_logger.RcutilsLogger(name="controller_type")
     logger.info("The controller is "+os.environ["controller"])
+    
     # The behaviour tree is sent with the goal in order to specify the local planner
     if trajectory_type=='one_goal':
+       modify_xml_path_planner(os.path.join(behaviour_tree_directory,
+        os.environ["controller"]+'.xml'),os.environ["planner"])
+       time.sleep(0.2)
        navigator.goToPose(goal_pose,behavior_tree=os.path.join(behaviour_tree_directory,
         os.environ["controller"]+'.xml'))      
     elif  trajectory_type=='several_waypoints' or trajectory_type=='circle' or trajectory_type=='square':
+       modify_xml_path_planner(os.path.join(behaviour_tree_directory,
+        os.environ["controller"]+'_poses.xml'),os.environ["planner"])
+       time.sleep(0.2)
        navigator.goThroughPoses(goal_poses,behavior_tree=os.path.join(behaviour_tree_directory,
         os.environ["controller"]+'_poses.xml')) 
        
@@ -298,7 +323,7 @@ def main(args=None):
     # Creating a .csv file that contains all the raw data about the task
     f=open(os.path.join(get_package_share_directory('ROSNavBench'),
         'raw_data',
-        pdf_name+'_'+os.environ["controller"]+os.environ["round_num"]+'.csv'),'w')
+        pdf_name+'_'+os.environ["controller"]+os.environ["planner"]+os.environ["round_num"]+'.csv'),'w')
     writer=csv.writer(f,quoting=csv.QUOTE_NONNUMERIC, delimiter=' ')
     writer.writerows(data)
 
@@ -306,7 +331,7 @@ def main(args=None):
     if result1=="failed" or result1=='goal has an invalid return status!':
         f=open(os.path.join(get_package_share_directory('ROSNavBench'),
             'raw_data',
-            pdf_name+'_'+os.environ["controller"]+"_error_msgs_"+os.environ["round_num"]+'.csv'),'w')
+            pdf_name+'_'+os.environ["controller"]+os.environ["planner"]+"_error_msgs_"+os.environ["round_num"]+'.csv'),'w')
         writer=csv.writer(f,quoting=csv.QUOTE_NONNUMERIC, delimiter=' ')
         writer.writerows(error_msgs)
 
