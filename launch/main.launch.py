@@ -34,6 +34,7 @@ def generate_launch_description():
         robot_specs = yaml.safe_load(file)
         
     controller_type=robot_specs['controller_type']
+    planner_type=robot_specs['planner_type']
     x = robot_specs['spawn_pose_x']     
     y = robot_specs['spawn_pose_y']        
     yaw = robot_specs['spawn_pose_yaw']  
@@ -41,6 +42,7 @@ def generate_launch_description():
     trails_num = robot_specs['trails_num']
     if trails_num>0:
         controller_type=[controller_type[0]]*trails_num
+        planner_type_type=[planner_type_type[0]]
         # Node for generating pdf
         pdf_generator=Node(
             name='benchmarking_single_controller',
@@ -50,8 +52,8 @@ def generate_launch_description():
     else: 
         # Node for generating pdf
         pdf_generator=Node(
-            name='PDF_generator',
-            executable='pdf_generator',
+            name='main_pdf_generator',
+            executable='main_pdf_generator',
             package='ROSNavBench',
         )  
      
@@ -76,11 +78,12 @@ def generate_launch_description():
     ld = LaunchDescription()
     ld.add_action(spawn_robot)
     ld.add_action(nav2)
+    ld.add_action(SetEnvironmentVariable(name='planner',value=planner_type[0]))
     ld.add_action(SetEnvironmentVariable(name='controller',value=controller_type[0]))
     ld.add_action(SetEnvironmentVariable(name='round_num',value="1"))
     # Generating  different nodes to publish the type of running controller 
     controller_node=[]
-    for j in range(len(controller_type)):
+    for j in range(len(controller_type)*len(planner_type)):
        controller_node.append(Node(
         name='marker_publisher',
         executable='marker_publisher',
@@ -88,7 +91,7 @@ def generate_launch_description():
     ))           
     # Generating different nodes for sending the goal and recording the data
     nodes=[]
-    for j in range(len(controller_type)):
+    for j in range(len(controller_type)*len(planner_type)):
        nodes.append(Node(
         name='follow_path_0',
         executable='follow_path',
@@ -96,7 +99,7 @@ def generate_launch_description():
     )) 
     # Generating different nodes for reseting the pose of the robot to intial pose after each controller scenario   
     state_nodes=[]
-    for k in range(len(controller_type)-1):  
+    for k in range(len(controller_type)*len(planner_type)-1):  
         state_nodes.append(ExecuteProcess(
             cmd=[[
                 FindExecutable(name='ros2'),
@@ -108,19 +111,24 @@ def generate_launch_description():
             shell=True
     ) ) 
         
-    ld.add_action(nodes[0])  
 
-    ld.add_action(controller_node[0]) 
     # This loop is responsible for assgining the events of sending the goal and reseting the state
     # Each event will start once  the previous event is done
-   
-    for i in range(len(controller_type)-1):
-
-        ld.add_action(RegisterEventHandler(OnProcessExit(target_action= nodes[i], on_exit=[state_nodes[i]]))) 
-        ld.add_action(RegisterEventHandler(OnProcessExit(target_action=state_nodes[i], on_exit=[SetEnvironmentVariable(name='controller',value=controller_type[i+1]),SetEnvironmentVariable(name='round_num',value=str(i+2)),nodes[i+1],controller_node[i+1]])))  
+    for k in range(len(planner_type)):
+        for i in range(len(controller_type)):
+            if i==0 and k==0:
+                ld.add_action(nodes[0])  
+                ld.add_action(controller_node[0]) 
+            else:
+                if k==0:
+                    increament=i-1
+                else:
+                    increament=len(controller_type)*k+i-1
+                ld.add_action(RegisterEventHandler(OnProcessExit(target_action= nodes[increament], on_exit=[state_nodes[increament]]))) #edit 
+                ld.add_action(RegisterEventHandler(OnProcessExit(target_action=state_nodes[increament], on_exit=[SetEnvironmentVariable(name='planner',value=planner_type[k]),SetEnvironmentVariable(name='controller',value=controller_type[i]),SetEnvironmentVariable(name='round_num',value=str(increament+2)),nodes[increament+1],controller_node[increament+1]])))  
     
     # Once all events are done, the node of generating a pdf will start
-    ld.add_action(RegisterEventHandler(OnProcessExit(target_action=nodes[len(controller_type)-1], on_exit=[pdf_generator] )))
+    ld.add_action(RegisterEventHandler(OnProcessExit(target_action=nodes[len(controller_type)*len(planner_type)-1], on_exit=[pdf_generator] )))
 
     return ld
     

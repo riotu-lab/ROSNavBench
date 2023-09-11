@@ -16,14 +16,15 @@ map_png_path: "/home/riotu/ros2_ws2/src/ROSNavBench/simulations/maps/map.pgm"
 #  Add gazebo model path, if multiple path, please spereate them by a :
 models_path: "/opt/ros/humble/share/turtlebot3_gazebo/models:/home/riotu/ros2_ws2/src/ROSNavBench/simulations/models"
 
-
+#  Choose a type of global local planners to be tested
+planner_type: ["NavFn","smac_planner"]
 #  Choose one of the following controllers, by adding its name to the controller type list
 #  Note that these are the avaible controllers for the provided example
 #  DWB
 #  RPP
 #  RPP_RSC
 #  DWB_RSC
-controller_type: ["RPP","DWB","DWB_RSC"] #name of behaviour tree
+controller_type: ["RPP","DWB"] #name of behaviour tree
 
 #  This option is intended for testing the same controller several times
 #  if the user do not need this test, set it to zero 
