@@ -102,7 +102,7 @@ def main(args=None):
     5. Save data to csv file 
     '''
     # The behaviour tree is sent with the goal in order to specify the local planner
-    def modify_xml_path_planner(xml_file, new_planner_value):
+    def modify_xml_path_planner(xml_file, new_planner_value,new_controller_value):
         # Load the XML file
         tree = ET.parse(xml_file)
         root = tree.getroot()
@@ -113,9 +113,11 @@ def main(args=None):
             element_with_planner_id = root.find(".//ComputePathToPose[@planner_id]")
         else:
             element_with_planner_id = root.find(".//ComputePathThroughPoses[@planner_id]")
+        element_with_controller_id=root.find(".//FollowPath[@controller_id]")
+        
         # Modify the 'planner_id' attribute value
         element_with_planner_id.set('planner_id', new_planner_value)
-
+        element_with_controller_id.set('controller_id',new_controller_value)
         # Save the modified XML back to the file
         tree.write(xml_file)
  
@@ -249,16 +251,16 @@ def main(args=None):
     # The behaviour tree is sent with the goal in order to specify the local planner
     if trajectory_type=='one_goal':
        modify_xml_path_planner(os.path.join(behaviour_tree_directory,
-        os.environ["controller"]+'.xml'),os.environ["planner"])
+        'pose.xml'),os.environ["planner"],os.environ["controller"])
        time.sleep(0.2)
        navigator.goToPose(goal_pose,behavior_tree=os.path.join(behaviour_tree_directory,
-        os.environ["controller"]+'.xml'))      
+        'pose.xml'))      
     elif  trajectory_type=='several_waypoints' or trajectory_type=='circle' or trajectory_type=='square':
        modify_xml_path_planner(os.path.join(behaviour_tree_directory,
-        os.environ["controller"]+'_poses.xml'),os.environ["planner"])
+        'poses.xml'),os.environ["planner"],os.environ["controller"])
        time.sleep(0.2)
        navigator.goThroughPoses(goal_poses,behavior_tree=os.path.join(behaviour_tree_directory,
-        os.environ["controller"]+'_poses.xml')) 
+       'poses.xml')) 
        
        
     

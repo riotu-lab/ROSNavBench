@@ -2,19 +2,19 @@
 experiment_name: "dynamic_obstacles_scenario_report"
 
 #Save directory of results
-results_directory: '/home/riotu/ros2_ws2/src/ROSNavBench/results'
+results_directory: '/home/riotu/ros2_ws/src/ROSNavBench/results'
 
 #  Add the absolute path of the world
-world_path: "/home/riotu/ros2_ws2/src/ROSNavBench/simulations/worlds/scenario_world.world"
+world_path: "/home/riotu/ros2_ws3/src/ROSNavBench/simulations/worlds/scenario_world.world"
 
 #  Add the absolute path of the map
-map_path: "/home/riotu/ros2_ws2/src/ROSNavBench/simulations/maps/map.yaml"
+map_path: "/home/riotu/ros2_ws/src/ROSNavBench/simulations/maps/map.yaml"
 
 #  Add the absolute path of the map
-map_png_path: "/home/riotu/ros2_ws2/src/ROSNavBench/simulations/maps/map.pgm"
+map_png_path: "/home/riotu/ros2_ws/src/ROSNavBench/simulations/maps/map.pgm"
 
 #  Add gazebo model path, if multiple path, please spereate them by a :
-models_path: "/opt/ros/humble/share/turtlebot3_gazebo/models:/home/riotu/ros2_ws2/src/ROSNavBench/simulations/models"
+models_path: "/opt/ros/humble/share/turtlebot3_gazebo/models:/home/riotu/ros2_ws3/src/ROSNavBench/simulations/models"
 
 #  Choose a type of global local planners to be tested
 planner_type: ["NavFn","smac_planner"]
@@ -31,11 +31,11 @@ controller_type: ["RPP","DWB"] #name of behaviour tree
 trails_num: 0
 
 #  Add the absolute path of the robot navigation configuration
-nav_config:  "/home/riotu/ros2_ws2/src/ROSNavBench/examples/nav2_config/waffle.yaml"
+nav_config:  "/home/riotu/ros2_ws/src/ROSNavBench/examples/nav2_config/waffle.yaml"
 
 
 #  Add the directory of the behaviour tree
-behaviour_tree_directory: "/home/riotu/ros2_ws2/src/ROSNavBench/examples/behavior_trees"
+behaviour_tree_directory: "/home/riotu/ros2_ws/src/ROSNavBench/examples/behavior_trees"
 
 
 #  Add the absolute path of the urdf and model files inside single qoutes ''
