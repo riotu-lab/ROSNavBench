@@ -59,7 +59,6 @@ def generate_launch_description():
             get_package_share_directory('ROSNavBench'),
             'maps',
             'warehouse_slam_toolbox.yaml'))
-
     # Seting the path of the navigation configuration file
     param_dir = LaunchConfiguration(
         'params_file',
@@ -72,8 +71,7 @@ def generate_launch_description():
         'config',
         'rviz_config.rviz')
 
-    return LaunchDescription([
-        # launch arguments 
+    return LaunchDescription([ 
         DeclareLaunchArgument(
             'map',
             default_value=os.path.join(
@@ -102,7 +100,7 @@ def generate_launch_description():
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([nav2_launch_file_dir, '/bringup_launch.py']),
             launch_arguments = {
-                'map': map_dir,
+                'map': map_path,
                 'use_sim_time': use_sim_time,
                 'params_file': param_dir}.items(),
         ),
