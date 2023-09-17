@@ -30,10 +30,12 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-        'follow_path = ROSNavBench.follow_path:main',
-        'pdf_generator = ROSNavBench.pdf_generator:main',   
-        'state_publisher =  ROSNavBench.state_publisher:main',   
-        'benchmarking_single_controller =  ROSNavBench.benchmarking_single_controller:main',  
+        'follow_path = ROSNavBench.follow_path:main',   
+        'benchmarking_single_controller =  ROSNavBench.benchmarking_single_controller:main', 
+        'marker_publisher = ROSNavBench.marker_publisher:main', 
+        'main_pdf_generator= ROSNavBench.benchmarking_local_global_planners_pdf:main',
+        
+        
         ],
     },
 )

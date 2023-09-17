@@ -2,40 +2,48 @@
 experiment_name: "square_path_scenario"
 
 #Save directory of results
-results_directory: ''
+results_directory: '/home/riotu/ros2_ws2/src/ROSNavBench/results'
 
-#  Add the world file to benchmarking_tool/world and provide the name of the new file
-world_name: 'scenario_world.world'
+#  Add the absolute path of the world
+world_path: "/home/riotu/ros2_ws2/src/ROSNavBench/simulations/worlds/scenario_world.world"
 
-#  Add the map files to benchmarking_tool/map and provide the name of the new yaml fi
-map_name: 'map.yaml' 
+#  Add the absolute path of the map
+map_path: "/home/riotu/ros2_ws2/src/ROSNavBench/simulations/maps/map.yaml"
+
+#  Add the absolute path of the map
+map_png_path: "/home/riotu/ros2_ws2/src/ROSNavBench/simulations/maps/map.pgm"
 
 #  Add gazebo model path, if multiple path, please spereate them by a :
-models_path: ''
+models_path: "/opt/ros/humble/share/turtlebot3_gazebo/models:/home/riotu/ros2_ws2/src/ROSNavBench/simulations/models"
 
+#  Choose a type of global local planners to be tested
+planner_type: ["NavFn","smac_planner"]
 #  Choose one of the following controllers, by adding its name to the controller type list
 #  Note that these are the avaible controllers for the provided example
 #  DWB
 #  RPP
 #  RPP_RSC
 #  DWB_RSC
-controller_type: ['DWB', 'RPP']   #name of behaviour tree 
+controller_type: ["RPP","DWB"] #name of behaviour tree
 
 #  This option is intended for testing the same controller several times
 #  if the user do not need this test, set it to zero 
-trails_num: 10
+trails_num: 2
 
 #  Add the absolute path of the robot navigation configuration
-nav_config: '/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/turtlebot3/turtlebot3_navigation2/param/waffle.yaml'
+nav_config:  "/home/riotu/ros2_ws2/src/ROSNavBench/examples/nav2_config/waffle.yaml"
+
 
 #  Add the directory of the behaviour tree
-behaviour_tree_directory: "/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/turtlebot3/turtlebot3_navigation2/param"
+behaviour_tree_directory: "/home/riotu/ros2_ws2/src/ROSNavBench/examples/behavior_trees"
+
 
 #  Add the absolute path of the urdf and model files inside single qoutes ''
-urdf_file: '/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/turtlebot3/turtlebot3_description/urdf/turtlebot3_waffle.urdf'
+urdf_file: "/opt/ros/humble/share/turtlebot3_description/urdf/turtlebot3_waffle.urdf"
+
 
 #  If the robot is spawned by only urdf, then set the model_file to 'None'
-model_file: '/home/riotu/ros2_ws/src/ros2_nav_benchmarking-main/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_waffle/model.sdf'
+model_file: "/opt/ros/humble/share/turtlebot3_gazebo/models/turtlebot3_waffle/model.sdf"
 
 #  Provide the pose in a decimal form
 spawn_pose_x: 2.5

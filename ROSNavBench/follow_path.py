@@ -1,4 +1,6 @@
 #! /usr/bin/env python3
+from operator import mod
+from turtle import circle
 from typing import List
 from geometry_msgs.msg import PoseStamped
 from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
@@ -19,6 +21,7 @@ from rclpy.parameter import Parameter
 from std_msgs.msg import String
 from  rcl_interfaces.msg import Log
 from rclpy.time import Time
+import xml.etree.ElementTree as ET
 
 
 # Get the name of config file of the current experiment
@@ -51,7 +54,43 @@ class LogSubscriber(Node):
             self.log_level="ERROR"
         elif msg.level==50:
             self.log_level="FATAL"
-                                                
+def circle_points(x,y,r):
+    # The robot is spawned at y and r+x 
+    #r= robot_specs['radius']
+    waypoints_array=[]
+    # The circel trajectory points are generated and sent        
+    # The segments number is the cumenference diveded by 0.1
+    # The increament angle is then found based on the segments number. It is used to find the waypoints coordinates 
+    circumference=2*math.pi*r
+    segment_num=circumference/0.1
+    increment_angle=360/segment_num  
+    # Loop over the segments to generate the waypoints list
+    # Note that 'segment_num-2' means the last two segments will be ignored. the reason is 
+    # to have a distance between spawn pose and the last waypoint           
+    for i in range(int(segment_num-2)):  
+        angle= (i+1)*increment_angle 
+        waypoints_array.append([r*np.cos(np.deg2rad(angle))+x,r*np.sin(np.deg2rad(angle))+y])  
+    return waypoints_array
+def square_points(x,y,side_length):
+    waypoints_array=[]
+    array=[+x,+y,-x,-y]
+       
+    # Round to nearset number divisable by 0.5 and then find the number of segments
+    # Each segment will be 0.5 m length, this distance is small enough to make the robot move 
+    segments_num=(0.5*round(side_length/0.5))*2
+       
+    # The following 4 loops are to generate the waypoints for each side of the robot
+    for i in range(int(segments_num)-1):
+        waypoints_array.append([x+((i+1)*0.5),y])
+    for k in range(int(segments_num)-1):
+        waypoints_array.append([x+((i+1)*0.5),y+((k+1)*0.5)])  
+    for t in range(int(segments_num)-1):
+        waypoints_array.append([(x+(i+1)*0.5)-((t+1)*0.5),y+((k+1)*0.5)])           
+    for q in range(int(segments_num)-2):
+        waypoints_array.append([x,(y+(k+1)*0.5)-((q+1)*0.5)])  
+
+    return waypoints_array 
+    
 def main(args=None): 
 
     '''
@@ -62,8 +101,26 @@ def main(args=None):
     4. Record data
     5. Save data to csv file 
     '''
+    # The behaviour tree is sent with the goal in order to specify the local planner
+    def modify_xml_path_planner(xml_file, new_planner_value,new_controller_value):
+        # Load the XML file
+        tree = ET.parse(xml_file)
+        root = tree.getroot()
 
-  
+        # Find the element with the 'planner_id' attribute within the ComputePathToPose element
+        #ADD ONE FOR POSE AND ONE FOR POSES //////////////////////////////////////////
+        if trajectory_type=="one_goal":
+            element_with_planner_id = root.find(".//ComputePathToPose[@planner_id]")
+        else:
+            element_with_planner_id = root.find(".//ComputePathThroughPoses[@planner_id]")
+        element_with_controller_id=root.find(".//FollowPath[@controller_id]")
+        
+        # Modify the 'planner_id' attribute value
+        element_with_planner_id.set('planner_id', new_planner_value)
+        element_with_controller_id.set('controller_id',new_controller_value)
+        # Save the modified XML back to the file
+        tree.write(xml_file)
+ 
     # Opening the config file to take the experiment data such as spawn pose, and the goal pose or trjectory
     specs= os.path.join(
         get_package_share_directory('ROSNavBench'),
@@ -123,28 +180,12 @@ def main(args=None):
     The trajectory is not close, as if the last waypoint is same or close to the start point, 
     the robot will cnsider the goal achived without even moving
     '''
-
+    
     if trajectory_type=='square':
 
        side_length=robot_specs['side_length']
-       waypoints_array=[]
-       array=[+x,+y,-x,-y]
-       
-       # Round to nearset number divisable by 0.5 and then find the number of segments
-       # Each segment will be 0.5 m length, this distance is small enough to make the robot move 
-       segments_num=(0.5*round(side_length/0.5))*2
-       
-       # The following 4 loops are to generate the waypoints for each side of the robot
-       for i in range(int(segments_num)-1):
-           waypoints_array.append([x+((i+1)*0.5),y])
-       for k in range(int(segments_num)-1):
-           waypoints_array.append([x+((i+1)*0.5),y+((k+1)*0.5)])  
-       for t in range(int(segments_num)-1):
-           waypoints_array.append([(x+(i+1)*0.5)-((t+1)*0.5),y+((k+1)*0.5)])           
-       for q in range(int(segments_num)-2):
-           waypoints_array.append([x,(y+(k+1)*0.5)-((q+1)*0.5)])  
-
-       # Add the generated waypoints to the goal_poses list in term of goal form         
+       square_points(x,y,side_length)
+       waypoints_array=square_points(x,y,side_length)       
        for i in range(len(waypoints_array)):
            point=waypoints_array[i]
            goal_pose= PoseStamped()
@@ -153,53 +194,25 @@ def main(args=None):
            goal_pose.pose.position.x = point[0]
            goal_pose.pose.position.y = point[1]
            goal_poses.append(goal_pose)
-                                                 
+           path_points=navigator.getPathThroughPoses(initial_pose,goal_poses,planner_id=os.environ["planner"])
+                                               
     elif trajectory_type=='circle':
-         # The robot is spawned in the center of the cirle
-         # Thus, the robot will first move a raduis length to the circle circumference
-         # This movment is not included in the report 
-         r= robot_specs['radius']
-        #  goal_pose = PoseStamped()
-        #  goal_pose.header.frame_id = 'map'
-        #  goal_pose.header.stamp = navigator.get_clock().now().to_msg()       
-        #  goal_pose.pose.position.x = r+x
-        #  goal_pose.pose.position.y = y
-        #  goal_pose.pose.orientation.w = np.cos(np.deg2rad(90)/2) 
-        #  goal_pose.pose.orientation.z = np.sin(np.deg2rad(90)/2)
-        #  navigator.goToPose(goal_pose,behavior_tree=os.path.join(get_package_share_directory('turtlebot3_navigation2'),
-        # 'param',
-        # os.environ["controller"]+'.xml')) 
-         
-
-        # # The circel trajectory is sent once the robot arrives at the circumference  
-        #  while not navigator.isTaskComplete():
-        #     pass 
-          
-        # The segments number is the cumenference diveded by 0.1
-        # The increament angle is then found based on the segments number. It is used to find the waypoints coordinates 
-         circumference=2*math.pi*r
-         segment_num=circumference/0.1
-         increment_angle=360/segment_num  
-         # Loop over the segments to generate the waypoints list
-         # Note that 'segment_num-2' means the last two segments will be ignored. the reason is 
-         # to have a distance between spawn pose and the last waypoint           
-         for i in range(int(segment_num-2)):
-         
-             angle= (i+1)*increment_angle
-             goal_pose= PoseStamped()
-             goal_pose.header.frame_id = 'map'
-             goal_pose.header.stamp = navigator.get_clock().now().to_msg()
-             goal_pose.pose.position.x =r*np.cos(np.deg2rad(angle))+x
-             goal_pose.pose.position.y = r*np.sin(np.deg2rad(angle))+y
-             goal_poses.append(goal_pose)
-         
-            
+        # The robot is spawned at y and r+x 
+        r= robot_specs['radius']
+        waypoints_array=circle_points(x,y,r)
+        for i in range(len(waypoints_array)):  
+            goal_pose= PoseStamped()
+            goal_pose.header.frame_id = 'map'
+            goal_pose.header.stamp = navigator.get_clock().now().to_msg()
+            goal_pose.pose.position.x =waypoints_array[i][0]
+            goal_pose.pose.position.y = waypoints_array[i][1]
+            goal_poses.append(goal_pose)
+            path_points=navigator.getPathThroughPoses(initial_pose,goal_poses,planner_id=os.environ["planner"])
     elif trajectory_type=='several_waypoints': 
          # The waypoints are put into the goal form and then added to goal_poses array
          waypoints= robot_specs['waypoints']
          for i in range(len(waypoints)):
             goal=waypoints[i]
-
             goal_pose= PoseStamped()
             goal_pose.header.frame_id = 'map'
             goal_pose.header.stamp = navigator.get_clock().now().to_msg()
@@ -208,7 +221,7 @@ def main(args=None):
             goal_pose.pose.orientation.w = np.cos(goal[2]/2) 
             goal_pose.pose.orientation.z = np.sin(goal[2]/2) 
             goal_poses.append(goal_pose)
-            print(goal_poses)
+            path_points=navigator.getPathThroughPoses(initial_pose,goal_poses,planner_id=os.environ["planner"])
             
     elif trajectory_type=='one_goal': 
          # The goal is put into the goal form
@@ -222,29 +235,39 @@ def main(args=None):
          goal_pose.pose.position.y = y_goal
          goal_pose.pose.orientation.z = np.sin(yaw_goal/2) 
          goal_pose.pose.orientation.w = np.cos(yaw_goal/2) 
-                
- 
+         path_points=navigator.getPath(initial_pose,goal_pose,planner_id=os.environ["planner"])
+         
+    #Extacting the x  and y points of the path 
+    global_path_x=[]
+    global_path_y=[]
+    for i in range(len(path_points.poses)):
+        global_path_x.append(round(path_points.poses[i].pose.position.x,3))
+        global_path_y.append(round(path_points.poses[i].pose.position.y,3))
+  
     # Sending the goal pose or poses
-    
-
- 
     logger = rcutils_logger.RcutilsLogger(name="controller_type")
     logger.info("The controller is "+os.environ["controller"])
+    
     # The behaviour tree is sent with the goal in order to specify the local planner
     if trajectory_type=='one_goal':
+       modify_xml_path_planner(os.path.join(behaviour_tree_directory,
+        'pose.xml'),os.environ["planner"],os.environ["controller"])
+       time.sleep(0.2)
        navigator.goToPose(goal_pose,behavior_tree=os.path.join(behaviour_tree_directory,
-        os.environ["controller"]+'.xml'))
-       
-       
+        'pose.xml'))      
     elif  trajectory_type=='several_waypoints' or trajectory_type=='circle' or trajectory_type=='square':
+       modify_xml_path_planner(os.path.join(behaviour_tree_directory,
+        'poses.xml'),os.environ["planner"],os.environ["controller"])
+       time.sleep(0.2)
        navigator.goThroughPoses(goal_poses,behavior_tree=os.path.join(behaviour_tree_directory,
-        os.environ["controller"]+'_poses.xml')) 
+       'poses.xml')) 
+       
        
     
     #These varibales are used for formating the csv file that conatins the raw data 
     empty_matrix=["", "", "", "", "", "", ""]
     data=[["CPU usage %", "Memory usage\n%", "x-pose", "y-pose", 'number of\nrecoveries', 'distance\nremaining','navigation\ntime'],empty_matrix]
-
+    subscriber=LogSubscriber()
     # A time gap is used to make sudurationre the the goal is sent 
     time.sleep(0.1)
     error_msgs=[]
@@ -259,6 +282,19 @@ def main(args=None):
                 print('Estimated time of arrival: ' + '{0:.0f}'.format(
                     Duration.from_msg(feedback.estimated_time_remaining).nanoseconds / 1e9)
                     + ' seconds.')
+            
+            rclpy.spin_once(subscriber)
+        
+            error_msg=[]
+           
+            if subscriber.log_msg_name=="controller_server" or subscriber.log_msg_name=="behavior_server" or subscriber.log_msg_name=="smoother_server" or subscriber.log_msg_name=="planner_server" or subscriber.log_msg_name=="bt_navigator" or subscriber.log_msg_name=="waypoint_follower" or subscriber.log_msg_name=="velocity_smoother" or subscriber.log_msg_name=="lifecycle_manager_navigation" or subscriber.log_msg_name=="map_server" or subscriber.log_msg_name=="amcl" or subscriber.log_msg_name=="lifecycle_manager_localization":
+            #error_msg.append(round(Time.from_msg(subscriber.log_time).nanoseconds / 1e9, 2))
+                if subscriber.log_level=="ERROR" or subscriber.log_level=="FATAL":
+                    error_msg.append(subscriber.log_msg_name)
+                    error_msg.append(subscriber.log_level)
+                    error_msg.append(subscriber.log_msgs) 
+                    error_msgs.append(error_msg)   
+            #error_msgs.append(round(Duration.from_msg(subscriber.log_time).nanoseconds / 1e9, 2))        
             row=[]
             row.append(psutil.cpu_percent())
             row.append(psutil.virtual_memory().percent)
@@ -271,12 +307,10 @@ def main(args=None):
         else:
             print("Warning: No feedback received.")
 
-
-        time.sleep(0.2)
-
-    # Getting the result of task     
-    result = navigator.getResult()    
+        time.sleep(0.1)
     
+    # Getting the result of task     
+    result = navigator.getResult()   
     if result == TaskResult.SUCCEEDED:
         result1='succeeded'
     elif result == TaskResult.CANCELED:
@@ -286,15 +320,22 @@ def main(args=None):
     else:
         result1='goal has an invalid return status!' 
     data.append(result1)
-
+    data.append(global_path_x)
+    data.append(global_path_y)
     # Creating a .csv file that contains all the raw data about the task
     f=open(os.path.join(get_package_share_directory('ROSNavBench'),
         'raw_data',
-        pdf_name+'_'+os.environ["controller"]+os.environ["round_num"]+'.csv'),'w')
+        pdf_name+'_'+os.environ["controller"]+os.environ["planner"]+os.environ["round_num"]+'.csv'),'w')
     writer=csv.writer(f,quoting=csv.QUOTE_NONNUMERIC, delimiter=' ')
     writer.writerows(data)
 
-
+    # Creating a .csv file that contains all the log msgs
+    if result1=="failed" or result1=='goal has an invalid return status!':
+        f=open(os.path.join(get_package_share_directory('ROSNavBench'),
+            'raw_data',
+            pdf_name+'_'+os.environ["controller"]+os.environ["planner"]+"_error_msgs_"+os.environ["round_num"]+'.csv'),'w')
+        writer=csv.writer(f,quoting=csv.QUOTE_NONNUMERIC, delimiter=' ')
+        writer.writerows(error_msgs)
 
     navigator.destroyNode()
     
