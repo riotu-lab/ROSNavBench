@@ -23,7 +23,7 @@ from PIL import Image
 from numpy import asarray
 from reportlab.platypus import Image as Image_pdf
 from ROSNavBench.follow_path import circle_points,square_points 
-
+from ROSNavBench.performace_analysis import performance_analysis_repeatability
 
 def main():
     '''
@@ -99,18 +99,20 @@ def main():
     def create_matrix(cols):
         return ["" for _ in range(cols)]   
     # Get the name of config file of the current experiment
-    params_file = os.environ['PARAMS_FILE']
+    specs = os.environ['PARAMS_FILE']
     # Open config file and extact data
-    specs= os.path.join(
-        get_package_share_directory('ROSNavBench'),
-        'config',
-        params_file+'.yaml'
-       )
+    # specs= os.path.join(
+    #     get_package_share_directory('ROSNavBench'),
+    #     'config',
+    #     params_file+'.yaml'
+    #    )
     with open(specs, 'r') as file:
         robot_specs = yaml.safe_load(file)
         
     pdf_name=robot_specs['experiment_name']
+    trails_num = robot_specs['trails_num']
     controller_type=robot_specs['controller_type']
+    planner_type=robot_specs['planner_type']
     results_directory=robot_specs['results_directory']
     x = robot_specs['spawn_pose_x']     
     y = robot_specs['spawn_pose_y'] 
@@ -123,21 +125,21 @@ def main():
     # list of arrays to hold data of experiment
     # This is a way to arrange data to be used for analysis and ploting
     controller_num=len(controller_type)
-    data=[[]]*controller_num
-    summary=[[]]*controller_num
-    CPU=[[]]*controller_num
-    Memory=[[]]*controller_num    
-    CPU_data=[[]]*controller_num
-    Memory_data=[[]]*controller_num
-    xy_points=[[]]*controller_num
-    x_points=[[]]*controller_num
-    y_points=[[]]*controller_num
-    time=[[]]*controller_num
-    global_CPU=[[]]*controller_num
-    global_Memory=[[]] *controller_num
-    global_x_points=[[]]*controller_num
-    global_y_points=[[]]*controller_num
-    global_time=[[]]*controller_num
+    # data=[[]]*controller_num
+    # summary=[[]]*controller_num
+    # CPU=[[]]*controller_num
+    # Memory=[[]]*controller_num    
+    # CPU_data=[[]]*controller_num
+    # Memory_data=[[]]*controller_num
+    # xy_points=[[]]*controller_num
+    # x_points=[[]]*controller_num
+    # y_points=[[]]*controller_num
+    # time=[[]]*controller_num
+    # global_CPU=[[]]*controller_num
+    # global_Memory=[[]] *controller_num
+    # global_x_points=[[]]*controller_num
+    # global_y_points=[[]]*controller_num
+    # global_time=[[]]*controller_num
     data=[]
     summary=[]
     CPU=[]
@@ -152,7 +154,8 @@ def main():
     global_Memory=[] 
     global_x_points=[]
     global_y_points=[]
-    global_time=[]    
+    global_time=[]  
+    distance_to_obstacles=[]  
     #log_msgs=[]    
     # nested arrays equal to number of controllers 
     # E.g., x_points=[[x points for the 1st controller],[x points for the 2nd controller],...]
@@ -167,11 +170,12 @@ def main():
         x_points.append([])
         y_points.append([])
         time.append([])
+        distance_to_obstacles.append([])
     # open each csv file for the different used controllers, and add all data to data array
     for i in range(len(controller_type)):
         f=open(os.path.join(get_package_share_directory('ROSNavBench'),
         'raw_data',
-        pdf_name+'_'+controller_type[i]+str(i+1)+'.csv'),'r')
+        pdf_name+'_'+controller_type[i]+planner_type[0]+str(i+1)+'.csv'),'r')
         writer=csv.reader(f,quoting=csv.QUOTE_NONNUMERIC,delimiter=' ')
         for lines in  writer:
             data[i].append(lines[:])
@@ -200,6 +204,7 @@ def main():
             global_x_points.append(data[k][i+2][2])
             global_y_points.append(data[k][i+2][3])
             global_time.append(data[k][i+2][6])
+            distance_to_obstacles[k].append(data[k][i+2][7])
     # Convert the nested array into tuples to satisfy the requirment of Label() function of reportlab
     for k in range(len(controller_type)):
         CPU_data[k]=tuple(CPU_data[k])
@@ -227,8 +232,11 @@ def main():
     d=shapes.Drawing(250,40)
     d.add(String(1,20,"Comparsion of controllers",fontSize=15)) 
     elements.append(d)  
-    table= [["Controller\ntype","Result","Execution\nTime (sec)","Average\nCPU (%)","Max\nCPU (%)","Average\nmemory\nusage (%)","Max\nmemory\nusage (%)","Number of\nrecoveries","Path\nlength (m)"]]  
-    table.append(["","","","","","","","",""])
+    d=shapes.Drawing(250,40)
+    d.add(String(1,20,"-Global planner: "+planner_type[0],fontSize=12,fontName= 'Times-Bold')) 
+    elements.append(d)  
+    table= [["Controller\ntype","Result","Execution\nTime (sec)","CPU(%)","","Memory usage(%)","Memory usage (%)","Number of\nrecoveries","Path\nlength\n(m)","Proximity\nto\n obstacles(m)"]]  
+    table.append(["","","","Average","Max","Average","Max","","",""])
     for k in range(len(controller_type)): 
         table_data=[]
         if trails_num>0:
@@ -243,26 +251,43 @@ def main():
         table_data.append(str(max(Memory[k])))
         table_data.append(str(data[k][len(data[k])-4][4]))
         table_data.append(str(round(path_length(k),2)))
+        table_data.append(str(min(distance_to_obstacles[k])))
         table.append(table_data)
      
 
-    t=Table(table , 9*[0.8*inch], (len(controller_type)+2)*[0.5*inch])
+    t=Table(table)
     t.setStyle(TableStyle([('INNERGRID',(0,0), (-1,-1), 0.25, colors.black),
                             ('BOX',(0,0), (-1,-1), 0.25, colors.black),
                             ('SPAN',(0,0),(0,1)),
                             ('SPAN',(1,0),(1,1)),
                             ('SPAN',(2,0),(2,1)),
-                            ('SPAN',(3,0),(3,1)),
-                            ('SPAN',(4,0),(4,1)),
-                            ('SPAN',(5,0),(5,1)),
-                            ('SPAN',(6,0),(6,1)),
+                            #('SPAN',(3,0),(3,1)),
+                            #('SPAN',(4,0),(4,1)),
+                            #('SPAN',(5,0),(5,1)),
+                            #('SPAN',(6,0),(6,1)),
                             ('SPAN',(7,0),(7,1)),
                             ('SPAN',(8,0),(8,1)),
-                            ('FONTNAME',(0,0),(8,1),'Helvetica-Bold'),
+                            ('SPAN',(9,0),(9,1)),
+                            ('SPAN',(3,0),(4,0)),
+                            ('SPAN',(5,0),(6,0)),
+                            ('FONTNAME',(0,0),(9,1),'Times-Bold'),
                             #('SPAN',(0,len(data)-1),(6,len(data)-1)),
                             #('FONTNAME',(0,len(data)-1),(6,len(data)-1),'Helvetica-Bold'),
                             ]))
     elements.append(t)    
+    # Performace analysis 
+    d=shapes.Drawing(250,40)
+    d.add(String(1,20,"Performace analysis",fontSize=15)) 
+    elements.append(d)  
+    data_variation,success_rate=performance_analysis_repeatability([table],planner_type,controller_type)
+    d=shapes.Drawing(250,20)
+    d.add(String(1,20,success_rate))
+    elements.append(d)         
+    d=shapes.Drawing(250,20*len(data_variation))
+    d.add(String(1,20*len(data_variation),"The range of each criteria is:"))
+    for i in range(len(data_variation)):
+        d.add(String(1,20*i,data_variation[i]))
+    elements.append(d) 
     d=shapes.Drawing(250,40)
     d.add(String(1,20,"Graphs",fontSize=15)) 
     elements.append(d)   

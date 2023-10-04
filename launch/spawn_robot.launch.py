@@ -12,17 +12,17 @@ import xacro
 import yaml
 
 # Get the name of config file of the current experiment
-params_file = os.environ['PARAMS_FILE']
+specs = os.environ['PARAMS_FILE']
 
 def generate_launch_description():
 
 
     # Opening the config file to take the experiment data such as intial pose of spawned robot 
-    specs= os.path.join(
-        get_package_share_directory('ROSNavBench'),
-        'config',
-        params_file+'.yaml'
-       )
+    # specs= os.path.join(
+    #     get_package_share_directory('ROSNavBench'),
+    #     'config',
+    #     params_file+'.yaml'
+    #    )
     with open(specs, 'r') as file:
         robot_specs = yaml.safe_load(file)
         

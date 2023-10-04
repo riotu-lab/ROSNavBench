@@ -23,7 +23,7 @@ from matplotlib import pyplot as plt
 from PIL import Image
 from numpy import asarray
 from ROSNavBench.follow_path import circle_points,square_points 
-
+from ROSNavBench.performace_analysis import performance_analysis
 
 
 def main():
@@ -55,13 +55,13 @@ def main():
         return path
     
     # Get the name of config file of the current experiment
-    params_file = os.environ['PARAMS_FILE']
+    specs = os.environ['PARAMS_FILE']
     # Open config file and extact data
-    specs= os.path.join(
-        get_package_share_directory('ROSNavBench'),
-        'config',
-        params_file+'.yaml'
-       )
+    # specs= os.path.join(
+    #     get_package_share_directory('ROSNavBench'),
+    #     'config',
+    #     params_file+'.yaml'
+    #    )
     with open(specs, 'r') as file:
         robot_specs = yaml.safe_load(file)
         
@@ -75,6 +75,8 @@ def main():
     map_path=robot_specs['map_path']
     map_png_path=robot_specs['map_png_path']
     trails_num = robot_specs['trails_num']
+    criteria= robot_specs['criteria']
+    weights= robot_specs['weights']
     if trails_num>0:
        controller_type=[controller_type[0]]*trails_num    
     # list of arrays to hold data of experiment
@@ -94,6 +96,7 @@ def main():
     global_x_points=[]
     global_y_points=[]
     global_time=[]
+    distance_to_obstacles=[]
     #log_msgs=[]
     # nested arrays equal to number of controllers 
     # E.g., x_points=[[x points for the 1st controller],[x points for the 2nd controller],...]
@@ -107,6 +110,7 @@ def main():
         x_points.append([])
         y_points.append([])
         time.append([])
+        distance_to_obstacles.append([])
     # open each csv file for the different used controllers, and add all data to data array
     for k in range(len(planner_type)):
         for i in range(len(controller_type)):
@@ -136,6 +140,8 @@ def main():
             global_x_points.append(data[k][i+2][2])
             global_y_points.append(data[k][i+2][3])
             global_time.append(data[k][i+2][6])
+            distance_to_obstacles[k].append(data[k][i+2][7])
+            
     # Convert the nested array into tuples to satisfy the requirment of Label() function of reportlab
     for k in range(len(controller_type)*len(planner_type)):
         CPU_data[k]=tuple(CPU_data[k])
@@ -159,22 +165,27 @@ def main():
        doc=SimpleDocTemplate(os.path.join(get_package_share_directory('ROSNavBench'),
         'results',
         pdf_name+".pdf"),pagesize=A4)        
-    ####REPLACE THIS 
+    
+    
     d=shapes.Drawing(5,40)
     d.add(String(1,20,pdf_name,fontSize=20)) 
     elements.append(d) 
+ 
+
+
     # A table summarize the results 
     d=shapes.Drawing(250,40)
     d.add(String(1,20,"Comparsion of controllers",fontSize=15)) 
     elements.append(d)  
-      
+     
+    analysis_data=[]
     for i in range(len(planner_type)):
 
         d=shapes.Drawing(250,40)
         d.add(String(1,20,"-Global planner: "+planner_type[i],fontSize=12,fontName= 'Times-Bold')) 
         elements.append(d)  
-        table= [["Controller\ntype","Result","Execution\nTime (sec)","Average\nCPU (%)","Max\nCPU (%)","Average\nmemory\nusage (%)","Max\nmemory\nusage (%)","Number of\nrecoveries","Path\nlength (m)"]]  
-        table.append(["","","","","","","","",""])
+        table= [["Controller\ntype","Result","Execution\nTime (sec)","CPU(%)","","Memory usage(%)","Memory usage (%)","Number of\nrecoveries","Path\nlength\n(m)","Proximity\nto\n obstacles(m)"]]  
+        table.append(["","","","Average","Max","Average","Max","","",""])
         for k in range(len(controller_type)): 
             table_data=[]
             table_data.append(controller_type[k])
@@ -187,26 +198,57 @@ def main():
             table_data.append(str(max(Memory[round_num])))
             table_data.append(str(data[round_num][len(data[round_num])-4][4]))    #EDITNG for addin path
             table_data.append(str(round(path_length(round_num),2)))
+            table_data.append(str(min(distance_to_obstacles[round_num])))
             table.append(table_data)
      
-
-        t=Table(table , 9*[0.8*inch], (len(controller_type)+2)*[0.5*inch])
+        analysis_data.append(table)
+        t=Table(table)
         t.setStyle(TableStyle([('INNERGRID',(0,0), (-1,-1), 0.25, colors.black),
                             ('BOX',(0,0), (-1,-1), 0.25, colors.black),
                             ('SPAN',(0,0),(0,1)),
                             ('SPAN',(1,0),(1,1)),
                             ('SPAN',(2,0),(2,1)),
-                            ('SPAN',(3,0),(3,1)),
-                            ('SPAN',(4,0),(4,1)),
-                            ('SPAN',(5,0),(5,1)),
-                            ('SPAN',(6,0),(6,1)),
+                            #('SPAN',(3,0),(3,1)),
+                            #('SPAN',(4,0),(4,1)),
+                            #('SPAN',(5,0),(5,1)),
+                            #('SPAN',(6,0),(6,1)),
                             ('SPAN',(7,0),(7,1)),
                             ('SPAN',(8,0),(8,1)),
-                            ('FONTNAME',(0,0),(8,1),'Times-Bold'),
+                            ('SPAN',(9,0),(9,1)),
+                            ('SPAN',(3,0),(4,0)),
+                            ('SPAN',(5,0),(6,0)),
+                            ('FONTNAME',(0,0),(9,1),'Times-Bold'),
                             #('SPAN',(0,len(data)-1),(6,len(data)-1)),
                             #('FONTNAME',(0,len(data)-1),(6,len(data)-1),'Times-Bold'),
                             ]))
-        elements.append(t)    
+        elements.append(t)  
+    # Performace analysis 
+    d=shapes.Drawing(250,40)
+    d.add(String(1,20,"Performace analysis",fontSize=15)) 
+    elements.append(d)  
+    ranking,planners_success_rate,controllers_success_rate=performance_analysis(criteria,analysis_data,weights,planner_type,controller_type)
+    d=shapes.Drawing(250,20*(len(ranking)+1))
+    d.add(String(1,20*(len(ranking)+1),"The ranking of each controller and planner combinations are:",fontName= 'Times-Bold'))
+    row_increament=1
+    for i in ranking:
+        text=i+"  "+str(round(ranking[i],2))+" %"
+        d.add(String(1,20*(row_increament),text))
+        row_increament+=1
+    elements.append(d)      
+    d=shapes.Drawing(250,20*(len(planners_success_rate)+1))
+    d.add(String(1,20*(len(planners_success_rate)+1),"Planners' success rate are:",fontName= 'Times-Bold'))
+    row_increament=1
+    for i in range(len(planners_success_rate)):
+        d.add(String(1,20*(row_increament),planners_success_rate[i]))
+        row_increament+=1
+    elements.append(d)  
+    d=shapes.Drawing(250,20*(len(controllers_success_rate)+1))
+    d.add(String(1,20*(len(controllers_success_rate)+1),"Controllers' success rate are:",fontName= 'Times-Bold'))
+    row_increament=1
+    for i in range(len(controllers_success_rate)):
+        d.add(String(1,20*(row_increament),controllers_success_rate[i]))
+        row_increament+=1
+    elements.append(d)      
     # d=shapes.Drawing(250,40)
     # d.add(String(1,20,"Graphs",fontSize=15)) 
     # elements.append(d)   
@@ -236,6 +278,8 @@ def main():
         legend_list.append(legend)
         #d.add(legend, 'legend')
         #elements.append(d) 
+    drawing = shapes.Drawing(500, 10)
+    elements.append(drawing) 
     for k in range(len(planner_type)):        
         # CPU plot
         drawing = shapes.Drawing(500, 290)
