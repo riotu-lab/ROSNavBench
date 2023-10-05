@@ -433,14 +433,19 @@ def main():
             d = Drawing(500, 30)
             d.add(legend_list[r], 'legend')
             elements.append(d)
-    d=shapes.Drawing(250,40)
-    d.add(String(1,20,"Failure report",fontSize=15)) 
-    elements.append(d)  
+           
+    first_failure=0  
     for k in range(len(planner_type)):
         for i in range(len(controller_type)):
             log_msgs=[]
             round_num=len(controller_type)*k+i
             if result(round_num)=="failed" or result(round_num)=='goal has an invalid return status!':
+                if first_failure==0:
+                    d=shapes.Drawing(250,40)
+                    d.add(String(1,20,"Failure report",fontSize=15)) 
+                    elements.append(d)
+                    first_failure=1
+                
                 #  Opening the csv of the error msgs       
                 f=open(os.path.join(get_package_share_directory('ROSNavBench'),
                 'raw_data',

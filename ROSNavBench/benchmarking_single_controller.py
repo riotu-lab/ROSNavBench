@@ -156,6 +156,7 @@ def main():
     global_y_points=[]
     global_time=[]  
     distance_to_obstacles=[]  
+    global_distance_to_obstacles=[]
     #log_msgs=[]    
     # nested arrays equal to number of controllers 
     # E.g., x_points=[[x points for the 1st controller],[x points for the 2nd controller],...]
@@ -205,6 +206,12 @@ def main():
             global_y_points.append(data[k][i+2][3])
             global_time.append(data[k][i+2][6])
             distance_to_obstacles[k].append(data[k][i+2][7])
+            global_distance_to_obstacles.append(data[k][i+2][7])
+    print( "CPU",CPU)
+    print("Mmemory ",Memory)
+    print("Time", time)
+    print("saftey", distance_to_obstacles)
+    print("memory global",global_Memory)
     # Convert the nested array into tuples to satisfy the requirment of Label() function of reportlab
     for k in range(len(controller_type)):
         CPU_data[k]=tuple(CPU_data[k])
@@ -279,15 +286,15 @@ def main():
     d=shapes.Drawing(250,40)
     d.add(String(1,20,"Performace analysis",fontSize=15)) 
     elements.append(d)  
-    data_variation,success_rate=performance_analysis_repeatability([table],planner_type,controller_type)
+    data_variation,success_rate,time_11,path_11=performance_analysis_repeatability([table],planner_type,controller_type)
     d=shapes.Drawing(250,20)
     d.add(String(1,20,success_rate))
-    elements.append(d)         
+    #elements.append(d)         
     d=shapes.Drawing(250,20*len(data_variation))
     d.add(String(1,20*len(data_variation),"The range of each criteria is:"))
     for i in range(len(data_variation)):
         d.add(String(1,20*i,data_variation[i]))
-    elements.append(d) 
+    #elements.append(d) 
     d=shapes.Drawing(250,40)
     d.add(String(1,20,"Graphs",fontSize=15)) 
     elements.append(d)   
@@ -317,6 +324,39 @@ def main():
         legend.colorNamePairs = cnp
         d.add(legend, 'legend')
         #elements.append(d) 
+    # Box plot 
+
+    data_1 = global_Memory
+    data_2 = global_CPU
+    data_3 = global_distance_to_obstacles
+    data_4 = time_11
+    data_5 =path_11
+    data = [data_1, data_2, data_3, data_4, data_5]
+ 
+    fig = plt.figure(figsize =(10, 6))
+    plt.subplots_adjust(wspace= 0.75)
+    plt.subplot(1,5,1) 
+    plt.boxplot(data_1)
+    plt.xticks(ticks = [1] ,labels = ["Memory (%)"], rotation = 'horizontal',fontdict={'family':'serif','size':12})
+    plt.subplot(1,5,2) 
+    plt.boxplot(data_2)
+    plt.xticks(ticks = [1] ,labels = ["CPU (%)"], rotation = 'horizontal',fontdict={'family':'serif','size':12})
+    plt.subplot(1,5,3) 
+    plt.boxplot(data_3)
+    plt.xticks(ticks = [1] ,labels = ["Proximity to\n obstcales (m)"], rotation = 'horizontal',fontdict={'family':'serif','size':12})
+    plt.subplot(1,5,4) 
+    plt.boxplot(data_4)
+    plt.xticks(ticks = [1] ,labels = ["Time (sec)"], rotation = 'horizontal',fontdict={'family':'serif','size':12})
+    plt.subplot(1,5,5) 
+    plt.boxplot(data_5)
+    plt.xticks(ticks = [1] ,labels = ["Path \nLength (m)"], rotation = 'horizontal',fontdict={'family':'serif','size':12})
+    plt.savefig(os.path.join(get_package_share_directory('ROSNavBench'),
+         'raw_data','graph_box_plot.png'))
+    drawing = shapes.Drawing(500,10)  
+    drawing.add(String(200,10,'Performace analysis ', fontSize=12, fillColor=colors.black))
+    elements.append(drawing) 
+    elements.append(Image_pdf(os.path.join(get_package_share_directory('ROSNavBench'),
+         'raw_data','graph_box_plot.png'),500,300)) 
 
     # CPU plot
     ####NEW
@@ -510,10 +550,16 @@ def main():
     elements.append(Image_pdf(os.path.join(get_package_share_directory('ROSNavBench'),
         'raw_data','map_plot.png'),y_length,x_length))
     
-
+    
+    first_failure=0 
     for i in range(len(controller_type)): 
         log_msgs=[]
         if result(i)=="failed" or result(i)=='goal has an invalid return status!':
+            if first_failure==0:
+                    d=shapes.Drawing(250,40)
+                    d.add(String(1,20,"Failure report",fontSize=15)) 
+                    elements.append(d)
+                    first_failure=1
             #  Opening the csv of the error msgs       
             f=open(os.path.join(get_package_share_directory('ROSNavBench'),
             'raw_data',
