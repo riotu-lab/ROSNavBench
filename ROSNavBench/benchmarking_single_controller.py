@@ -331,7 +331,7 @@ def main():
     data_3 = global_distance_to_obstacles
     data_4 = time_11
     data_5 =path_11
-    data = [data_1, data_2, data_3, data_4, data_5]
+    #data = [data_1, data_2, data_3, data_4, data_5]
  
     fig = plt.figure(figsize =(10, 6))
     plt.subplots_adjust(wspace= 0.75)

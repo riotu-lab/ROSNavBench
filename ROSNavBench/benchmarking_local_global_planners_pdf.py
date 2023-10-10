@@ -231,7 +231,7 @@ def main():
     d.add(String(1,20*(len(ranking)+1),"The ranking of each controller and planner combinations are:",fontName= 'Times-Bold'))
     row_increament=1
     for i in ranking:
-        text=i+"  "+str(round(ranking[i],2))+" %"
+        text=i+"  "+str(round(ranking[i],2))
         d.add(String(1,20*(row_increament),text))
         row_increament+=1
     elements.append(d)      
