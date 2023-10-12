@@ -223,12 +223,13 @@ def main():
                             ]))
         elements.append(t)  
     # Performace analysis 
-    d=shapes.Drawing(250,40)
-    d.add(String(1,20,"Performace analysis",fontSize=15)) 
+    d=shapes.Drawing(250,60)
+    d.add(String(1,40,"Performace analysis",fontSize=15)) 
     elements.append(d)  
     ranking,planners_success_rate,controllers_success_rate=performance_analysis(criteria,analysis_data,weights,planner_type,controller_type)
+    d.add(String(1,20,"Based on the criteria:" +", ".join(criteria),fontName= 'Times-Bold'))
     d=shapes.Drawing(250,20*(len(ranking)+1))
-    d.add(String(1,20*(len(ranking)+1),"The ranking of each controller and planner combinations are:",fontName= 'Times-Bold'))
+    d.add(String(1,20*(len(ranking)+1),"The score of each controller and planner combinations are:",fontName= 'Times-Bold'))
     row_increament=1
     for i in ranking:
         text=i+"  "+str(round(ranking[i],2))
@@ -439,6 +440,7 @@ def main():
         for i in range(len(controller_type)):
             log_msgs=[]
             round_num=len(controller_type)*k+i
+            print(round_num)
             if result(round_num)=="failed" or result(round_num)=='goal has an invalid return status!':
                 if first_failure==0:
                     d=shapes.Drawing(250,40)
@@ -461,8 +463,8 @@ def main():
         #         elements.append(d)  
                 table= [["-Global planner: "+planner_type[k],'',''],["Log messages of "+controller_type[i],'',''],["Logger_name", "Level", "Message"]]  
                 table.append([""])
-                for k in range(len(log_msgs)):
-                    table.append(log_msgs[k])
+                for j in range(len(log_msgs)):
+                    table.append(log_msgs[j])
 
      
 

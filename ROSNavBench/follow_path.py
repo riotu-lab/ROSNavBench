@@ -134,7 +134,8 @@ def main(args=None):
         element_with_planner_id.set('planner_id', new_planner_value)
         element_with_controller_id.set('controller_id',new_controller_value)
         # Save the modified XML back to the file
-        tree.write(xml_file)
+        tree.write(os.path.join(behaviour_tree_directory,
+        'bt_'+new_planner_value+'_'+new_controller_value+'.xml'))
  
     # Opening the config file to take the experiment data such as spawn pose, and the goal pose or trjectory
     # specs= os.path.join(
@@ -268,14 +269,17 @@ def main(args=None):
        modify_xml_path_planner(os.path.join(behaviour_tree_directory,
         'pose.xml'),os.environ["planner"],os.environ["controller"])
        time.sleep(0.2)
+       with open(os.path.join(behaviour_tree_directory,'pose.xml') ,"r") as whatever:
+             whatever_con=whatever.read()
+       logger.info("The controller is "+whatever_con)
        navigator.goToPose(goal_pose,behavior_tree=os.path.join(behaviour_tree_directory,
-        'pose.xml'))      
+        'bt_'+os.environ["planner"]+'_'+os.environ["controller"]+'.xml'))      
     elif  trajectory_type=='several_waypoints' or trajectory_type=='circle' or trajectory_type=='square':
        modify_xml_path_planner(os.path.join(behaviour_tree_directory,
         'poses.xml'),os.environ["planner"],os.environ["controller"])
        time.sleep(0.2)
        navigator.goThroughPoses(goal_poses,behavior_tree=os.path.join(behaviour_tree_directory,
-       'poses.xml')) 
+        'bt_'+os.environ["planner"]+'_'+os.environ["controller"]+'.xml')) 
        
        
     

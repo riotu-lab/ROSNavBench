@@ -22,7 +22,8 @@ def performance_analysis(criteria,data,weights,planner_type,controller_type):
     print("data   ",data)
     print("combinations",combinations)
     print("iterations_result",iterations_result)
-    if weights==None:
+    print(weights)
+    if weights=='None':
         #The user have not spceified weights
         normalized_weights=assign_weight(criteria)
     else:
@@ -98,7 +99,7 @@ def assign_weight(criteria_order):
     for i, criterion in enumerate(criteria_order):
         weight = (num_criteria - i) / sum(range(1, num_criteria + 1))
         weights[criterion] = weight
-    
+    print
     # Normalize the weights
     total_weight = sum(weights.values())
     normalized_weights = {criterion: weight / total_weight for criterion, weight in weights.items()}
