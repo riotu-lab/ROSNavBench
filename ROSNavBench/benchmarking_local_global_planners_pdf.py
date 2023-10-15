@@ -486,6 +486,7 @@ def main():
                                #('FONTNAME',(0,len(data)-1),(6,len(data)-1),'Helvetica-Bold'),
                             ]))
                 elements.append(t) 
+                elements.append(Drawing(500, 10))
 
 
     doc.build(elements)

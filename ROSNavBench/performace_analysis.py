@@ -182,7 +182,7 @@ def success_rate(result,controller_type,planner_type):
     controllers=[]
     planners=[] 
     for i in range(len(planner_type)):
-        planners.append("The success rate of "+planner_type[i]+" is "+str((result[i*len(controller_type):((i+1)*len(controller_type))].count('succeeded')/len(controller_type))*100)+" %")
+        planners.append("The success rate of "+planner_type[i]+" is "+str(round((result[i*len(controller_type):((i+1)*len(controller_type))].count('succeeded')/len(controller_type))*100,2))+" %")
     for i in range(len(controller_type)):   
         controllers.append([])
     for i in range(len(controller_type)):   
@@ -191,7 +191,7 @@ def success_rate(result,controller_type,planner_type):
             controllers[i].append(result[j*len(controller_type)+i])
 
     for i in range(len(controllers)):
-        controllers[i]="The success rate of "+controller_type[i]+" is "+str((controllers[i].count('succeeded')/len(planner_type))*100)+" %"
+        controllers[i]="The success rate of "+controller_type[i]+" is "+str(round((controllers[i].count('succeeded')/len(planner_type))*100,2))+" %"
     return planners,controllers
             
          
