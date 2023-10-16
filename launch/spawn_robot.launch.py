@@ -18,11 +18,6 @@ def generate_launch_description():
 
 
     # Opening the config file to take the experiment data such as intial pose of spawned robot 
-    # specs= os.path.join(
-    #     get_package_share_directory('ROSNavBench'),
-    #     'config',
-    #     params_file+'.yaml'
-    #    )
     with open(specs, 'r') as file:
         robot_specs = yaml.safe_load(file)
         
@@ -53,23 +48,6 @@ def generate_launch_description():
     else:
         os.environ['GAZEBO_MODEL_PATH'] =   gazebo_models_path
 
-    #URDF  arg
-    # urdf_file_name = robot_specs['turtlebot3_model']
-    # urdf_package=os.path.join(
-    #     get_package_share_directory('turtlebot3_gazebo'))
-    # urdf = os.path.join(
-    #     urdf_package,
-    #     'urdf',
-    #     'turtlebot3_'+urdf_file_name+'.urdf')
-      
-    # #Model  arg
-    # model_package=os.path.join(
-    #     get_package_share_directory('turtlebot3_gazebo'))
-    # model_path = os.path.join(
-    #     model_package,
-    #     'models',
-    #     'turtlebot3_'+urdf_file_name,
-    #     'model.sdf')
 
     #Start Gazebo
     gazebo = ExecuteProcess(

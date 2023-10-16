@@ -57,11 +57,6 @@ def main():
     # Get the name of config file of the current experiment
     specs = os.environ['PARAMS_FILE']
     # Open config file and extact data
-    # specs= os.path.join(
-    #     get_package_share_directory('ROSNavBench'),
-    #     'config',
-    #     params_file+'.yaml'
-    #    )
     with open(specs, 'r') as file:
         robot_specs = yaml.safe_load(file)
         
@@ -97,7 +92,6 @@ def main():
     global_y_points=[]
     global_time=[]
     distance_to_obstacles=[]
-    #log_msgs=[]
     # nested arrays equal to number of controllers 
     # E.g., x_points=[[x points for the 1st controller],[x points for the 2nd controller],...]
     for i in range(len(controller_type)*len(planner_type)):
@@ -147,9 +141,7 @@ def main():
         CPU_data[k]=tuple(CPU_data[k])
         Memory_data[k]=tuple(Memory_data[k])
         xy_points[k]=tuple(xy_points[k])    
-    print("CPU Daa "+str(len(CPU_data))) 
-    print("Memory data"+str(len(Memory_data)))  
-    print("x,y points"+str(len(xy_points)))
+ 
     # Extracting the result as a string from data array 
     def result(round_num):
         result=''
@@ -223,7 +215,7 @@ def main():
                             ]))
         elements.append(t)  
     # Performace analysis 
-    d=shapes.Drawing(250,60)
+    d=shapes.Drawing(250,70)
     d.add(String(1,40,"Performace analysis",fontSize=15)) 
     elements.append(d)  
     ranking,planners_success_rate,controllers_success_rate=performance_analysis(criteria,analysis_data,weights,planner_type,controller_type)
@@ -250,9 +242,9 @@ def main():
         d.add(String(1,20*(row_increament),controllers_success_rate[i]))
         row_increament+=1
     elements.append(d)      
-    # d=shapes.Drawing(250,40)
-    # d.add(String(1,20,"Graphs",fontSize=15)) 
-    # elements.append(d)   
+    d=shapes.Drawing(250,55)
+    d.add(String(1,20,"Graphs",fontSize=15)) 
+    elements.append(d)   
     legend_list=[]
     for j in range(math.ceil(len(controller_type)/6)): 
         v=j*6
@@ -440,7 +432,6 @@ def main():
         for i in range(len(controller_type)):
             log_msgs=[]
             round_num=len(controller_type)*k+i
-            print(round_num)
             if result(round_num)=="failed" or result(round_num)=='goal has an invalid return status!':
                 if first_failure==0:
                     d=shapes.Drawing(250,40)
@@ -471,19 +462,13 @@ def main():
                 t=Table(table)
                 t.setStyle(TableStyle([('INNERGRID',(0,0), (-1,-1), 0.25, colors.black),
                                    ('BOX',(0,0), (-1,-1), 0.25, colors.black),
-                                   #('SPAN',(0,0),(0,1)),
-                                   #('SPAN',(1,0),(1,1)),
-                                   #('SPAN',(2,0),(2,1)),
                                    ('SPAN',(0,2),(0,3)),
                                    ('SPAN',(1,2),(1,3)),
                                    ('SPAN',(2,2),(2,3)),
                                    ('SPAN',(0,0),(2,0)),
                                    ('SPAN',(0,1),(2,1)),
-                                   
                                    ('FONTNAME',(0,0),(8,1),'Times-Bold'),
                                    ('FONTSIZE',(0,0), (-1,-1),8)
-                               #('SPAN',(0,len(data)-1),(6,len(data)-1)),
-                               #('FONTNAME',(0,len(data)-1),(6,len(data)-1),'Helvetica-Bold'),
                             ]))
                 elements.append(t) 
                 elements.append(Drawing(500, 10))

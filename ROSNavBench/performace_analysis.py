@@ -17,37 +17,23 @@ import numpy as np
 #Data will be recived as a table of data [[name of critera as in table],[1m,1,1,1,]]
 
 def performance_analysis(criteria,data,weights,planner_type,controller_type):
-    print("Before ",data)
     data,combinations,iterations_result=extract_data(criteria,data,planner_type,controller_type)
-    print("data   ",data)
-    print("combinations",combinations)
-    print("iterations_result",iterations_result)
-    print(weights)
     if weights=='None':
         #The user have not spceified weights
         normalized_weights=assign_weight(criteria)
     else:
         #The user have spceified weights in form of giving a weight for each criteria from 1 to 9 
         normalized_weights=convert_weight(criteria,weights)
-    print("norm weight",normalized_weights)
     normalized_data=normalizing_data(data)
-    print("norm data",normalized_data)
     ranking=rank(normalized_data,normalized_weights,combinations,iterations_result)
-    print("rank",ranking)
-    print(success_rate(iterations_result,controller_type,planner_type))
     planners_success_rate,controllers_success_rate=success_rate(iterations_result,controller_type,planner_type)
     #conclusion=
     return ranking,planners_success_rate,controllers_success_rate
 
 def performance_analysis_repeatability(data,planner_type,controller_type):
-    print("Before ",data)
-    criteria=["Time","CPU","Path Length","Safety","Memory"]
-    
+
+    criteria=["Time","CPU","Path Length","Safety","Memory"]  
     data,combinations,iterations_result=extract_data(criteria,data,planner_type,controller_type)
-    print("data   ",data)
-    print("combinations",combinations)
-    print("iterations_result",iterations_result)
-    print(repatability_success_rate(iterations_result))
     variation,time,path=data_variation(data)
     success_rate=repatability_success_rate(iterations_result)
     return variation,success_rate,time,path
@@ -56,7 +42,6 @@ def extract_data(criteria, data,planner_type,controller_type):
     #This function extract data with respect to the user citeria
     arranged_data=[criteria]
     combinations=[inner_list[0] for outer_list in data for inner_list in outer_list[2:]]
-    print(combinations)
     for i in range(len(planner_type)):
         for j in range(len(controller_type)):
             iteration=len(controller_type)*i+j
@@ -99,7 +84,6 @@ def assign_weight(criteria_order):
     for i, criterion in enumerate(criteria_order):
         weight = (num_criteria - i) / sum(range(1, num_criteria + 1))
         weights[criterion] = weight
-    print
     # Normalize the weights
     total_weight = sum(weights.values())
     normalized_weights = {criterion: weight / total_weight for criterion, weight in weights.items()}
@@ -120,8 +104,6 @@ def normalizing_data(data):
         min_value.append(min(data[i+1]))
         
         if not identical_element(data[i+1]):
-            print(identical_element(data[i+1]))
-            print("i is ",i)
             for j in range(len(data[i+1])):
                 if data[0][i]=="Safety": 
                     data[i+1][j]=(data[i+1][j]-min_value[i])/(max_value[i]-min_value[i])
@@ -148,13 +130,13 @@ def rank(normailzed_data,weights,combinations,results):
     ranking=[]
     for j in range(len(normailzed_data[1])):
         ranking.append(sum([sublist[j] for sublist in  normailzed_data[1:]])) 
-    print(ranking)
+
     for i in range(len(results)-1,-1,-1):
         if results[i]!='succeeded':
             del combinations[i]
             del ranking[i]
     ranking=dict(zip(combinations,ranking))
-    print(ranking)
+  
 
     ranking=dict(sorted(ranking.items(),key=lambda item: item[1]))
     

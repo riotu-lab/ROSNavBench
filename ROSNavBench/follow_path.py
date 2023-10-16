@@ -71,7 +71,6 @@ class LaserSubscriber(Node):
                    
 def circle_points(x,y,r):
     # The robot is spawned at y and r+x 
-    #r= robot_specs['radius']
     waypoints_array=[]
     # The circel trajectory points are generated and sent        
     # The segments number is the cumenference diveded by 0.1
@@ -123,7 +122,6 @@ def main(args=None):
         root = tree.getroot()
 
         # Find the element with the 'planner_id' attribute within the ComputePathToPose element
-        #ADD ONE FOR POSE AND ONE FOR POSES //////////////////////////////////////////
         if trajectory_type=="one_goal":
             element_with_planner_id = root.find(".//ComputePathToPose[@planner_id]")
         else:
@@ -138,11 +136,6 @@ def main(args=None):
         'bt_'+new_planner_value+'_'+new_controller_value+'.xml'))
  
     # Opening the config file to take the experiment data such as spawn pose, and the goal pose or trjectory
-    # specs= os.path.join(
-    #     get_package_share_directory('ROSNavBench'),
-    #     'config',
-    #     params_file+'.yaml'
-    #    )
     with open(specs, 'r') as file:
         robot_specs = yaml.safe_load(file)
         
@@ -309,13 +302,11 @@ def main(args=None):
             error_msg=[]
            
             if subscriber.log_msg_name=="controller_server" or subscriber.log_msg_name=="behavior_server" or subscriber.log_msg_name=="smoother_server" or subscriber.log_msg_name=="planner_server" or subscriber.log_msg_name=="bt_navigator" or subscriber.log_msg_name=="waypoint_follower" or subscriber.log_msg_name=="velocity_smoother" or subscriber.log_msg_name=="lifecycle_manager_navigation" or subscriber.log_msg_name=="map_server" or subscriber.log_msg_name=="amcl" or subscriber.log_msg_name=="lifecycle_manager_localization":
-            #error_msg.append(round(Time.from_msg(subscriber.log_time).nanoseconds / 1e9, 2))
                 if subscriber.log_level=="ERROR" or subscriber.log_level=="FATAL":
                     error_msg.append(subscriber.log_msg_name)
                     error_msg.append(subscriber.log_level)
                     error_msg.append(subscriber.log_msgs) 
                     error_msgs.append(error_msg)   
-            #error_msgs.append(round(Duration.from_msg(subscriber.log_time).nanoseconds / 1e9, 2)) 
             rclpy.spin_once(laser_reading)       
             row=[]
             row.append(psutil.cpu_percent())
