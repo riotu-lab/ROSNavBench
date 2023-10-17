@@ -106,7 +106,7 @@ controller_server:
     failure_tolerance: 0.3
     progress_checker_plugin: "progress_checker"
     goal_checker_plugins: ["general_goal_checker"] 
-    controller_plugins: ["DWB_RSC","RPP", "DWB", "RPP_RSC"]
+    controller_plugins: ["MPPI","DWB_RSC","RPP", "DWB", "RPP_RSC"]
 
     # Progress checker parameters
     progress_checker:

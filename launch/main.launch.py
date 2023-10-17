@@ -23,13 +23,13 @@ import numpy as np
 
 def generate_launch_description():
     # Get the name of config file of the current experiment
-    params_file = os.environ['PARAMS_FILE']
+    specs = os.environ['PARAMS_FILE']
     # Opening the config file to take the experiment data such as spawn pose
-    specs= os.path.join(
-        get_package_share_directory('ROSNavBench'),
-        'config',
-        params_file+'.yaml'
-       )
+    # specs= os.path.join(
+    #     get_package_share_directory('ROSNavBench'),
+    #     'config',
+    #     params_file+'.yaml'
+    #    )
     with open(specs, 'r') as file:
         robot_specs = yaml.safe_load(file)
         
@@ -42,7 +42,7 @@ def generate_launch_description():
     trails_num = robot_specs['trails_num']
     if trails_num>0:
         controller_type=[controller_type[0]]*trails_num
-        planner_type_type=[planner_type_type[0]]
+        planner_type=[planner_type[0]]
         # Node for generating pdf
         pdf_generator=Node(
             name='benchmarking_single_controller',

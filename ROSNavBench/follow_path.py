@@ -22,10 +22,10 @@ from std_msgs.msg import String
 from  rcl_interfaces.msg import Log
 from rclpy.time import Time
 import xml.etree.ElementTree as ET
-
+from sensor_msgs.msg import LaserScan
 
 # Get the name of config file of the current experiment
-params_file = os.environ['PARAMS_FILE']
+specs = os.environ['PARAMS_FILE']
 rclpy.init()
 global navigator
 navigator = BasicNavigator()
@@ -54,9 +54,23 @@ class LogSubscriber(Node):
             self.log_level="ERROR"
         elif msg.level==50:
             self.log_level="FATAL"
+
+class LaserSubscriber(Node):
+    def __init__(self):
+        super().__init__('LaserSubscribe')
+        self.subscription=self.create_subscription(
+            LaserScan,
+            'scan',
+            self.LaserSubscribe_callback,
+            10
+        )
+
+    def LaserSubscribe_callback(self,msg):
+        self.min_val=min(msg.ranges)
+       
+                   
 def circle_points(x,y,r):
     # The robot is spawned at y and r+x 
-    #r= robot_specs['radius']
     waypoints_array=[]
     # The circel trajectory points are generated and sent        
     # The segments number is the cumenference diveded by 0.1
@@ -108,7 +122,6 @@ def main(args=None):
         root = tree.getroot()
 
         # Find the element with the 'planner_id' attribute within the ComputePathToPose element
-        #ADD ONE FOR POSE AND ONE FOR POSES //////////////////////////////////////////
         if trajectory_type=="one_goal":
             element_with_planner_id = root.find(".//ComputePathToPose[@planner_id]")
         else:
@@ -119,14 +132,10 @@ def main(args=None):
         element_with_planner_id.set('planner_id', new_planner_value)
         element_with_controller_id.set('controller_id',new_controller_value)
         # Save the modified XML back to the file
-        tree.write(xml_file)
+        tree.write(os.path.join(behaviour_tree_directory,
+        'bt_'+new_planner_value+'_'+new_controller_value+'.xml'))
  
     # Opening the config file to take the experiment data such as spawn pose, and the goal pose or trjectory
-    specs= os.path.join(
-        get_package_share_directory('ROSNavBench'),
-        'config',
-        params_file+'.yaml'
-       )
     with open(specs, 'r') as file:
         robot_specs = yaml.safe_load(file)
         
@@ -254,20 +263,22 @@ def main(args=None):
         'pose.xml'),os.environ["planner"],os.environ["controller"])
        time.sleep(0.2)
        navigator.goToPose(goal_pose,behavior_tree=os.path.join(behaviour_tree_directory,
-        'pose.xml'))      
+        'bt_'+os.environ["planner"]+'_'+os.environ["controller"]+'.xml'))      
     elif  trajectory_type=='several_waypoints' or trajectory_type=='circle' or trajectory_type=='square':
        modify_xml_path_planner(os.path.join(behaviour_tree_directory,
         'poses.xml'),os.environ["planner"],os.environ["controller"])
        time.sleep(0.2)
        navigator.goThroughPoses(goal_poses,behavior_tree=os.path.join(behaviour_tree_directory,
-       'poses.xml')) 
+        'bt_'+os.environ["planner"]+'_'+os.environ["controller"]+'.xml')) 
        
        
     
     #These varibales are used for formating the csv file that conatins the raw data 
-    empty_matrix=["", "", "", "", "", "", ""]
-    data=[["CPU usage %", "Memory usage\n%", "x-pose", "y-pose", 'number of\nrecoveries', 'distance\nremaining','navigation\ntime'],empty_matrix]
+    empty_matrix=["", "", "", "", "", "", "",""]
+    data=[["CPU usage %", "Memory usage\n%", "x-pose", "y-pose", 'number of\nrecoveries', 'distance\nremaining','navigation\ntime',"Distance\nto obstacles"],empty_matrix]
     subscriber=LogSubscriber()
+    laser_reading=LaserSubscriber()
+    
     # A time gap is used to make sudurationre the the goal is sent 
     time.sleep(0.1)
     error_msgs=[]
@@ -288,13 +299,12 @@ def main(args=None):
             error_msg=[]
            
             if subscriber.log_msg_name=="controller_server" or subscriber.log_msg_name=="behavior_server" or subscriber.log_msg_name=="smoother_server" or subscriber.log_msg_name=="planner_server" or subscriber.log_msg_name=="bt_navigator" or subscriber.log_msg_name=="waypoint_follower" or subscriber.log_msg_name=="velocity_smoother" or subscriber.log_msg_name=="lifecycle_manager_navigation" or subscriber.log_msg_name=="map_server" or subscriber.log_msg_name=="amcl" or subscriber.log_msg_name=="lifecycle_manager_localization":
-            #error_msg.append(round(Time.from_msg(subscriber.log_time).nanoseconds / 1e9, 2))
                 if subscriber.log_level=="ERROR" or subscriber.log_level=="FATAL":
                     error_msg.append(subscriber.log_msg_name)
                     error_msg.append(subscriber.log_level)
                     error_msg.append(subscriber.log_msgs) 
                     error_msgs.append(error_msg)   
-            #error_msgs.append(round(Duration.from_msg(subscriber.log_time).nanoseconds / 1e9, 2))        
+            rclpy.spin_once(laser_reading)       
             row=[]
             row.append(psutil.cpu_percent())
             row.append(psutil.virtual_memory().percent)
@@ -303,6 +313,7 @@ def main(args=None):
             row.append(feedback.number_of_recoveries)
             row.append(round(feedback.distance_remaining, 2))
             row.append(round(Duration.from_msg(feedback.navigation_time).nanoseconds / 1e9, 2))
+            row.append(round(laser_reading.min_val,2))
             data.append(row)
         else:
             print("Warning: No feedback received.")

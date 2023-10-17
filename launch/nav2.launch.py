@@ -26,16 +26,12 @@ from launch_ros.actions import Node
 import yaml
 
 # Get the name of config file of the current experiment
-params_file = os.environ['PARAMS_FILE']
+specs = os.environ['PARAMS_FILE']
 
 def generate_launch_description():
 
     # Opening the config file to take the experiment data such as the path of the navigation configuration
-    specs=os.path.join(
-        get_package_share_directory('ROSNavBench'),
-        'config',
-        params_file+'.yaml'
-       )
+
     with open(specs, 'r') as file:
         robot_specs = yaml.safe_load(file)
 
@@ -74,10 +70,7 @@ def generate_launch_description():
     return LaunchDescription([ 
         DeclareLaunchArgument(
             'map',
-            default_value=os.path.join(
-            get_package_share_directory('ROSNavBench'),
-            'maps',
-            map_path),
+            default_value=map_path,
             description = 'Full path to map file to load'),
 
         DeclareLaunchArgument(
