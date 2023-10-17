@@ -262,9 +262,6 @@ def main(args=None):
        modify_xml_path_planner(os.path.join(behaviour_tree_directory,
         'pose.xml'),os.environ["planner"],os.environ["controller"])
        time.sleep(0.2)
-       with open(os.path.join(behaviour_tree_directory,'pose.xml') ,"r") as whatever:
-             whatever_con=whatever.read()
-       logger.info("The controller is "+whatever_con)
        navigator.goToPose(goal_pose,behavior_tree=os.path.join(behaviour_tree_directory,
         'bt_'+os.environ["planner"]+'_'+os.environ["controller"]+'.xml'))      
     elif  trajectory_type=='several_waypoints' or trajectory_type=='circle' or trajectory_type=='square':
