@@ -15,9 +15,21 @@ import numpy as np
 # success rate will be provided on seperate analysis   
 
 #Data will be recived as a table of data [[name of critera as in table],[1m,1,1,1,]]
+analysis_data=[[['Controller\ntype', 'Success\n rate\n (%)', 'Average \nexecution\ntime (sec)', 'CPU(%)', '', 'Memory usage(%)', 'Memory usage (%)', 'Average\nnumber of\nrecoveries', 'Average\n path\nlength(m)', 'Min\nproximity to\n obstacles(m)'], 
+  ['', '', '', 'Average', 'Max', 'Average', 'Max', '', '', ''], 
+  ['RPP', '100.0', '17.53', '21.21', '25.2', '10.56', '10.6', '0.00', '3.13', '0.58'], 
+  ['DWB', '100.0', '17.87', '20.36', '24.9', '10.60', '10.6', '0.00', '3.15', '0.58']], 
+  [['Controller\ntype', 'Success\n rate\n (%)', 'Average \nexecution\ntime (sec)', 'CPU(%)', '', 'Memory usage(%)', 'Memory usage (%)', 'Average\nnumber of\nrecoveries', 'Average\n path\nlength(m)', 'Min\nproximity to\n obstacles(m)'],
+    ['', '', '', 'Average', 'Max', 'Average', 'Max', '', '', ''], 
+    ['RPP', '100.0', '16.82', '18.93', '22.9', '10.60', '10.6', '0.00', '3.08', '0.53'], 
+    ['DWB', '100.0', '17.90', '19.75', '25.8', '10.68', '10.7', '0.00', '3.11', '0.52']]]
+criteria= ["Time", "Path Length", "CPU", "Memory", "Safety"]
+planner_type= ["NavFn", "smac_planner"]
+controller_type= ["RPP", "DWB"]
 
 def performance_analysis(criteria,data,weights,planner_type,controller_type):
     data,combinations,iterations_result=extract_data(criteria,data,planner_type,controller_type)
+    print(data)
     if weights=='None':
         #The user have not spceified weights
         normalized_weights=assign_weight(criteria)
@@ -47,7 +59,7 @@ def extract_data(criteria, data,planner_type,controller_type):
             iteration=len(controller_type)*i+j
             combinations[iteration]+=" "+planner_type[i]
        
-    iterations_results=[inner_list[1] for outer_list in data for inner_list in outer_list[2:]]
+    iterations_results=[float(inner_list[1]) for outer_list in data for inner_list in outer_list[2:]]
     for i in range(len(criteria)):
         if criteria[i]=="Time":
             arranged_data.append([float(inner_list[2]) for outer_list in data for inner_list in outer_list[2:]])
@@ -87,6 +99,7 @@ def assign_weight(criteria_order):
     # Normalize the weights
     total_weight = sum(weights.values())
     normalized_weights = {criterion: weight / total_weight for criterion, weight in weights.items()}
+    normalized_weights
 
     return normalized_weights
 
@@ -105,14 +118,14 @@ def normalizing_data(data):
         
         if not identical_element(data[i+1]):
             for j in range(len(data[i+1])):
-                if data[0][i]=="Safety": 
-                    data[i+1][j]=(data[i+1][j]-min_value[i])/(max_value[i]-min_value[i])
-                else: 
-                    data[i+1][j]=(max_value[i]-data[i+1][j])/(max_value[i]-min_value[i])
+                #if data[0][i]=="Safety": 
+                #    data[i+1][j]=(data[i+1][j]-min_value[i])/(max_value[i]-min_value[i])
+                #else: 
+                data[i+1][j]=(max_value[i]-data[i+1][j])/(max_value[i]-min_value[i])
         else:
             # if all values of a criterion are identical , set all of them to zero as they are not going to affect the final result
             data[i+1]=[0]*len(data[i+1])
-    
+    print("metric data",data)
     return data
 
 def identical_element(array):
@@ -125,14 +138,18 @@ def identical_element(array):
 def rank(normailzed_data,weights,combinations,results):
     for i in range(len(normailzed_data[0])):
         for j in range(len(normailzed_data[i+1])):
-            normailzed_data[i+1][j]=round(normailzed_data[i+1][j]*weights[normailzed_data[0][i]],4)
-    
+            if normailzed_data[0][i]=="Safety":
+
+                normailzed_data[i+1][j]=normailzed_data[i+1][j]*(-1)*weights[normailzed_data[0][i]]
+            else: 
+                normailzed_data[i+1][j]=normailzed_data[i+1][j]*weights[normailzed_data[0][i]]
+
+
     ranking=[]
     for j in range(len(normailzed_data[1])):
-        ranking.append(sum([sublist[j] for sublist in  normailzed_data[1:]])) 
-
+        ranking.append(round(sum([sublist[j] for sublist in  normailzed_data[1:]]),2)) 
     for i in range(len(results)-1,-1,-1):
-        if results[i]!='succeeded':
+        if results[i]==0.0:
             del combinations[i]
             del ranking[i]
     ranking=dict(zip(combinations,ranking))
@@ -164,7 +181,7 @@ def success_rate(result,controller_type,planner_type):
     controllers=[]
     planners=[] 
     for i in range(len(planner_type)):
-        planners.append("The success rate of "+planner_type[i]+" is "+str(round((result[i*len(controller_type):((i+1)*len(controller_type))].count('succeeded')/len(controller_type))*100,2))+" %")
+        planners.append("The success rate of "+planner_type[i]+" is "+str(round((sum(result[i*len(controller_type):((i+1)*len(controller_type))])/len(controller_type)),2))+" %")
     for i in range(len(controller_type)):   
         controllers.append([])
     for i in range(len(controller_type)):   
@@ -173,7 +190,9 @@ def success_rate(result,controller_type,planner_type):
             controllers[i].append(result[j*len(controller_type)+i])
 
     for i in range(len(controllers)):
-        controllers[i]="The success rate of "+controller_type[i]+" is "+str(round((controllers[i].count('succeeded')/len(planner_type))*100,2))+" %"
+        controllers[i]="The success rate of "+controller_type[i]+" is "+str(round((sum(controllers[i])/len(planner_type)),2))+" %"
     return planners,controllers
             
          
+ranking,planners_success_rate,controllers_success_rate=performance_analysis(criteria,analysis_data,'None',planner_type,controller_type)
+print(ranking)

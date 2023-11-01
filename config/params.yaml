@@ -26,9 +26,9 @@ planner_type: ["NavFn", "smac_planner"]
 #  DWB_RSC
 controller_type: ["RPP", "DWB", "MPPI"] #name of behaviour tree
 
-#  This option is intended for testing the same controller several times
-#  if the user do not need this test, set it to zero
-trails_num: 0
+#  This option is intended for testing the same controller and planner combination several times
+#  Min value is one
+instances_num: 1
 
 #  Add the absolute path of the robot navigation configuration
 nav_config: "/home/riotu/perform_ws/src/ROSNavBench/example/turtlebot3/nav2_config/waffle.yaml"

@@ -31,7 +31,7 @@ controller_type: ["DWB","RPP","MPPI"] #name of behaviour tree
 trails_num: 0
 #Number of instances for multiple controllers and planners test
 #This will repeat each combination instances_num times
-instances_num: 5
+instances_num: 1
 #  Add the absolute path of the robot navigation configuration
 nav_config: "/home/riotu/perform_ws/src/ROSNavBench/example/turtlebot3/nav2_config/waffle.yaml"
 
@@ -52,15 +52,15 @@ criteria: ["Time", "CPU"]
 weights: "None"
 
 #  Provide the pose in a decimal form
-spawn_pose_x: -3.3
-spawn_pose_y: -6.9
+spawn_pose_x: -3.43
+spawn_pose_y: 2.03
 spawn_pose_yaw: 1.58 #radians
 
 #  Specify either to send one goal, specific trajectory, or several waypoints
 #  square, circle, several_waypoints, one_goal
 trajectory_type: "one_goal"
 #  One goal parameter
-goal_pose_x: 0.95
-goal_pose_y: 4.55
+goal_pose_x: 4.23
+goal_pose_y: 1.80
 goal_pose_yaw: 1.58 #radians
 

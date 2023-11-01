@@ -15,7 +15,7 @@
           </RecoveryNode>
         </RateController>
         <RecoveryNode number_of_retries="1" name="FollowPath">
-          <FollowPath path="{path}" controller_id="DWB" />
+          <FollowPath path="{path}" controller_id="RPP" />
           <ReactiveFallback name="FollowPathRecoveryFallback">
             <GoalUpdated />
             <ClearEntireCostmap name="ClearLocalCostmap-Context" service_name="local_costmap/clear_entirely_local_costmap" />

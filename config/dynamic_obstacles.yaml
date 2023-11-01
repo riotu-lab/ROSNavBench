@@ -1,17 +1,17 @@
 ##  Name the experiment. This name will be the name of the report
-experiment_name: "waypoints_all_controllers1"
+experiment_name: "dynamic_obstcales_test"
 
 #Save directory of results
 results_directory: "/home/riotu/perform_ws/src/ROSNavBench/results"
 
 #  Add the absolute path of the world
-world_path: "/home/riotu/perform_ws/src/ROSNavBench/simulations/worlds/scenario_world.world"
+world_path: "/home/riotu/dynamic_obstacles_industrial.world"
 
 #  Add the absolute path of the map
-map_path: "/home/riotu/perform_ws/src/ROSNavBench/simulations/maps/map.yaml"
+map_path: "/home/riotu/perform_ws/src/ROSNavBench/simulations/maps/warehouse_slam_toolbox.yaml"
 
 #  Add the absolute path of the map
-map_png_path: "/home/riotu/perform_ws/src/ROSNavBench/simulations/maps/map.pgm"
+map_png_path: "/home/riotu/perform_ws/src/ROSNavBench/simulations/maps/warehouse_slam_toolbox.pgm"
 
 #  Add gazebo model path, if multiple path, please spereate them by a :
 models_path: "/opt/ros/humble/share/turtlebot3_gazebo/models:/home/riotu/perform_ws/src/ROSNavBench/simulations/models"
@@ -26,9 +26,9 @@ planner_type: ["NavFn", "smac_planner"]
 #  DWB_RSC
 controller_type: ["RPP", "DWB", "MPPI"] #name of behaviour tree
 
-#  This option is intended for testing the same controller several times
-#  if the user do not need this test, set it to zero
-trails_num: 0
+#  This option is intended for testing the same controller and planner combination several times
+#  Min value is one
+instances_num: 1
 
 #  Add the absolute path of the robot navigation configuration
 nav_config: "/home/riotu/perform_ws/src/ROSNavBench/example/turtlebot3/nav2_config/waffle.yaml"
@@ -48,19 +48,19 @@ criteria: ["Time", "Path Length", "CPU", "Memory", "Safety"]
 #Set None if the wieght to be set automatcally giving that the importance to the eariler criteria in the matrix
 weights: "None"
 #  Provide the pose in a decimal form
-spawn_pose_x: 4.0
-spawn_pose_y: -4.0
+spawn_pose_x: 1.34
+spawn_pose_y: 6.9
 spawn_pose_yaw: 1.58 #radians
 
 #  Specify either to send one goal, specific trajectory, or several waypoints
 #  square, circle, several_waypoints, one_goal
-trajectory_type: "several_waypoints"
+trajectory_type: "one_goal"
 #  One goal parameter
-goal_pose_x: -2.30
-goal_pose_y: -3.00
+goal_pose_x: 1.4
+goal_pose_y: -3.0
 goal_pose_yaw: -3.13 #radians
 # Specify way points in this formate [[x0,y0,yaw0_radians], [x1,y1,yaw1_radians], ...]. Type should be float
-waypoints: [[-1.83, 3.26, 1.5], [-4.0, 0.17, 1.5], [-1.39, -3.82, 1.5]]
+#waypoints: [[-1.83, 3.26, 1.5], [-4.0, 0.17, 1.5], [-1.39, -3.82, 1.5]]
 #[[-2.0, -3.00, -3.13]]
 # failure [[-1.83, 3.26, 1.5], [-4.0, 0.17, 1.5], [-1.39, -3.82, 1.5]]
 #[[-1.83,3.26,1.5],[-4.0,0.17,1.5],[-1.39,-3.82,1.5],[4.0,-4.0,1.5]]

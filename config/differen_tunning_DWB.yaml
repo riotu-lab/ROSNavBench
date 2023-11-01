@@ -1,11 +1,11 @@
 #  Name the experiment. This name will be the name of the report
-experiment_name: "static_obstacles_scenario_report_f"
+experiment_name: "DWB_tuning"
 
 #Save directory of results
 results_directory: "/home/riotu/perform_ws/src/ROSNavBench/results"
 
 #  Add the absolute path of the world
-world_path: "/home/riotu/industrial_warehouse.world"
+world_path: "/home/riotu/dynamic_tunning.world"
 
 #  Add the absolute path of the map
 map_path: "/home/riotu/perform_ws/src/ROSNavBench/simulations/maps/warehouse_slam_toolbox.yaml"
@@ -17,21 +17,19 @@ map_png_path: "/home/riotu/perform_ws/src/ROSNavBench/simulations/maps/warehouse
 models_path: "/opt/ros/humble/share/turtlebot3_gazebo/models:/home/riotu/perform_ws/src/ROSNavBench/simulations/models"
 
 #  Choose a type of global local planners to be tested
-planner_type: ["NavFn", "smac_planner"]
+planner_type: ["NavFn"]
 #  Choose one of the following controllers, by adding its name to the controller type list
 #  Note that these are the avaible controllers for the provided example
 #  DWB
 #  RPP
 #  RPP_RSC
 #  DWB_RSC
-controller_type: ["DWB","RPP","MPPI"] #name of behaviour tree
+controller_type: ["DWB","DWB_1","DWB_2"] #name of behaviour tree
 
-#  This option is intended for testing the same controller several times
-#  if the user do not need this test, set it to zero
-trails_num: 0
-#Number of instances for multiple controllers and planners test
-#This will repeat each combination instances_num times
-instances_num: 5
+#  This option is intended for testing the same controller and planner combination several times
+#  Min value is one
+instances_num: 1
+
 #  Add the absolute path of the robot navigation configuration
 nav_config: "/home/riotu/perform_ws/src/ROSNavBench/example/turtlebot3/nav2_config/waffle.yaml"
 
@@ -62,5 +60,5 @@ trajectory_type: "one_goal"
 #  One goal parameter
 goal_pose_x: 0.95
 goal_pose_y: 4.55
-goal_pose_yaw: 1.58 #radians
+goal_pose_yaw: 2.58 #radians
 
