@@ -2,19 +2,19 @@
 experiment_name: "param_guide"
 
 #Save directory of results
-results_directory: "/home/riotu/ros2_ws2/src/ROSNavBench/results"
+results_directory: "/home/riotu/ros_ws/src/ROSNavBench/results"
 
 #  Add the absolute path of the world
-world_path: "/home/riotu/ros2_ws2/src/ROSNavBench/simulations/worlds/scenario_world.world"
+world_path: "/home/riotu/ros_ws/src/ROSNavBench/simulations/worlds/scenario_world.world"
 
 #  Add the absolute path of the map
-map_path: "/home/riotu/ros2_ws2/src/ROSNavBench/simulations/maps/map.yaml"
+map_path: "/home/riotu/ros_ws/src/ROSNavBench/simulations/maps/map.yaml"
 
 #  Add the absolute path of the map
-map_png_path: "/home/riotu/ros2_ws2/src/ROSNavBench/simulations/maps/map.pgm"
+map_png_path: "/home/riotu/ros_ws/src/ROSNavBench/simulations/maps/map.pgm"
 
 #  Add gazebo model path, if multiple path, please spereate them by a :
-models_path: "/opt/ros/humble/share/turtlebot3_gazebo/models:/home/riotu/ros2_ws2/src/ROSNavBench/simulations/models"
+models_path: "/opt/ros/humble/share/turtlebot3_gazebo/models:/home/riotu/ros_ws/src/ROSNavBench/simulations/models"
 
 #  Choose a type of global local planners to be tested
 planner_type: ["NavFn", "smac_planner"]
@@ -26,21 +26,21 @@ planner_type: ["NavFn", "smac_planner"]
 #  DWB_RSC
 controller_type: ["RPP", "DWB", "MPPI"] #name of behaviour tree
 
-#  This option is intended for testing the same controller several times
-#  if the user do not need this test, set it to zero
-trails_num: 0
+#  This option is intended for testing the same controller and planner combination several times
+#  Min value is one
+instances_num: 1
 
 #  Add the absolute path of the robot navigation configuration
-nav_config: "/home/riotu/perform_ws/src/ROSNavBench/example/turtlebot3/nav2_config/waffle.yaml"
+nav_config: "/home/riotu/ros_ws/src/ROSNavBench/example/turtlebot3/nav2_config/waffle_pi.yaml"
 
 #  Add the directory of the behaviour tree
-behaviour_tree_directory: "/home/riotu/perform_ws/src/ROSNavBench/example/turtlebot3/behavior_trees"
+behaviour_tree_directory: "/home/riotu/ros_ws/src/ROSNavBench/example/turtlebot3/behavior_trees"
 
 #  Add the absolute path of the urdf and model files inside single qoutes ''
-urdf_file: "/opt/ros/humble/share/turtlebot3_description/urdf/turtlebot3_waffle.urdf"
+urdf_file: "/opt/ros/humble/share/turtlebot3_description/urdf/turtlebot3_waffle_pi.urdf"
 
 #  If the robot is spawned by only urdf, then set the model_file to 'None'
-model_file: "/opt/ros/humble/share/turtlebot3_gazebo/models/turtlebot3_waffle/model.sdf"
+model_file: "/opt/ros/humble/share/turtlebot3_gazebo/models/turtlebot3_waffle_pi/model.sdf"
 #Citeria for performace analysis includes: "Time" ,"CPU", "Memory", "Path Length" , "Safety"
 criteria: ["Time", "Path Length", "CPU", "Memory", "Safety"]
 
