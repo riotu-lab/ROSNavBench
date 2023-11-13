@@ -1,0 +1,63 @@
+#  Name the experiment. This name will be the name of the report
+experiment_name: "several_waypoints"
+
+#Save directory of results
+results_directory: "/home/riotu/ros5_ws/src/ROSNavBench/results"
+
+#  Add the absolute path of the world
+world_path: "/home/riotu/industrial_warehouse.world"
+
+#  Add the absolute path of the map
+map_path: "/home/riotu/ros5_ws/src/ROSNavBench/simulations/maps/warehouse_slam_toolbox.yaml"
+
+#  Add the absolute path of the map
+map_png_path: "/home/riotu/ros5_ws/src/ROSNavBench/simulations/maps/warehouse_slam_toolbox.pgm"
+
+#  Add gazebo model path, if multiple path, please spereate them by a :
+models_path: "/opt/ros/humble/share/turtlebot3_gazebo/models:/home/riotu/ros5_ws/src/ROSNavBench/simulations/models"
+
+#  Choose a type of global local planners to be tested
+planner_type: ["NavFn", "smac_planner"]
+#  Choose one of the following controllers, by adding its name to the controller type list
+#  Note that these are the avaible controllers for the provided example
+#  DWB
+#  RPP
+#  RPP_RSC
+#  DWB_RSC
+controller_type: ["RPP", "DWB","MPPI"] #name of behaviour tree
+
+#  This option is intended for testing the same controller and planner combination several times
+#  Min value is one
+instances_num: 5
+
+#  Add the absolute path of the robot navigation configuration
+nav_config: "/home/riotu/ros5_ws/src/ROSNavBench/example/turtlebot3/nav2_config/waffle_pi.yaml"
+
+#  Add the directory of the behaviour tree
+behaviour_tree_directory: "/home/riotu/ros5_ws/src/ROSNavBench/example/turtlebot3/behavior_trees"
+
+#  Add the absolute path of the urdf and model files inside single qoutes ''
+urdf_file: "/opt/ros/humble/share/turtlebot3_description/urdf/turtlebot3_waffle_pi.urdf"
+
+#  If the robot is spawned by only urdf, then set the model_file to 'None'
+model_file: "/opt/ros/humble/share/turtlebot3_gazebo/models/turtlebot3_waffle_pi/model.sdf"
+
+#Citeria for performace analysis includes: "Time" ,"CPU", "Memory", "Path Length" , "Safety"
+criteria: ["Time", "Path Length", "CPU", "Memory", "Safety"]
+
+#Wieght for each criteria as a number from 1 to 9
+#Set None if the wieght to be set automatcally giving that the importance to the eariler criteria in the matrix
+weights: "None"
+
+#  Provide the pose in a decimal form
+spawn_pose_x: 1.05
+spawn_pose_y: 6.64
+spawn_pose_yaw: -3.13 #radians
+
+#  Specify either to send one goal, specific trajectory, or several waypoints
+#  square, circle, several_waypoints, one_goal
+trajectory_type: "several_waypoints"
+
+# Specify way points in this formate [[x0,y0,yaw0_radians], [x1,y1,yaw1_radians], ...]
+waypoints: [[1.38,2.12, -3.13],[5.45,1.99, -3.13],[5.5,-2.18, -3.13]]
+
