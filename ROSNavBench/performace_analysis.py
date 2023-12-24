@@ -3,6 +3,7 @@
 from itertools import combinations
 import string
 import numpy as np
+import pandas as pd
 
 #criteria=["Time","CPU","Path Length","Safety","Memory"]
 #List of possible criteria 
@@ -16,54 +17,25 @@ import numpy as np
 
 #Data will be recived as a table of data [[name of critera as in table],[1m,1,1,1,]]
 
+
 def performance_analysis(criteria,data,weights,planner_type,controller_type):
-    data,combinations,iterations_result=extract_data(criteria,data,planner_type,controller_type)
+
     if weights=='None':
         #The user have not spceified weights
         normalized_weights=assign_weight(criteria)
     else:
         #The user have spceified weights in form of giving a weight for each criteria from 1 to 9 
         normalized_weights=convert_weight(criteria,weights)
-    normalized_data=normalizing_data(data)
-    ranking=rank(normalized_data,normalized_weights,combinations,iterations_result)
-    planners_success_rate,controllers_success_rate=success_rate(iterations_result,controller_type,planner_type)
+    normalized_data=normalize_by_trajectory_type(data)
+    scores=calculate_weighted_average(normalized_data, criteria, normalized_weights)
+    #planners_success_rate,controllers_success_rate=success_rate(iterations_result,controller_type,planner_type)
     #conclusion=
-    return ranking,planners_success_rate,controllers_success_rate
+    return scores
 
-def performance_analysis_repeatability(data,planner_type,controller_type):
+#criteria=["Time","CPU","path_length","Safety","Memory",'path_deviation','success_rate','number_of_recoveries']  
 
-    criteria=["Time","CPU","Path Length","Safety","Memory"]  
-    data,combinations,iterations_result=extract_data(criteria,data,planner_type,controller_type)
-    variation,time,path=data_variation(data)
-    success_rate=repatability_success_rate(iterations_result)
-    return variation,success_rate,time,path
 
-def extract_data(criteria, data,planner_type,controller_type):
-    #This function extract data with respect to the user citeria
-    arranged_data=[criteria]
-    combinations=[inner_list[0] for outer_list in data for inner_list in outer_list[2:]]
-    for i in range(len(planner_type)):
-        for j in range(len(controller_type)):
-            iteration=len(controller_type)*i+j
-            combinations[iteration]+=" "+planner_type[i]
-       
-    iterations_results=[inner_list[1] for outer_list in data for inner_list in outer_list[2:]]
-    for i in range(len(criteria)):
-        if criteria[i]=="Time":
-            arranged_data.append([float(inner_list[2]) for outer_list in data for inner_list in outer_list[2:]])
-        elif criteria[i]=="CPU": 
-            arranged_data.append([float(inner_list[3]) for outer_list in data for inner_list in outer_list[2:]])
-        elif criteria[i]=="Memory":
-            arranged_data.append([float(inner_list[5]) for outer_list in data for inner_list in outer_list[2:]])
-        elif criteria[i]=="Safety":
-            arranged_data.append([float(inner_list[9]) for outer_list in data for inner_list in outer_list[2:]])
-        elif criteria[i]=="Path Length":     
-            arranged_data.append([float(inner_list[8]) for outer_list in data for inner_list in outer_list[2:]]) 
-        #elif criteria[i]=="Path_tracking": 
-        #    arranged_data.append([sublist[2] for sublist in  data[1:]])     
-    
-    
-    return arranged_data,combinations,iterations_results
+
 
 def convert_weight(criteria_order,weights):
     # if the user spcify the weight, the weights are normalized using this function 
@@ -87,75 +59,69 @@ def assign_weight(criteria_order):
     # Normalize the weights
     total_weight = sum(weights.values())
     normalized_weights = {criterion: weight / total_weight for criterion, weight in weights.items()}
+    normalized_weights
 
     return normalized_weights
 
+    return normalized_data
+def normalize_by_trajectory_type(data):
+    normalized_data = data.copy()
+    numeric_columns = ["Time","CPU","Memory", "path_length", "Safety",  'path_deviation', 'success_rate', 'number_of_recoveries']
+
+    # Convert to numeric and handle non-numeric values
+    for col in numeric_columns:
+        normalized_data[col] = pd.to_numeric(normalized_data[col], errors='coerce')
+
+    for traj_type in data['Trajectory_Type'].unique():
+        group_data = normalized_data[normalized_data['Trajectory_Type'] == traj_type]
+        min_vals = group_data[numeric_columns].min()
+        max_vals = group_data[numeric_columns].max()
+
+        range_vals = max_vals - min_vals
+        range_vals[range_vals == 0] = 1
+
+        normalized_group_data = (max_vals - group_data[numeric_columns]) / range_vals
+        normalized_data.loc[normalized_data['Trajectory_Type'] == traj_type, numeric_columns] = normalized_group_data
+    print(normalized_data.dtypes)
+    return normalized_data
 
 
-def normalizing_data(data):
-    # Normalizing data by min max normalization. 
-    # for values where least value is better The equation is Normalized_value=(Max-val)/(Max-Min)
-    # for values where highest value is better The equation is Normalized_value=(val-Min)/(Max-Min). 
+def calculate_weighted_average(data, metrics, weights_dict):
+    print(data.dtypes)
+    negative_metrics=["distance_to_obstacles","success_rate"]
+   
 
-    max_value=[]
-    min_value=[]
-    for i in range(len(data[0])):
-        max_value.append(max(data[i+1]))
-        min_value.append(min(data[i+1]))
-        
-        if not identical_element(data[i+1]):
-            for j in range(len(data[i+1])):
-                if data[0][i]=="Safety": 
-                    data[i+1][j]=(data[i+1][j]-min_value[i])/(max_value[i]-min_value[i])
-                else: 
-                    data[i+1][j]=(max_value[i]-data[i+1][j])/(max_value[i]-min_value[i])
-        else:
-            # if all values of a criterion are identical , set all of them to zero as they are not going to affect the final result
-            data[i+1]=[0]*len(data[i+1])
-    
-    return data
+    # Check if all metrics are present in the weights dictionary
+    if not all(metric in weights_dict for metric in metrics):
+        raise ValueError("All metrics must have an associated weight in the weights dictionary")
 
-def identical_element(array):
-    ref_element=array[0]
-    for i in range(len(array)):
-        if array[i] != ref_element:
-           return False
-    return True 
+    # Check that all metrics are numeric columns in the DataFrame
+    if not all(metric in data.select_dtypes(include=['float64', 'int64']).columns for metric in metrics):
+        raise ValueError("All metrics must be numeric columns in the DataFrame")
 
-def rank(normailzed_data,weights,combinations,results):
-    for i in range(len(normailzed_data[0])):
-        for j in range(len(normailzed_data[i+1])):
-            normailzed_data[i+1][j]=round(normailzed_data[i+1][j]*weights[normailzed_data[0][i]],4)
-    
-    ranking=[]
-    for j in range(len(normailzed_data[1])):
-        ranking.append(sum([sublist[j] for sublist in  normailzed_data[1:]])) 
+    # Create a new column for the weighted score for each row
+    for metric in metrics:
+        weight = weights_dict[metric]
 
-    for i in range(len(results)-1,-1,-1):
-        if results[i]!='succeeded':
-            del combinations[i]
-            del ranking[i]
-    ranking=dict(zip(combinations,ranking))
-  
+        # Negate the weight for specified metrics
+        if metric in negative_metrics:
+            weight = -weight
 
-    ranking=dict(sorted(ranking.items(),key=lambda item: item[1]))
-    
-    return ranking
+        data[f'weighted_{metric}'] = data[metric] * weight
 
-def data_variation(data):
-    # Finding CPU variation, Memory usage variation, Path length, Execution time, success rate 
-    data_variation_summary=[]
-    units=[" sec"," %"," m"," m"," %"]
-    for i in range(len(data[0])):
-        data_variation_summary.append("The "+data[0][i]+" range from "+str(min(data[i+1]))+" to "+str(max(data[i+1]))+units[i])
-    time=data[1]
-    path=data[3]
-    return data_variation_summary,time,path
+    # Calculate the sum of weighted scores for each metric
+    data['total_weighted_score'] = data[[f'weighted_{metric}' for metric in metrics]].sum(axis=1)
 
-def repatability_success_rate(result):
-    # successful iterations/total iterations *100
-    success_rate_result="The success rate is "+str((result.count('succeeded')/len(result))*100)+"%"
-    return success_rate_result
+    # Group by Planner, Controller, and Trajectory_Type and calculate the average weighted score
+    group_average = data.groupby(['Planner', 'Controller', 'Trajectory_Type'])['total_weighted_score'].mean().reset_index()
+
+    # Further group by Planner and Controller, and sum the average scores across trajectory types
+    total_scores = group_average.groupby(['Planner', 'Controller'])['total_weighted_score'].sum().reset_index()
+
+    # Sort the results in descending order of the total weighted score
+    sorted_total_scores = total_scores.sort_values(by='total_weighted_score', ascending=False)
+
+    return sorted_total_scores
     
 def success_rate(result,controller_type,planner_type):
     # this function  calculates the success rate of each planner and controller. [number of successful iterations/number of all iterations]
@@ -164,7 +130,7 @@ def success_rate(result,controller_type,planner_type):
     controllers=[]
     planners=[] 
     for i in range(len(planner_type)):
-        planners.append("The success rate of "+planner_type[i]+" is "+str(round((result[i*len(controller_type):((i+1)*len(controller_type))].count('succeeded')/len(controller_type))*100,2))+" %")
+        planners.append("The success rate of "+planner_type[i]+" is "+str(round((sum(result[i*len(controller_type):((i+1)*len(controller_type))])/len(controller_type)),2))+" %")
     for i in range(len(controller_type)):   
         controllers.append([])
     for i in range(len(controller_type)):   
@@ -173,7 +139,7 @@ def success_rate(result,controller_type,planner_type):
             controllers[i].append(result[j*len(controller_type)+i])
 
     for i in range(len(controllers)):
-        controllers[i]="The success rate of "+controller_type[i]+" is "+str(round((controllers[i].count('succeeded')/len(planner_type))*100,2))+" %"
+        controllers[i]="The success rate of "+controller_type[i]+" is "+str(round((sum(controllers[i])/len(planner_type)),2))+" %"
     return planners,controllers
             
-         
+ 

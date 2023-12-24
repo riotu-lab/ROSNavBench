@@ -59,7 +59,7 @@ def main(args=None):
     marker.pose.orientation.z = 0.0
     marker.pose.orientation.w = 1.0
     if os.environ["controller"]!= None:
-       marker.text=os.environ["controller"]+"\n"+os.environ["planner"]
+       marker.text=os.environ["controller"]+"\n"+os.environ["planner"]+" "+os.environ["round_num"]
     else:
        marker.text='None'
     for i in range(4):

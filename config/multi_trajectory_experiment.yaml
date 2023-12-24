@@ -1,37 +1,37 @@
 #  Name the experiment. This name will be the name of the report
-experiment_name: "recorded_data_2"
+experiment_name: "_house_experiment_3"
 
 #Save directory of results
 results_directory: "/home/riotu/ros5_ws/src/ROSNavBench/results"
 
+
 #  Add the absolute path of the world
-world_path: "/home/riotu/ros5_ws/src/ROSNavBench/simulations/worlds/scenario_world.world"
+world_path: "/home/riotu/ros5_ws/src/ROSNavBench/simulations/worlds/turtlebot3_house.world"
 
 #  Add the absolute path of the map
-map_path: "/home/riotu/ros5_ws/src/ROSNavBench/simulations/maps/map.yaml"
+map_path: "/home/riotu/ros5_ws/src/ROSNavBench/simulations/maps/house.yaml"
 
 #  Add the absolute path of the map
-map_png_path: "/home/riotu/ros5_ws/src/ROSNavBench/simulations/maps/map.pgm"
+map_png_path: "/home/riotu/ros5_ws/src/ROSNavBench/simulations/maps/house.pgm"
 
 #  Add gazebo model path, if multiple path, please spereate them by a :
 models_path: "/opt/ros/humble/share/turtlebot3_gazebo/models:/home/riotu/ros5_ws/src/ROSNavBench/simulations/models"
-
 #  Choose a type of global local planners to be tested
-planner_type: ["NavFn","smac_planner"]
+planner_type: ["NavFn", "smac_planner"]
 #  Choose one of the following controllers, by adding its name to the controller type list
 #  Note that these are the avaible controllers for the provided example
 #  DWB
 #  RPP
 #  RPP_RSC
 #  DWB_RSC
-controller_type: ["RPP","DWB"] #name of behaviour tree
+controller_type: ["DWB", "RPP","DWB_RSC","RPP_RSC"] #name of behaviour tree
 
 #  This option is intended for testing the same controller and planner combination several times
 #  Min value is one
-instances_num: 3
+instances_num: 15
 
 #  Add the absolute path of the robot navigation configuration
-nav_config: "/home/riotu/ros5_ws/src/ROSNavBench/example/turtlebot3/nav2_config/waffle_pi.yaml"
+nav_config: "/home/riotu/ros5_ws/src/ROSNavBench/example/turtlebot3/nav2_config/waffle_pi2.yaml"
 
 #  Add the directory of the behaviour tree
 behaviour_tree_directory: "/home/riotu/ros5_ws/src/ROSNavBench/example/turtlebot3/behavior_trees"
@@ -48,63 +48,68 @@ criteria: ["Time", "path_length", "CPU", "Memory", "Safety"]
 #Set None if the wieght to be set automatcally giving that the importance to the eariler criteria in the matrix
 weights: "None"
 
-
-
-trajectory_type: "user_defined"  # Options: "user_defined", "auto_generated"
-
+trajectory_type: "user_defined" # Options: "user_defined", "auto_generated"
 
 user_defined_trajectories:
   - type: "single_goal"
     spawn_pose:
-      x: -2.14
-      y: -2.77
+      x: 4.97
+      y: 1.12
       yaw: 0.0
+    # single_goal:
+    #   x: 6.44
+    #   y: -1.41
+    #   theta: 0.0
     single_goal:
-       x: 5.5
-       y: -3.0
-       theta: 0.0
+      x: -6.5
+      y: -2.35
+      theta: 0.0
 
   - type: "waypoints"
     spawn_pose:
-      x: 5.5
-      y: -3.0
+      x: 1.13
+      y: 3.5
       yaw: 0.0
     waypoints:
-      - x: 5.5
-        y: 1.32
+      - x: 6.7
+        y: 3.7
         theta: 0.0
-      - x: 2.0
-        y: 4.0
+      - x: 5.0
+        y: 0.98
+        theta: 0.0
+      - x: -1.56
+        y: 1.13
+        theta: 0.0
+      - x: -6.36
+        y: 1.63
         theta: 1.57
 
   - type: "circle"
     circle_center:
-      x: 4.0
-      y: -3.0
+      x: -2.7
+      y: 2.35
     circle:
-      radius: 1.3
+      radius: 1.5
 
-#  - type: "square"
-#    spawn_pose:
-#      x: 4.0
-#      y: -3.0
-#      yaw: 0.0
-#    square:
-#      side_length: 1.0
-      
-
+  - type: "square"
+    spawn_pose:
+      x: -4.0
+      y: 1.0
+      yaw: 0.0
+    square:
+      side_length: 3.0
 
 auto_generated_trajectory:
-   spawn_pose:
-     x: 4.0
-     y: -3.0
-     yaw: -3.13
-   types:
+  spawn_pose:
+    x: 4.0
+    y: -3.0
+    yaw: -3.13
+  types:
     - type: "short_trajectory"
       short_trajectory:
-       upper_bound: 7
+        upper_bound: 7
     - type: "long_trajectory"
       long_trajectory:
-       lower_bound: 8
+        lower_bound: 8
     - type: "waypoints"
       waypoints: 5
