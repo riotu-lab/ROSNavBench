@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 # Author: Darby Lim
+# The file has been modified 
 
 import os
 from jinja2 import Template
@@ -37,16 +38,16 @@ def generate_launch_description():
 
     map_path=robot_specs['map_path']
     nav_config=robot_specs['nav_config']
-    x=robot_specs['spawn_pose_x']
-    y=robot_specs['spawn_pose_y']
-    yaw=robot_specs['spawn_pose_yaw']
-    trajectory_type= robot_specs['trajectory_type']
     
-    if trajectory_type=='circle':
-        r= robot_specs['radius']
-        x=x+r
-        yaw=1.5707963 # 90 degrees
-            
+ 
+    if robot_specs['trajectory_type'] == 'user_defined':
+        x=robot_specs['user_defined_trajectories'][0]["spawn_pose"]["x"]
+        y=robot_specs['user_defined_trajectories'][0]["spawn_pose"]["y"]    
+        yaw=robot_specs['user_defined_trajectories'][0]["spawn_pose"]["yaw"]
+    elif robot_specs['trajectory_type'] == 'auto_generated':
+        x=robot_specs['auto_generated_trajectory']["spawn_pose"]["x"]
+        y=robot_specs['auto_generated_trajectory']["spawn_pose"]["y"]    
+        yaw=robot_specs['auto_generated_trajectory']["spawn_pose"]["yaw"]    
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     # Seting the path of the map
     map_dir = LaunchConfiguration(

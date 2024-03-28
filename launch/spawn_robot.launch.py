@@ -10,7 +10,8 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 import os
 import xacro
 import yaml
-
+from  launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.conditions import IfCondition
 # Get the name of config file of the current experiment
 specs = os.environ['PARAMS_FILE']
 
@@ -21,19 +22,20 @@ def generate_launch_description():
     with open(specs, 'r') as file:
         robot_specs = yaml.safe_load(file)
         
-    x = robot_specs['spawn_pose_x']     
-    y = robot_specs['spawn_pose_y']
-    yaw = robot_specs['spawn_pose_yaw']
+    
     world_path = robot_specs['world_path']  
     models_path=  robot_specs['models_path'] 
     urdf=robot_specs['urdf_file']
     model_path=robot_specs['model_file']
-    trajectory_type= robot_specs['trajectory_type']
-    
-    if trajectory_type=='circle':
-        r= robot_specs['radius']
-        x=x+r
-        yaw=1.5707963 # 90 degrees
+    if robot_specs['trajectory_type'] == 'user_defined':
+        x=robot_specs['user_defined_trajectories'][0]["spawn_pose"]["x"]
+        y=robot_specs['user_defined_trajectories'][0]["spawn_pose"]["y"]    
+        yaw=robot_specs['user_defined_trajectories'][0]["spawn_pose"]["yaw"]
+    elif robot_specs['trajectory_type'] == 'auto_generated':
+        x=robot_specs['auto_generated_trajectory']["spawn_pose"]["x"]
+        y=robot_specs['auto_generated_trajectory']["spawn_pose"]["y"]    
+        yaw=robot_specs['auto_generated_trajectory']["spawn_pose"]["yaw"] 
+  
     #Launch directory of gazebo_ros pkg
     pkg_gazebo_ros = FindPackageShare(package='gazebo_ros').find('gazebo_ros')
     
@@ -55,7 +57,8 @@ def generate_launch_description():
                  '-s', 'libgazebo_ros_init.so',
                  '-s', 'libgazebo_ros_factory.so'],
             output='screen')
-            
+    gazebo_ros = get_package_share_directory('gazebo_ros')
+    
     # Start robot state publisher 
     publisher_node = Node(
         package = "robot_state_publisher",
@@ -66,7 +69,7 @@ def generate_launch_description():
         output = "screen",
 
     )
-
+   
     # Spawn robot either from a topic or a file
     if model_path=='None':
         spawn_node=  Node(
@@ -89,11 +92,15 @@ def generate_launch_description():
 
 
     #Creating the launch description
-    ld = LaunchDescription()   
-
+    ld = LaunchDescription() 
+  
+    ld.add_action(DeclareLaunchArgument(
+            name='gui',
+            default_value='true'
+        ))
     ld.add_action(gazebo) 
     ld.add_action(publisher_node)
     ld.add_action(spawn_node) 
-  
+
     return ld
 

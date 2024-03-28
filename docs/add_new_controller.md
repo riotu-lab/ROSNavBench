@@ -1,9 +1,8 @@
-# Adding a New Controller
+# Adding a New Controller or Planner
 
 To add a new controller for ROSNavBench, follow these steps:
 
-1. **Create a Behavior Tree:**
-   - Create a new behavior tree where you specify the controller using the same name as the configuration file. This behavior tree defines the control logic for the new controller.
+2. **Add a Controller the Nav2 Configuration File:**
 
 2. **Update the Main Configuration File:**
    - In the main configuration file located in `ROSNavBench/config`, add the name of the new controller to the `controller_type` property. This ensures that the ROSNavBench recognizes and operates using the new controller.
