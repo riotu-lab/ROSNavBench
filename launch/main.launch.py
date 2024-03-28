@@ -1,6 +1,3 @@
-### Script Creator: Fathima AlAhmed
-
-
 
 ### This launch file is the one to be used which includes multiple other 
 ### launch files like spawning of the robot, running navigation, sending goal,recording data, and generating report.

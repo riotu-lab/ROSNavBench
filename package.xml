@@ -4,12 +4,15 @@
   <name>ROSNavBench</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
-  <maintainer email="stehnan@psu.edu.sa">tehnanmanna</maintainer>
+  <maintainer email="falahmed@psu.edu.sa">Fatimah-Alahmed</maintainer>
   <license>TODO: License declaration</license>
 
   <depend>std_msgs</depend>
  
   <depend>gazebo_ros_pkgs</depend>
+  <depend>gazebo_ros</depend>
+  <depend>gazebo_plugins</depend>
+  <exec_depend>gazebo</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
@@ -18,5 +21,7 @@
 
   <export>
     <build_type>ament_python</build_type>
+    
+ 
   </export>
 </package>

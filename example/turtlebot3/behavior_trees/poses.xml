@@ -6,7 +6,7 @@
           <RecoveryNode number_of_retries="1" name="ComputePathThroughPoses">
             <ReactiveSequence>
               <RemovePassedGoals input_goals="{goals}" output_goals="{goals}" radius="0.5" />
-              <ComputePathThroughPoses goals="{goals}" path="{path}" planner_id="smac_planner" />
+              <ComputePathThroughPoses goals="{goals}" path="{path}" planner_id="To_be_specified" />
             </ReactiveSequence>
             <ReactiveFallback name="ComputePathThroughPosesRecoveryFallback">
               <GoalUpdated />
@@ -15,7 +15,7 @@
           </RecoveryNode>
         </RateController>
         <RecoveryNode number_of_retries="1" name="FollowPath">
-          <FollowPath path="{path}" controller_id="DWB" />
+          <FollowPath path="{path}" controller_id="To_be_specified" />
           <ReactiveFallback name="FollowPathRecoveryFallback">
             <GoalUpdated />
             <ClearEntireCostmap name="ClearLocalCostmap-Context" service_name="local_costmap/clear_entirely_local_costmap" />

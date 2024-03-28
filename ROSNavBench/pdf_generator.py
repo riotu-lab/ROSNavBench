@@ -153,6 +153,18 @@ def calculate_path_length(data):
 
     return unique_merged_data
 
+def calculate_complete_path_length(data):
+    # Function to calculate the sum of distances within a group
+    def sum_of_distances(group):
+        distances = np.sqrt(np.diff(group['x_pose'])**2 + np.diff(group['y_pose'])**2)
+        return pd.Series({'distance': distances.sum()})
+
+    # Grouping data by Experiment_ID and Iteration_ID and applying the sum_of_distances function
+    path_length_per_trail = data.groupby(['Experiment_ID', 'Iteration_ID', 'Planner', 'Controller', 'Trajectory_Type']).apply(sum_of_distances).reset_index()
+
+    return path_length_per_trail
+
+
 def create_path_length_barchart(data,width,height):
     """
     Create a bar chart for mean path length of each planner-controller combination.
@@ -161,7 +173,8 @@ def create_path_length_barchart(data,width,height):
     - data: DataFrame containing the dataset.
     """
     # Calculate path length for each trail
-    path_length = calculate_path_length(data)
+    #path_length = calculate_path_length(data)
+    path_length = calculate_complete_path_length(data)
     # Calculate the mean path length for each Planner and Controller combination
     mean_path_length = path_length.groupby(['Planner', 'Controller'])['distance'].mean().reset_index()
     # Create bar chart
@@ -186,6 +199,9 @@ def create_and_save_bar_chart(df, metric,width,height):
     #plt.figure(figsize=(6.5, 2))
     plt.figure(figsize=(width,height))
     avg_metrics_combination = df.groupby(['Planner', 'Controller'])[metric].mean().reset_index()
+    if metric=="Navigation_time" or metric=="number_of_recoveries":
+       filtered_results=df[(df['result']!="In progress")]
+       avg_metrics_combination = filtered_results.groupby(['Planner', 'Controller'])[metric].mean().reset_index() 
     sns.barplot(x='Planner', y=metric, hue='Controller', data=avg_metrics_combination)
     plt.title(f'Average {metric} per\n  Planner-Controller Combination')
     plt.ylabel(f'Average {metric}')
@@ -204,6 +220,9 @@ def create_and_save_heatmap(df, metric,width,height):
     """
     # Preparing data for the heatmap
     heatmap_data = df.groupby(['Planner', 'Controller'])[metric].mean().unstack()
+    if metric=="Navigation_time" or metric=="number_of_recoveries":
+       filtered_results=df[(df['result']!="In progress")]
+       heatmap_data = filtered_results.groupby(['Planner', 'Controller'])[metric].mean().unstack()
     # Creating the heatmap
     #plt.figure(figsize=(6.5, 2))
     plt.figure(figsize=(width,height))
@@ -402,7 +421,8 @@ def main():
     d.add(String(1,20,"Comparsion of controllers",fontSize=15)) 
     elements.append(d) 
     ###Table
-    path_length=calculate_path_length(df)
+    #path_length=calculate_path_length(df)
+    path_length=calculate_complete_path_length(df)
     path_deviation=calculate_path_deviation(df)
     #print("PPPPPPPPPPPath lengt",path_length)
     unique_trajectories=df['Trajectory_Type'].unique()
@@ -563,7 +583,7 @@ def main():
         # Further filter the results for 'succeeded' and count the number of occurrences
         filtered_by_success = filtered_by_controller[filtered_by_controller['result'] == 'succeeded']
         count_by_success = len(filtered_by_success)
-        success_rate_percent = (count_by_success/count_by_planner) * 100  # Convert to percentage
+        success_rate_percent = (count_by_success/count_by_controller) * 100  # Convert to percentage
      
         d.add(String(1,20*(row_increament),f"Controller: {controller_to_filter}, Success Rate: {success_rate_percent:.2f}%"))
         row_increament+=1    
@@ -608,7 +628,11 @@ def main():
 
     ##boxplot
     for i in ["Navigation_time","CPU_Usage","Memory_Usage","number_of_recoveries","distance_to_obstacles"]:
-        boxplot,filename,plot_height_,plot_width_=plot_metric_distribution_complex_boxplot(df, i)
+        if i=="Navigation_time" or i=="number_of_recoveries":
+            filtered_results=df[(df['result']!="In progress")]
+            boxplot,filename,plot_height_,plot_width_=plot_metric_distribution_complex_boxplot(filtered_results, i)
+        else:
+            boxplot,filename,plot_height_,plot_width_=plot_metric_distribution_complex_boxplot(df, i)
         #new_box_plot=resize_image_to_max_width(boxplot[0],500) 
         #elements.append(Image_pdf(new_box_plot[0],new_box_plot[1][0],int(new_box_plot[1][1])))
         elements.append(Image_pdf(boxplot,plot_width_*72,plot_height_*72))
@@ -765,27 +789,34 @@ def main():
     # Display the first few rows of the filtered trails data
     print("failed",filtered_trails_data.head())
     if not filtered_trails_data.empty:
-            d=shapes.Drawing(250,40)
-            d.add(String(1,20,"Failure report",fontSize=15))
+            d=shapes.Drawing(250,60)
+            d.add(String(1,40,"Failure report",fontSize=15))
+            
+            d.add(String(1,20," Recorded log messages of navigation nodes, if any message is recorded",fontSize=10))
+            
             elements.append(d)
   
     for (experiment_id, iteration_id), trail_data in filtered_trails_data.groupby(['Experiment_ID', 'Iteration_ID']):
         # Processing each trail
         log_msgs=[]
-        table= [["Global planner: "+str(filtered_trails_data['Planner'].iloc[k]),'',''],["Controller:  "+str(filtered_trails_data['Controller'].iloc[k])+'    experiment#:'+str(filtered_trails_data['Experiment_ID'].iloc[k])+'    iteration#:'+str(filtered_trails_data['Iteration_ID'].iloc[k]),'',''],["Logger_name", "Level", "Message"]]
+        table= [["Global planner: "+str(trail_data['Planner'].unique()[0]),'',''],["Controller:  "+str(trail_data['Controller'].unique()[0])+'    experiment#:'+str(trail_data['Experiment_ID'].unique()[0])+'    iteration#:'+str(trail_data['Iteration_ID'].unique()[0]),'',''],["Logger_name", "Level", "Message"]]
         table.append([""])
+        print("msg_level",pd.isna(trail_data['msg_level']))
+        print("Error_msgs",pd.isna(trail_data['Error_msgs']))
         for index, row in trail_data.iterrows():
             # Check for non-NaN values and process them
-
-            if not pd.isna(row['publisher_node']) and not pd.isna(row['msg_level']) and not pd.isna(row['Error_msgs']):
+            
+            #if not pd.isna(row['publisher_node']) and not pd.isna(row['msg_level']) and not pd.isna(row['Error_msgs']):
+            if  not pd.isna(row['msg_level']) and not pd.isna(row['Error_msgs']):
+             
                 # Process the non-NaN values
                 # For example: print(row['publisher_node'], row['msg_level'], row['Error_msgs'])
                 log_msgs=[row["publisher_node"],row["msg_level"],row["Error_msgs"]]
                 table.append(log_msgs)
 
 
-        t=Table(table)
-        t.setStyle(TableStyle([('INNERGRID',(0,0), (-1,-1), 0.25, colors.black),
+                t=Table(table)
+                t.setStyle(TableStyle([('INNERGRID',(0,0), (-1,-1), 0.25, colors.black),
                                ('BOX',(0,0), (-1,-1), 0.25, colors.black),
                                ('SPAN',(0,2),(0,3)),
                                ('SPAN',(1,2),(1,3)),
@@ -794,7 +825,12 @@ def main():
                                ('SPAN',(0,1),(2,1)),
                                ('FONTNAME',(0,0),(8,1),'Times-Bold'),
                                ('FONTSIZE',(0,0), (-1,-1),8)
-        ]))
-        elements.append(t)
-        elements.append(Drawing(500, 10))    
+                ]))
+                elements.append(t)
+                elements.append(Drawing(500, 10))    
+        #if pd.isna(trail_data['msg_level']) and pd.isna(trail_data['Error_msgs']):
+        #    d=shapes.Drawing(250,25)
+        #    d.add(String(1,20,"Global planner: "+str(trail_data['Planner'].unique()[0])+", Controller:  "+str(trail_data['Controller'].unique()[0])    +', experiment#:'+str(trail_data['Experiment_ID'].unique()[0])+', iteration#:'+str(trail_data['Iteration_ID'].unique()[0])+ ", No log messages recorded of level error or warn",fontSize=10))
+        #    elements.append(d)  
     doc.build(elements)
+

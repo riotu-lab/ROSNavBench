@@ -23,8 +23,8 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='tehnanmanna',
-    maintainer_email='stehnan@psu.edu.sa',
+    maintainer='Fatimah-Alahmed',
+    maintainer_email='falahmed@psu.edu.sa',
     description='TODO: Package description',
     license='TODO: License declaration',
     tests_require=['pytest'],
@@ -33,9 +33,10 @@ setup(
         'follow_path = ROSNavBench.follow_path:main',   
         'benchmarking_single_controller =  ROSNavBench.benchmarking_single_controller:main', 
         'marker_publisher = ROSNavBench.marker_publisher:main', 
-        'main_pdf_generator= ROSNavBench.benchmarking_local_global_planners_pdf:main',
-        
-        
+        'trajectory_generator= ROSNavBench.trajectory_generator:main',
+        'reset_robot= ROSNavBench.reset_robot:main',
+        'pdf_generator= ROSNavBench.pdf_generator:main'
+   
         ],
     },
 )

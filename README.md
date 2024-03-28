@@ -1,16 +1,15 @@
 # ROSNavBench
 
-The **`ROSNavBench`** empowers users to perform testing and comparisons between various local planners. It also facilitates benchmarking of an individual local planner.
+The **`ROSNavBench`** empowers users to perform testing and comparisons between various local and global planners across various trajectories. 
 
 ## Introduction
 
-The **`ROSNavBench`** provides a comprehensive platform for evaluating the performance of different local planners. It allows users to compare the efficiency and effectiveness of various options. Additionally, the tool facilitates benchmarking exercises for a single local planner, helping users gain insights into its performance metrics.
+The **`ROSNavBench`** provides a comprehensive platform for evaluating the performance of different local and global planners across various trajectories. Several metrics are collected through out the test such as navigation time. 
 
 ## Key Features
 
-- Perform tests and comparisons among diverse local planners.
-- Facilitate benchmarking of individual local planners.
-- Evaluate efficiency and effectiveness of local planning strategies.
+- Perform tests and comparisons among diverse local and global planners acrros various types of trajectories.
+- Evaluate efficiency of the global and local planners through various metrics. 
 
 ## Prerequisites
 
@@ -56,13 +55,6 @@ Before using the ROS 2 `ROSNavBench`, make sure you have the following prerequis
     sudo apt install ros-$ROS_DISTRO-turtlebot3*
     ```
 
-    ```bash
-    export TURTLEBOT3_MODEL=waffle
-    ```
-
-    ```bash
-    export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:/opt/ros/<ros2-distro>/share/turtlebot3_gazebo/models
-    ```
 
 - **Nav2**: Install the Nav2 packages using your operating system’s package manager:
 
@@ -87,11 +79,11 @@ git clone https://github.com/riotu-lab/ROSNavBench
 To initiate the ROSNavBench test, follow these steps:
 
 1. **Export File Name and Run**:
-    - In your terminal, export the file name of the configuration file using the appropriate command.
+    - In your terminal, export the absolute path of the configuration file using the appropriate command. Make sure that the file is configured to your machine.
       - For example:
 
       ```bash
-      export PARAMS_FILE="circle_path_scenario"
+      export PARAMS_FILE="\home\Absolut_path\configuration_file.yaml"
       ```
 
     - Run the `main` script to start the test execution.
@@ -101,19 +93,19 @@ To initiate the ROSNavBench test, follow these steps:
       ```
 
 2. **Accessing Results**:
-   - Once the execution of the test goals is complete, the generated files will be automatically saved to the `results` folder within the ``ROSNavBench`` directory.
-   - You can find the results in the `share` directory of the ``ROSNavBench`` package.
+   - Once the execution of all the tests is complete, the generated files will be automatically saved to the specified results folder.
+   - You can find the raw results in the `share` directory of the ``ROSNavBench`` package.
 
-> **Note**: The configuration file should be placed within the `ROSNavBench/config` directory. more information about the configuration check [here](docs/Trajectories.md).
+> **Note**: More information about the configuration check [here](docs/Trajectories.md).
 
-By following these steps, you'll be able to execute the benchmarking test with the `defualt configuration settings`. also, gather results and access them for analysis and reporting.
+By following these steps, you'll be able to execute the benchmarking test.
 
 ## Launching a custom Example
 
 To test with your custom robots, for example husky robot, follow these steps:
 
-1. **Install Husky**
-   - Follow the instructions inside the documentation to install husky robot. check [here](docs/husky_setup.md)
+1. **Specify the robot**
+   - Follow the instructions inside the documentation to specfiy a robot. check [here](docs/change_robot.md)
 
 2. **Update your World**
     - To add a new world for ROSNavBench, follow the instructions [here](docs/add_new_world.md)
@@ -121,12 +113,10 @@ To test with your custom robots, for example husky robot, follow these steps:
 3. **Configure Example Settings**:
    - Open the configuration file located at `ROSNavBench/config`.
    - Edit the absolute paths and other parameters to match your machine's setup such as the `world`, `map`, `controllers`, and `urdf_file`...
-
    - Customize the parameters according to the example you want to run. check [here](docs/Trajectories.md)
 
-
-4. **Adding a New Controller**
-    - To add a new controller for `ROSNavBench`, follow the instructions [here](docs/add_new_controller.md)
+4. **Adding a New Controller or Planner**
+    - To add a new controller or planner for `ROSNavBench`, follow the instructions [here](docs/add_new_controller.md)
 
 5. **Adding a New Behavior Tree**
     - To add a new Behavior Tree(BT) for `ROSNavBench`, follow the instructions [here](docs/behavior_tree.md)
@@ -140,20 +130,21 @@ To test with your custom robots, for example husky robot, follow these steps:
     ```
 
 7. **Set the Parameters File and Launch**:
-   - Set the `PARAMS_FILE` variable to the desired example configuration, e.g.: `PARAMS_FILE=static_obstacles`
+   - Set the `PARAMS_FILE` variable to the desired example configuration and launch the test`
+      - For example:
 
       ```bash
-      export PARAMS_FILE="circle_path_scenario"
+      export PARAMS_FILE="\home\Absolut_path\configuration_file.yaml"
       ```
 
-   - Launch the benchmarking test using the ROS 2 launch command:
+    - Run the `main` script to start the test execution.
 
-     ```bash
-     ROS2 launch ROSNavBench main.launch.py
-     ```
+      ```bash
+      ROS2 launch ROSNavBench main.launch.py
+      `
 
 8. **Accessing Results**:
-   - Once the test execution is completed, you can find the results in the `results` folder within the ``ROSNavBench`` directory.
-   - The results will be stored in the `share` directory or in the specified directory based on your configuration.
+   - Once the execution of all the tests is complete, the generated files will be automatically saved to the specified results folder.
+   - You can find the raw results in the `share` directory of the ``ROSNavBench`` package.
 
 By following these steps, you'll be able to effortlessly launch and execute the provided example, view the results, and adapt the tool to your specific machine configuration.

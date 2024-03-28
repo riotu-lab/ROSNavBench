@@ -58,15 +58,7 @@ def generate_launch_description():
                  '-s', 'libgazebo_ros_factory.so'],
             output='screen')
     gazebo_ros = get_package_share_directory('gazebo_ros')
-    gazebo_client = IncludeLaunchDescription(
-	    PythonLaunchDescriptionSource(
-            os.path.join(gazebo_ros, 'launch', 'gzclient.launch.py')),
-        condition=IfCondition(LaunchConfiguration('gui'))
-     )
-    gazebo_server = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(gazebo_ros, 'launch', 'gzserver.launch.py'))
-    )        
+    
     # Start robot state publisher 
     publisher_node = Node(
         package = "robot_state_publisher",
@@ -109,7 +101,6 @@ def generate_launch_description():
     ld.add_action(gazebo) 
     ld.add_action(publisher_node)
     ld.add_action(spawn_node) 
-    #ld.add_action(gazebo_server)
-    #ld.add_action(gazebo_client)
+
     return ld
 

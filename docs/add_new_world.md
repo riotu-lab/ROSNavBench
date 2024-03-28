@@ -26,6 +26,7 @@ copy these lines to your top-level world after `<world name="">`
 
    - In the `ROSNavBench/config` directory, update the configuration file.
    - Add the name of the new world to the configuration. This ensures that the ROSNavBench recognizes the new world.
+   - If the world contins models that need to be sourced, add the path to these models to models_path in the configuration file.
 
 > Note: Special case for Turtlebot3
 
