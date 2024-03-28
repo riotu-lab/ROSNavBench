@@ -3,8 +3,8 @@ The user can specify several trajectories to be tested. These trajectories can b
 ```bash
 trajectory_type: "user_defined"
 ```
-##User defined trajectories 
-The options are: a single goal pose, multiple waypoints, circle, and square.  Specify as much trajectories as you wish as shown below. 
+## User-defined trajectories 
+The options are a single goal pose, multiple waypoints, circle, and square.  Specify as much trajectories as you wish as shown below. 
 ```bash
 user_defined_trajectories:
   - type: "single_goal"
@@ -141,8 +141,8 @@ The user can guide the robot through multiple poses forming a certain path or vi
 ```
 
 
-##Auto generated trajectories 
-The options are: short_trajectory, long_trajectory, waypoints.  Specify as much trajectories as you wish as shown below. Note that a single spawn pose is needed; however, this will not be the spawn pose for the trajectioers. 
+## Auto generated trajectories 
+The options are: short_trajectory, long_trajectory, waypoints.  Specify as many trajectories as you wish as shown below. Note that a single spawn pose is needed; however, this will not be the spawn pose for the trajectories. 
 ```bash
 auto_generated_trajectory:
   spawn_pose:
@@ -162,12 +162,12 @@ auto_generated_trajectory:
 ### Short trajectory
 Specify the path by giving an upper limit that the path length should not exceed.
 ### Long trajectory
-Specify the path by giving an lower limit that the path length should be longer.
+Specify the path by giving a lower limit that the path length should be longer.
 ### Waypoints 
 Specify the path by indicating the number of required waypoints. 
 
 
-These trajectory types provide users with various options to test and evaluate local and global path planners strategies using different paths and poses. By specifying the required parameters, users can customize the behavior of the robot accordingly.
+These trajectory types provide users with various options to test and evaluate local and global path planner strategies using different paths and poses. By specifying the required parameters, users can customize the behavior of the robot accordingly.
 
 ## Conﬁguration ﬁle sample
 
@@ -183,15 +183,15 @@ These trajectory types provide users with various options to test and evaluate l
 | map_png_path           | The absolute path of the map png file                                                             |
 | models_path             | If the models are not in the model file of the `ROSNavBench/simulations/models`, add the full path in this property. |
 | controller_type        | A list of the names of the required controllers. Names should match those in the navigation configuration file. Available controllers are: `DWB`, `DWB_RSC`, `RPP`, `RPP_RSC`, 'MPPI' |
-| planner_type        | A list of the names of the required planners. Names should match those in the navigation configuration file. Available planners are: "NavFn", "smac_planner","ThetaStar","Lattice" |
+| planner_type        | A list of the names of the required planners. Names should match those in the navigation configuration file. Available planners are: "NavFn", "smac_planner", "ThetaStar", "Lattice" |
 | instances_num            | This choice is designed for conducting repetitive testing of the same controller. If this testing isn't necessary for the user, set it to 1.       |                                                 |
 | nav_config             | The absolute path of the configuration file for navigation.                                                  |
-| behaviour_tree_directory | The absolute path of directory of the behavior trees                                                       |
+| behaviour_tree_directory | The absolute path of the directory of the behavior trees                                                       |
 | urdf_file               | Absolute path to the URDF file                                                                    |
 | model_file              | Absolute path to the model file. If the model file will not be used, set it as `"None"`              |
 | trajectory_type         | "user_defined", "auto_generated"                                                                        |
-| criteria                | Citeria for performace analysis includes: "Time" ,"CPU", "Memory", "path_length" , "Safety", 'path_deviation', 'success_rate', 'number_of_recoveries'.                                                                 |
-| weights                 | Wieght for each criteria as a number from 1 to 9 arranged into a matrix. Set None if the wieght to be set automatcally giving that the importance to the eariler criteria in the matrix.                                                                       |
+| criteria                | Citeria for performace analysis includes: "Time", "CPU", "Memory", "path_length", "Safety", 'path_deviation', 'success_rate', 'number_of_recoveries'.                                                                 |
+| weights                 | Weight for each criterion as a number from 1 to 9 arranged into a matrix. Set None if the weight to be set automatically giving that importance to the earlier criteria in the matrix.                                                                       |
 
 
-Mandatory to fill. Others properties are dependent on the case.
+Mandatory to fill. Other properties are dependent on the case.
