@@ -141,7 +141,7 @@ To test with your custom robots, for example husky robot, follow these steps:
 
       ```bash
       ROS2 launch ROSNavBench main.launch.py
-      `
+      ```
 
 8. **Accessing Results**:
    - Once the execution of all the tests is complete, the generated files will be automatically saved to the specified results folder.
