@@ -89,10 +89,6 @@ def combine_matrix_images(image_matrix, images_per_row):
             image_counts.append(len(current_row_images))  # Add the count for this row
 
     return combined_images, image_counts
-# Example usage
-# Assuming image_matrix is your list of images and row_layout_matrix is the layout matrix
-# combined_images = combine_matrix_images(image_matrix, row_layout_matrix)
-
 
 def save_plot_as_png(fig, title,dpi=300):
     """
@@ -105,7 +101,6 @@ def save_plot_as_png(fig, title,dpi=300):
 def calculate_path_deviation(df):
     # Calculate deviation
     df['deviation'] = np.sqrt((df['x_pose'] - df['x_path_plan'])**2 + (df['y_pose'] - df['y_path_plan'])**2)
-    print("deviation",df['deviation'].head())
     # Aggregate the deviations by planner and controller
     deviation_sum = df.groupby(['Planner', 'Controller', 'Experiment_ID', 'Iteration_ID','Trajectory_Type'])['deviation'].sum().reset_index()
     return deviation_sum
@@ -119,7 +114,6 @@ def plot_path_deviation_heatmap(df,width,height):
     
     deviation_sum=calculate_path_deviation(df)
     deviation_mean = deviation_sum.groupby(['Planner', 'Controller'])['deviation'].mean().unstack()
-    print("The meann of dviation",deviation_mean)
     # Plot heatmap
     plt.figure(figsize=(width,height))
     sns.heatmap(deviation_mean, annot=True, cmap='viridis', fmt=".2f")
@@ -173,7 +167,6 @@ def create_path_length_barchart(data,width,height):
     - data: DataFrame containing the dataset.
     """
     # Calculate path length for each trail
-    #path_length = calculate_path_length(data)
     path_length = calculate_complete_path_length(data)
     # Calculate the mean path length for each Planner and Controller combination
     mean_path_length = path_length.groupby(['Planner', 'Controller'])['distance'].mean().reset_index()
@@ -196,7 +189,6 @@ def create_and_save_bar_chart(df, metric,width,height):
     """
 
     # Average metric per planner-controller combination
-    #plt.figure(figsize=(6.5, 2))
     plt.figure(figsize=(width,height))
     avg_metrics_combination = df.groupby(['Planner', 'Controller'])[metric].mean().reset_index()
     if metric=="Navigation_time" or metric=="number_of_recoveries":
@@ -224,7 +216,6 @@ def create_and_save_heatmap(df, metric,width,height):
        filtered_results=df[(df['result']!="In progress")]
        heatmap_data = filtered_results.groupby(['Planner', 'Controller'])[metric].mean().unstack()
     # Creating the heatmap
-    #plt.figure(figsize=(6.5, 2))
     plt.figure(figsize=(width,height))
     sns.heatmap(heatmap_data, annot=True, fmt=".2f", cmap="YlGnBu")
     plt.title(f'Heatmap of Average {metric} \n for Planners and Controllers')
@@ -259,7 +250,6 @@ def plot_metric_distribution_complex_boxplot(df, metric):
     trajectories=df['Trajectory_Type'].unique()
     trajectories_string = ', '.join(trajectories)
 
-    print("unique traj are ",trajectories)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category=FutureWarning)
         g = sns.FacetGrid(df, col='Planner', col_wrap=2, height=facetgrid_height, aspect=facetgrid_width/facetgrid_height)
@@ -342,11 +332,6 @@ def resize_image_to_max_width(buf, max_width_points):
 
         return buf_resized, (final_width_points, final_height_points)
 
-# Usage example
-# max_width_points = 500
-# resized_buf, (final_width, final_height) = resize_image_to_max_width(buf, max_width_points)
-# Now resized_buf contains the resized image, and final_width, final_height are its dimensions in points
-
 def plot_actual_vs_planned_paths(df,planner, controller):
     """
     Generate and return BytesIO objects for each trajectory type's plot,
@@ -361,7 +346,7 @@ def plot_actual_vs_planned_paths(df,planner, controller):
     unique_trajectories = filtered_df['Trajectory_Type'].unique()
     for trajectory in unique_trajectories:
         subset = filtered_df[filtered_df['Trajectory_Type'] == trajectory].reset_index()
-        print()
+        
         
         plt.figure(figsize=(6.5, 4))
         sns.scatterplot(x=subset['x_pose'], y=subset['y_pose'],data=subset, hue='Iteration_ID')
@@ -421,10 +406,9 @@ def main():
     d.add(String(1,20,"Comparsion of controllers",fontSize=15)) 
     elements.append(d) 
     ###Table
-    #path_length=calculate_path_length(df)
     path_length=calculate_complete_path_length(df)
     path_deviation=calculate_path_deviation(df)
-    #print("PPPPPPPPPPPath lengt",path_length)
+   
     unique_trajectories=df['Trajectory_Type'].unique()
     analysis_data=[]
     
@@ -452,10 +436,7 @@ def main():
 
                 table_data.append(str('{0:.2f}'.format(filtered_data['CPU_Usage'].mean())))  # average CPU
 
-                print("print the df")
-                print(df['CPU_Usage'].head())
-                print("print the filttered")
-                print(filtered_data['CPU_Usage'].head())
+               
 
                 table_data.append(str(filtered_data['CPU_Usage'].max()))    #Max CPU
                 table_data.append(str('{0:.2f}'.format(np.mean(filtered_data['Memory_Usage'].mean())))) #average Memory
@@ -468,7 +449,7 @@ def main():
                 table_data.append(str(round(path_deviation_['deviation'].mean(),2)))
 
                 table.append(table_data)
-                print("cpu column",filtered_data['CPU_Usage'].head())
+
                 
             
                 analysis_data.append(table_data.copy())
@@ -512,8 +493,7 @@ def main():
         
         # Convert list of dictionaries to DataFrame
         performacne_df = pd.DataFrame(rows)
-        #print("AAAAnalaysis data")
-        #print(performacne_df)
+
 
 
     # Setting the size of the graphs 
@@ -524,21 +504,18 @@ def main():
     else:
        images_in_row=1
      
-    print("~~~~~~~~SIZE is~~~~  ",width,height)
+ 
     # Performace analysis 
     d=shapes.Drawing(250,80)
     d.add(String(1,60,"Performace analysis",fontSize=15)) 
     d.add(String(1,40,"Based on the criteria:" +", ".join(criteria),fontName= 'Times-Bold'))
     scores=performance_analysis(criteria,performacne_df,weights,planner_type,controller_type)
-    #d=shapes.Drawing(250,20*(scores.shape[0]+1))
     d.add(String(1,20,"The score of each controller and planner combinations are:",fontName= 'Times-Bold'))
-    # for i in range(scores.shape[0]):
-    #     d.add(String(1,20*(i+1),scores["Planner"][i]+" "+scores["Controller"][i]+" "+str(round(scores["total_weighted_score"][i],3))))
-   
+    
     elements.append(d)
     plt.figure(figsize=(width,height))
     pivot_data = scores.pivot(index="Planner", columns="Controller", values="total_weighted_score")
-    print("LABEL SIZE",label_size,"   ",title_size)
+    
     sns.set(font_scale=label_size/12)
     sns.heatmap(pivot_data, annot=True, cmap="YlGnBu", fmt=".3f")
     
@@ -594,37 +571,20 @@ def main():
     images_list=[]
     for i in ["Navigation_time","CPU_Usage","Memory_Usage","number_of_recoveries","distance_to_obstacles"]:
         average_per_combination_png = create_and_save_bar_chart(df, i,width,height)
-        #new_barchart=resize_image_to_max_width(average_per_combination_png[0],400) 
-        #elements.append(Image_pdf(new_barchart[0],new_barchart[1][0],int(new_barchart[1][1])))
         images_list.append(average_per_combination_png[0])
-        #if len(images_list)==images_in_row:
-        #   new_image=combine_images(images_list[0],images_list[1])
-        #   elements.append(Image_pdf(new_image,width*72*images_in_row,height*72)) 
     combined_images,image_length=combine_matrix_images(images_list,images_in_row) 
     for i in range(len(combined_images)): 
         elements.append(Image_pdf(combined_images[i],width*image_length[i]*72,height*72))
-
-        #if i=="distance_to_obstacles" and images_in_row!=1:
-        #   elements.append(Image_pdf(images_list[0],width*72,height*72))  
 
     ##Heatmap
     images_list=[]
     for i in ["Navigation_time","CPU_Usage","Memory_Usage","number_of_recoveries","distance_to_obstacles"]:
         heatmap_png = create_and_save_heatmap(df, i,width,height)
-        #new_heatmap=resize_image_to_max_width(heatmap_png[0],400) 
-        #elements.append(Image_pdf(new_heatmap[0],new_heatmap[1][0],int(new_heatmap[1][1])))
-        #elements.append(Image_pdf(heatmap_png[0],width*72,height*72))
         images_list.append(heatmap_png[0])
     combined_images,image_length=combine_matrix_images(images_list,images_in_row) 
-    print("LENNNGTTTH",image_length)
+   
     for i in range(len(combined_images)): 
         elements.append(Image_pdf(combined_images[i],width*image_length[i]*72,height*72))    
-    #if len(images_list)==images_in_row:
-    #    new_image=combine_images(images_list[0],images_list[1])
-    #    elements.append(Image_pdf(new_image,width*72*images_in_row,height*72)) 
- 
-        #if i=="distance_to_obstacles" and images_in_row!=1:
-        #   elements.append(Image_pdf(images_list[0],width*72,height*72))  
 
     ##boxplot
     for i in ["Navigation_time","CPU_Usage","Memory_Usage","number_of_recoveries","distance_to_obstacles"]:
@@ -633,8 +593,7 @@ def main():
             boxplot,filename,plot_height_,plot_width_=plot_metric_distribution_complex_boxplot(filtered_results, i)
         else:
             boxplot,filename,plot_height_,plot_width_=plot_metric_distribution_complex_boxplot(df, i)
-        #new_box_plot=resize_image_to_max_width(boxplot[0],500) 
-        #elements.append(Image_pdf(new_box_plot[0],new_box_plot[1][0],int(new_box_plot[1][1])))
+        
         elements.append(Image_pdf(boxplot,plot_width_*72,plot_height_*72))
     path_deviation=plot_path_deviation_heatmap(df,width,height)
     elements.append(Image_pdf(path_deviation[0],width*72,height*72))
@@ -645,7 +604,7 @@ def main():
     csv_trajectory_path=os.path.join(get_package_share_directory('ROSNavBench'),
         'raw_data',pdf_name+'_trajectories.csv')
     trajectories = pd.read_csv(csv_trajectory_path)  
-    print("trajectories are",trajectories)
+ 
     unique_initial_trajectories = trajectories['traj_type'].unique()
     sns.set(font_scale=1)
     for i in range(len(planner_type)):
@@ -664,19 +623,14 @@ def main():
             y_length=len(numpydata[0]) # width
             img=plt.imread(map_png_path)
             fig, ax=plt.subplots()
-            print("-----------------x is ",x_length,"-----------y is ",y_length)
+           
             labels_list=[]
             labels_tag=[]
             if y_length<x_length:
-                print("here1")
                 
                 ax.imshow(ndimage.rotate(img,90),cmap=plt.cm.gray,extent=[ resolution*x_length+origin[1],origin[1],origin[0], resolution*y_length+origin[0]])
                 for k in range(len(controller_type)):
-
-                    # round_num=i*len(controller_type)*instances_num+k*instances_num
-                    # x_array=x_points[round_num:round_num+instances_num]
-                    # y_array=y_points[round_num:round_num+instances_num]
-
+ 
                     # Filter by j type and number, e.g., 'circle', 2
                     filtered_df = df[(df['Trajectory_Type'] == unique_trajectories[j]) & (df['Planner'] == planner_type[i])& (df['Controller'] == controller_type[k])]
                     plt.scatter(filtered_df['y_pose'].tolist(),filtered_df['x_pose'].tolist(),color=items[k],alpha=0.5)
@@ -687,8 +641,6 @@ def main():
                 
 
                 #  plot the global path planner
-                #reset_df = filtered_df.reset_index(drop=True)
-
                 x_path_plan = filtered_df['x_path_plan'].tolist()
                 y_path_plan = filtered_df['y_path_plan'].tolist()
                 plt.scatter(y_path_plan,x_path_plan,c='yellowgreen',marker='x')
@@ -709,13 +661,10 @@ def main():
                 y_length=len(numpydata)
                 x_length=len(numpydata[0]) # width
             else:
-                print("here")
                 
                 ax.imshow(img,cmap=plt.cm.gray,extent=[origin[0],0.05*y_length+origin[0],origin[1],0.05*x_length+origin[1]])
                 for k in range(len(controller_type)):
-                    # # round_num=i*len(controller_type)*instances_num+k*instances_num
-                    # # x_array=x_points[round_num:round_num+instances_num]
-                    # # y_array=y_points[round_num:round_num+instances_num]
+
                     # Filter by j type and number, e.g., 'circle', 2
                     filtered_df = df[(df['Trajectory_Type'] == unique_trajectories[j]) & (df['Planner'] == planner_type[i])& (df['Controller'] == controller_type[k])]
                 
@@ -736,7 +685,7 @@ def main():
                 #  plot the global path planner
                 x_path_plan = filtered_df['x_path_plan'].tolist()
                 y_path_plan = filtered_df['y_path_plan'].tolist()
-                #print("x plaaan",x_path_plan)
+               
                 plt.scatter(x_path_plan,y_path_plan,c='yellowgreen',marker='x')
                 # plot way points
                 
@@ -762,12 +711,9 @@ def main():
             drawing.add(String(1,50,"-Global planner: "+planner_type[i],fontSize=12,fontName= 'Times-Bold'))
             drawing.add(String(300,50,"-Trajectory type: "+unique_trajectories[j],fontSize=12,fontName= 'Times-Bold'))
             drawing.add(String(200,40,'Traveled path ', fontSize=12, fillColor=colors.black))
-            #drawing.add(Circle(300,10,3,fillColor=colors.white))
-            #drawing.add(String(308,10,'Final pose ',fontSize=12, fillColor=colors.black))
             star_vertices=[201.99,9.78,205.88,11.194,201.04,11.708,200,16,198.8,11.6,194.1,11.091,198.07,9.46,196.3,5.277,200,8,203.86,5.406,201.99,9.78]
             drawing.add(Polygon(star_vertices, fillColor=colors.yellowgreen,strokeColor=colors.yellowgreen))
             drawing.add(String(210,10,'Initial pose ',fontSize=12, fillColor=colors.black))
-            #drawing.add(Line(1,13,7,13, strokeColor=colors.yellowgreen, strokeWidth=3))
             drawing.add(String(1,11,'x',fontSize=12, fillColor=colors.yellowgreen))
             drawing.add(String(9,10,'Global planner path ',fontSize=12, fillColor=colors.black))
             drawing.add(String(115,10,'* ',fontSize=13, fillColor=colors.yellowgreen))
@@ -787,7 +733,7 @@ def main():
     filtered_trails_data = df.merge(trails_not_succeeded, on=['Experiment_ID', 'Iteration_ID'], how='inner')
 
     # Display the first few rows of the filtered trails data
-    print("failed",filtered_trails_data.head())
+    
     if not filtered_trails_data.empty:
             d=shapes.Drawing(250,60)
             d.add(String(1,40,"Failure report",fontSize=15))
@@ -801,8 +747,7 @@ def main():
         log_msgs=[]
         table= [["Global planner: "+str(trail_data['Planner'].unique()[0]),'',''],["Controller:  "+str(trail_data['Controller'].unique()[0])+'    experiment#:'+str(trail_data['Experiment_ID'].unique()[0])+'    iteration#:'+str(trail_data['Iteration_ID'].unique()[0]),'',''],["Logger_name", "Level", "Message"]]
         table.append([""])
-        print("msg_level",pd.isna(trail_data['msg_level']))
-        print("Error_msgs",pd.isna(trail_data['Error_msgs']))
+
         for index, row in trail_data.iterrows():
             # Check for non-NaN values and process them
             
@@ -810,7 +755,7 @@ def main():
             if  not pd.isna(row['msg_level']) and not pd.isna(row['Error_msgs']):
              
                 # Process the non-NaN values
-                # For example: print(row['publisher_node'], row['msg_level'], row['Error_msgs'])
+               
                 log_msgs=[row["publisher_node"],row["msg_level"],row["Error_msgs"]]
                 table.append(log_msgs)
 
@@ -828,9 +773,6 @@ def main():
                 ]))
                 elements.append(t)
                 elements.append(Drawing(500, 10))    
-        #if pd.isna(trail_data['msg_level']) and pd.isna(trail_data['Error_msgs']):
-        #    d=shapes.Drawing(250,25)
-        #    d.add(String(1,20,"Global planner: "+str(trail_data['Planner'].unique()[0])+", Controller:  "+str(trail_data['Controller'].unique()[0])    +', experiment#:'+str(trail_data['Experiment_ID'].unique()[0])+', iteration#:'+str(trail_data['Iteration_ID'].unique()[0])+ ", No log messages recorded of level error or warn",fontSize=10))
-        #    elements.append(d)  
+  
     doc.build(elements)
 
