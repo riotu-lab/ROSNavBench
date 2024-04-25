@@ -1,3 +1,5 @@
+<!-- Behavior tree configuration adapted from Nav2 example -->
+<!-- Source: https://navigation.ros.org/behavior_trees/trees/nav_through_poses_recovery.html -->
 <root main_tree_to_execute="MainTree">
   <BehaviorTree ID="MainTree">
     <RecoveryNode number_of_retries="6" name="NavigateRecovery">
@@ -6,7 +8,7 @@
           <RecoveryNode number_of_retries="1" name="ComputePathThroughPoses">
             <ReactiveSequence>
               <RemovePassedGoals input_goals="{goals}" output_goals="{goals}" radius="0.5" />
-              <ComputePathThroughPoses goals="{goals}" path="{path}" planner_id="To_be_specified" />
+              <ComputePathThroughPoses goals="{goals}" path="{path}" planner_id="smac_planner" />
             </ReactiveSequence>
             <ReactiveFallback name="ComputePathThroughPosesRecoveryFallback">
               <GoalUpdated />
@@ -15,7 +17,7 @@
           </RecoveryNode>
         </RateController>
         <RecoveryNode number_of_retries="1" name="FollowPath">
-          <FollowPath path="{path}" controller_id="To_be_specified" />
+          <FollowPath path="{path}" controller_id="DWB" />
           <ReactiveFallback name="FollowPathRecoveryFallback">
             <GoalUpdated />
             <ClearEntireCostmap name="ClearLocalCostmap-Context" service_name="local_costmap/clear_entirely_local_costmap" />

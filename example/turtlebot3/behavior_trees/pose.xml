@@ -1,11 +1,13 @@
 
+<!-- Behavior tree configuration adapted from Nav2 example -->
+<!-- Source: https://navigation.ros.org/behavior_trees/trees/nav_to_pose_recovery.html -->
 <root main_tree_to_execute="MainTree">
   <BehaviorTree ID="MainTree">
     <RecoveryNode number_of_retries="6" name="NavigateRecovery">
       <PipelineSequence name="NavigateWithReplanning">
         <RateController hz="1.0">
           <RecoveryNode number_of_retries="1" name="ComputePathToPose">
-            <ComputePathToPose goal="{goal}" path="{path}" planner_id="To_be_specified"/>
+            <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
             <ReactiveFallback name="ComputePathToPoseRecoveryFallback">
               <GoalUpdated/>
               <ClearEntireCostmap name="ClearGlobalCostmap-Context" service_name="global_costmap/clear_entirely_global_costmap"/>
@@ -13,7 +15,7 @@
           </RecoveryNode>
         </RateController>
         <RecoveryNode number_of_retries="1" name="FollowPath">
-          <FollowPath path="{path}" controller_id="To_be_specified"/>
+          <FollowPath path="{path}" controller_id="RPP"/>
           <ReactiveFallback name="FollowPathRecoveryFallback">
             <GoalUpdated/>
             <ClearEntireCostmap name="ClearLocalCostmap-Context" service_name="local_costmap/clear_entirely_local_costmap"/>
