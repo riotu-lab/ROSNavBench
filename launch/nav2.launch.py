@@ -13,8 +13,8 @@
 # limitations under the License.
 #
 # Author: Darby Lim
-# The file has been modified 
 
+# Multiple edits have been made thoughout the document by Fatimah Alhamed. 
 import os
 from jinja2 import Template
 from ament_index_python.packages import get_package_share_directory
