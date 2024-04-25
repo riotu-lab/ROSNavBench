@@ -23,7 +23,6 @@ navigator.waitUntilNav2Active()
 specs = os.environ['PARAMS_FILE']
 with open(specs, 'r') as file:
     robot_specs = yaml.safe_load(file)
-#map= navigator.getGlobalCostmap()
 map_png_path=robot_specs['map_png_path']
 map_path=robot_specs['map_path']
 planners_id_list=robot_specs['planner_type']
@@ -104,11 +103,9 @@ def process_user_defined_trajectory(goal_data: dict,robot_specs):
            point=waypoints_array[i]
            goal_pose= PoseStamped()
            goal_pose.header.frame_id = 'map'
-           #goal_pose.header.stamp = navigator.get_clock().now().to_msg()
            goal_pose.pose.position.x = point[0]
            goal_pose.pose.position.y = point[1]
            trajectory_object.append(goal_pose)
-           #path_points=navigatNONEor.getPathThroughPoses(initial_pose,goal_poses,planner_id=os.environ["planner"])
                                                
     elif trajectory_type == 'circle':
         # The robot is spawned at y and r+x 
@@ -119,11 +116,10 @@ def process_user_defined_trajectory(goal_data: dict,robot_specs):
         for i in range(len(waypoints_array)):  
             goal_pose= PoseStamped()
             goal_pose.header.frame_id = 'map'
-            #goal_pose.header.stamp = navigator.get_clock().now().to_msg()
             goal_pose.pose.position.x = waypoints_array[i][0]
             goal_pose.pose.position.y = waypoints_array[i][1]
             trajectory_object.append(goal_pose)
-            #path_points=navigator.getPathThroughPoses(initial_pose,goal_poses,planner_id=os.environ["planner"])
+            
         
     elif trajectory_type == 'waypoints': 
          # The waypoints are put into the goal form and then added to goal_poses array
@@ -132,14 +128,12 @@ def process_user_defined_trajectory(goal_data: dict,robot_specs):
             goal=waypoints[i]
             goal_pose= PoseStamped()
             goal_pose.header.frame_id = 'map'
-            #goal_pose.header.stamp = navigator.get_clock().now().to_msg()
             goal_pose.pose.position.x = goal.get('x',{})
             goal_pose.pose.position.y = goal.get('y',{})
             goal_pose.pose.orientation.w = np.cos(goal.get('theta',{})/2) 
             goal_pose.pose.orientation.z = np.sin(goal.get('theta',{})/2) 
             trajectory_object.append(goal_pose)
-            #path_points=navigator.getPathThroughPoses(initial_pose,goal_poses,planner_id=os.environ["planner"])
-            
+           
     elif trajectory_type=='single_goal': 
          # The goal is put into the goal form
          x_goal= goal_data.get('single_goal', {}).get('x', 'default_x')    
@@ -151,9 +145,8 @@ def process_user_defined_trajectory(goal_data: dict,robot_specs):
          goal_pose.pose.position.y =  y_goal
          goal_pose.pose.orientation.z = np.sin(yaw_goal/2) 
          goal_pose.pose.orientation.w = np.cos(yaw_goal/2) 
-         #path_points=navigator.getPath(initial_pose,goal_pose,planner_id=os.environ["planner"])
          trajectory_object=goal_pose
-    print(trajectory_object)
+  
     # validate trajectories and execlude the un required one 
     validation,path = validate_path(initial_pose_,trajectory_object, trajectory_type, navigator,planners_id_list)
     if validation == True:
@@ -170,38 +163,33 @@ def process_user_defined_trajectory(goal_data: dict,robot_specs):
         trajectory_points=None 
         raise ValueError(f"The path is not valid for {trajectory_type}")
     
-    print("output",[initial_pose_points,trajectory_points, trajectory_type])
     return [initial_pose_points,trajectory_points, trajectory_type]
     
          
 # Generate a random trajectory within the specified bounds
 def generate_random_trajectory(traj,navigator,planner_id):
+    
     waypoints = []
     max_cost = 230
-    #set_intial_state()
+    # Adapted from navigation2 planner benchmarking metrics
+    # Source: https://github.com/ros-planning/navigation2/blob/main/tools/planner_benchmarking/metrics.py
     costmap_msg = navigator.getGlobalCostmap()
-
     costmap = np.asarray(costmap_msg.data)
-  
     costmap.resize(costmap_msg.metadata.size_y, costmap_msg.metadata.size_x)
-    print(costmap)
     res = costmap_msg.metadata.resolution
-    side_buffer = int(max(costmap.shape[0]*0.15,costmap.shape[1]*0.10))
+    # ____________________________________________________________________________________________________
     
+    side_buffer = int(max(costmap.shape[0]*0.15,costmap.shape[1]*0.10)) 
     initial_pose = getRandomStart(costmap, max_cost, side_buffer, res)
     goal_pose = getRandomGoal(costmap, initial_pose, max_cost, side_buffer, res)
-    print("initial is ",initial_pose)
-    print("final goal ",goal_pose)
-    print(":here2")
+
     trajectory_type = traj.get('type', {})
     waypoints_poses=[]
     while True:
         validation,path=validate_path(initial_pose, goal_pose, 'single_goal', navigator,planner_id)
         
         if validation == True:
-            #print("path is ---:",path)
             path_length=calculate_path_length(path)
-            print("path length is   :",path_length)
             if trajectory_type=='long_trajectory':
                 if path_length<traj.get('long_trajectory', {}).get('lower_bound', 'default_lower_bound'):
                    goal_pose = getRandomGoal(costmap, initial_pose, max_cost, side_buffer,  res)
@@ -209,7 +197,7 @@ def generate_random_trajectory(traj,navigator,planner_id):
                     return [initial_pose, goal_pose],trajectory_type
             elif trajectory_type=='short_trajectory':
                 if path_length>traj.get('short_trajectory', {}).get('upper_bound', 'default_lower_bound'):
-                   goal_pose = getRandomGoal(costmap, initial_pose, max_cost, side_buffer,  res) 
+                   goal_pose = Goal(costmap, initial_pose, max_cost, side_buffer,  res) 
                 else:
                     return [initial_pose, goal_pose],trajectory_type
             elif trajectory_type=='waypoints':
@@ -219,28 +207,9 @@ def generate_random_trajectory(traj,navigator,planner_id):
                 initial_pose = goal_pose
                 goal_pose = getRandomGoal(costmap, initial_pose, max_cost, side_buffer,  res)
         elif validation == False:
-            initial_pose = getRandomStart(costmap, max_cost, side_buffer,res)   
+            initial_pose = Start(costmap, max_cost, side_buffer,res)   
             goal_pose = getRandomGoal(costmap, initial_pose, max_cost, side_buffer,  res)
-#This functions try to find zero pixels of the map and choose it to spawn the robot, but these pxels might be surrounded by other black pxels which means that the robot will not be correctly spawnwd - on hold-plan B ask user to choose any plane to spawn the robot 
-def empty_initial_pose(map_png_path,map_path):
-    img=Image.open(map_png_path)
-    
 
-    image_array=np.asarray(img)
-    print(image_array)
-    y_length=len(image_array)
-    x_length=len(image_array[0]) # width
-    with open(map_path, 'r') as file:
-            map_specs = yaml.safe_load(file)
-    origin=map_specs['origin']
-    resolution=map_specs['resolution']        
-    print("width  ",x_length,"  h  ",y_length)
-    zero_pixel=np.argwhere(image_array==0)
-    middle_index=int(len(zero_pixel)/2)
-    print()
-    print("converted x",zero_pixel[middle_index][0]*resolution+origin[0])
-    print("converted y",zero_pixel[middle_index][1]*resolution+origin[1])
-    return initial_pose(zero_pixel[middle_index][1]*resolution+origin[0],zero_pixel[middle_index][0]*resolution+origin[1],np.deg2rad(90))
          
                 
             
@@ -248,7 +217,7 @@ def set_intial_state(initial_pose,navigator):
     initial_pose.header.stamp = navigator.get_clock().now().to_msg()
     navigator.setInitialPose(initial_pose)
 
-
+# Function edited copy from https://github.com/ros-planning/navigation2/blob/main/tools/planner_benchmarking/metrics.py
 def getRandomStart(costmap, max_cost, side_buffer,  res):
     start = PoseStamped()
     start.header.frame_id = 'map'
@@ -271,13 +240,13 @@ def getRandomStart(costmap, max_cost, side_buffer,  res):
             break
     return start
 
-
+# Function edited copy from https://github.com/ros-planning/navigation2/blob/main/tools/planner_benchmarking/metrics.py
 def getRandomGoal(costmap, start, max_cost, side_buffer,  res):
     goal = PoseStamped()
     goal.header.frame_id = 'map'
   
     while True:
-        print("here4")
+    
         row = random.randint(side_buffer, costmap.shape[0] - side_buffer)
         col = random.randint(side_buffer, costmap.shape[1] - side_buffer)
 
@@ -316,7 +285,7 @@ def initial_pose(x,y,yaw):
 def validate_path(initial_pose, waypoints, type, navigator,planner_id_list):
     # Implement validation logic based on your navigator's capabilities
     if type == 'square' or type == 'circle' or type == 'waypoints':
-        #Maybe iterate over several planner to validate all
+        # Maybe iterate over several planner to validate all
         for planner_id in planner_id_list:
             path = navigator.getPathThroughPoses(initial_pose, waypoints,planner_id=planner_id, use_start=True) 
             if path is None: 
@@ -362,16 +331,13 @@ def trajectory_generator():
         time.sleep(3)
         for traj in robot_specs['user_defined_trajectories']:
 
-            print(traj)
             waypoints = process_user_defined_trajectory(traj,robot_specs)
             trajectories.append((waypoints))
 
     elif robot_specs['trajectory_type'] == 'auto_generated':
         
         i=0
-        #setting initial pose 
-        #initial_pose = empty_initial_pose(map_png_path,map_path)
-        #print(initial_pose)
+        
         initial_pose_=robot_specs['auto_generated_trajectory']['spawn_pose']
         initial_pose_=initial_pose(initial_pose_['x'],initial_pose_['y'],initial_pose_['yaw'])
         set_intial_state(initial_pose_,navigator)
@@ -383,8 +349,7 @@ def trajectory_generator():
             for i in range(1,len(trajectory_poses)):
                 trajectory_points.append([trajectory_poses[i].pose.position.x,trajectory_poses[i].pose.position.y,trajectory_poses[i].pose.orientation.z ,trajectory_poses[i].pose.orientation.w])
             trajectories.append((initial_pose_points,trajectory_points,trajectory_type)) 
-    print("Final traj    : ",trajectories)
-    print("-------")
+
     # Process the trajectories array as needed
     navigator.destroyNode()
     return trajectories
@@ -392,7 +357,7 @@ def trajectory_generator():
 def main():
     trajectories=trajectory_generator()
     data=[]
-    print("trajectories  :",trajectories)
+
     specs = os.environ['PARAMS_FILE']
     with open(specs, 'r') as file:
         robot_specs = yaml.safe_load(file)
