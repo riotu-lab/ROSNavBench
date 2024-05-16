@@ -1,17 +1,15 @@
 # ROSNavBench
+ROSNavBench is an open-source framework designed to facilitate the testing and comparison of various local and global planners in the Robot Operating System (ROS) 2. This tool provides a comprehensive platform for evaluating planner performance across diverse trajectories, collecting several metrics such as navigation time, path length, and success rate.
 
-The **`ROSNavBench`** empowers users to perform testing and comparisons between various local and global planners across various trajectories. 
+# Overview
+Efficient autonomous navigation in mobile robotics demands robust path planning capabilities. Despite the availability of numerous evaluation tools and frameworks for path planners, there is a significant gap in open-source, automated frameworks specifically tailored for ROS 2. ROSNavBench addresses this gap by providing a comprehensive statistical analysis necessary for robust decision-making. This framework automates the benchmarking of ROS 2-based local and global path planners, offering quantitative assessments across critical metrics such as efficiency, reliability, and adaptability under diverse environmental scenarios.
 
-## Introduction
+# Key Features
+Comprehensive Testing: Perform tests and comparisons among diverse local and global planners across various types of trajectories.
+Quantitative Evaluation: Assess the efficiency of planners using various metrics such as safety, success rate, path length, navigation time, path deviation, and number of recoveries.
+Automated Iterative Testing: Enhance result reliability through statistical analysis and streamline the workflow.
 
-The **`ROSNavBench`** provides a comprehensive platform for evaluating the performance of different local and global planners across various trajectories. Several metrics are collected through out the test such as navigation time. 
-
-## Key Features
-
-- Perform tests and comparisons among diverse local and global planners acrros various types of trajectories.
-- Evaluate efficiency of the global and local planners through various metrics. 
-
-## Prerequisites
+# Prerequisites
 
 Before using the ROS 2 `ROSNavBench`, make sure you have the following prerequisites in place:
 
