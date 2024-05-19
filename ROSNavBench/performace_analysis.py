@@ -88,7 +88,7 @@ def normalize_by_trajectory_type(data):
 
 def calculate_weighted_average(data, metrics, weights_dict):
     print(data.dtypes)
-    negative_metrics=["distance_to_obstacles","success_rate"]
+    negative_metrics=["distance_to_obstacles","success_rate","Safety"]
    
 
     # Check if all metrics are present in the weights dictionary
