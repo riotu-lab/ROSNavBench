@@ -33,8 +33,16 @@ def generate_launch_description():
     instances_num= robot_specs['instances_num']
     if robot_specs['trajectory_type'] == 'user_defined':
         trajectories=robot_specs['user_defined_trajectories']
+        sp = robot_specs['user_defined_trajectories'][0]["spawn_pose"]
+        x = str(sp['x'])
+        y = str(sp['y'])
+        yaw = str(sp['yaw'])
     elif robot_specs['trajectory_type'] == 'auto_generated':
         trajectories=robot_specs['auto_generated_trajectory']['types']
+        sp = robot_specs['auto_generated_trajectory']["spawn_pose"]
+        x = str(sp['x'])
+        y = str(sp['y'])
+        yaw = str(sp['yaw'])
 
     # Node for generating pdf
     pdf_generator=Node(
@@ -45,21 +53,34 @@ def generate_launch_description():
       
     # Include launch file for spawning the robot
     spawn_robot = IncludeLaunchDescription(
-                PythonLaunchDescriptionSource([
-         FindPackageShare("ROSNavBench"), '/launch', '/spawn_robot.launch.py'])
-        
-            )
+        PythonLaunchDescriptionSource([
+            FindPackageShare("ROSNavBench"), '/launch', '/spawn_robot.launch.py']),
+        launch_arguments={
+            'x_pose': x,
+            'y_pose': y,
+            'yaw_pose': yaw, 
+            'urdf_file': robot_specs.get('urdf_file', ''),
+            'world': robot_specs.get('world_path', '')
+        }.items()
+    )
+
     # Include launch file for launching navigation
     nav2 = IncludeLaunchDescription(
-                PythonLaunchDescriptionSource([
-                    FindPackageShare("ROSNavBench"), '/launch', '/nav2.launch.py'])
- 
-            )      
+        PythonLaunchDescriptionSource([
+            FindPackageShare("ROSNavBench"), '/launch', '/nav2.launch.py']),
+        launch_arguments={
+            'x_pose': x,
+            'y_pose': y,
+            'yaw_pose': yaw,
+            'use_sim_time': 'true'
+        }.items()
+    )      
  
     trajectory_generator = Node(
             name='trajectory_generator',
             executable='trajectory_generator',
             package='ROSNavBench',
+            parameters=[{'use_sim_time': True}]
         )
   
     ld = LaunchDescription()

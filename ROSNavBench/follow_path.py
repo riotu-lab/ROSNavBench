@@ -204,6 +204,7 @@ def log_trail_info(path, experiment_id, iteration_id, trajectory_type, planner, 
     df = pd.DataFrame(rows)
 
     # Append to CSV, create if doesn't exist
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     df.to_csv(path, mode='a', header=not pd.io.common.file_exists(path), index=False)
 
 def find_closest_point(current_pose, path):

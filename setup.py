@@ -18,7 +18,10 @@ setup(
         (os.path.join('share/' + package_name, 'script/'), glob('./script/*')),  
         (os.path.join('share/' + package_name, 'results/'), glob('./results/*')),
         (os.path.join('share/' + package_name, 'raw_data/'), glob('./raw_data/*')),     
-        (os.path.join('share/' + package_name, 'simulations/models/'), glob('./models/*')),      
+        (os.path.join('share/' + package_name, 'simulations/models/block'), glob('simulations/models/block/*')),
+        (os.path.join('share/' + package_name, 'simulations/maps/'), glob('simulations/maps/*')),
+        (os.path.join('share/' + package_name, 'simulations/worlds/'), glob('simulations/worlds/*')),
+        (os.path.join('share/' + package_name, 'simulations/urdf/'), glob('simulations/urdf/*')),
  
     ],
     install_requires=['setuptools'],

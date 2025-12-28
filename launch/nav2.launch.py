@@ -86,17 +86,24 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'x_pose',
             default_value = str(x),
-            description = 'Use simulation (Gazebo) clock if true'),
+            description = 'Initial x pose'),
         DeclareLaunchArgument(
             'y_pose',
             default_value = str(y),
-            description = 'Use simulation (Gazebo) clock if true'),
+            description = 'Initial y pose'),
+        DeclareLaunchArgument(
+            'yaw_pose',
+            default_value = str(yaw),
+            description = 'Initial yaw pose'),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([nav2_launch_file_dir, '/bringup_launch.py']),
             launch_arguments = {
                 'map': map_path,
                 'use_sim_time': use_sim_time,
-                'params_file': param_dir}.items(),
+                'params_file': param_dir,
+                'x_pose': LaunchConfiguration('x_pose'),
+                'y_pose': LaunchConfiguration('y_pose'),
+                'yaw_pose': LaunchConfiguration('yaw_pose')}.items(),
         ),
 
         Node(
@@ -106,4 +113,14 @@ def generate_launch_description():
             arguments=['-d', rviz_config_dir],
             parameters=[{'use_sim_time': use_sim_time}],
             output='screen'),
+            
+        # Static transform publisher for map->odom frame
+        # This ensures the map frame exists until AMCL takes over and publishes the transform
+        # Node(
+        #     package='tf2_ros',
+        #     executable='static_transform_publisher',
+        #     name='map_to_odom_publisher',
+        #     arguments=['0', '0', '0', '0', '0', '0', 'map', 'odom'],
+        #     parameters=[{'use_sim_time': use_sim_time}],
+        #     output='screen'),
     ])

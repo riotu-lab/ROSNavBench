@@ -18,7 +18,7 @@ import time
 
 rclpy.init()    
 navigator = BasicNavigator()
-navigator.waitUntilNav2Active()
+
 # Opening the config file to take the experiment data such as spawn pose, and the goal pose or trjectory
 specs = os.environ['PARAMS_FILE']
 with open(specs, 'r') as file:
@@ -26,6 +26,10 @@ with open(specs, 'r') as file:
 map_png_path=robot_specs['map_png_path']
 map_path=robot_specs['map_path']
 planners_id_list=robot_specs['planner_type']
+
+
+
+navigator.waitUntilNav2Active()
 
 def circle_points(x, y, radius):
     """
@@ -364,6 +368,7 @@ def main():
     pdf_name=robot_specs['experiment_name']
     csv_file = os.path.join(get_package_share_directory('ROSNavBench'),
         'raw_data',pdf_name+'_trajectories.csv')
+    os.makedirs(os.path.dirname(csv_file), exist_ok=True)
     with open(csv_file, 'w', newline='') as file:
         writer = csv.writer(file)
         # Write header
