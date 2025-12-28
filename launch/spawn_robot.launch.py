@@ -1,5 +1,6 @@
 
 import os
+import yaml
 from launch import LaunchDescription
 from launch.actions import AppendEnvironmentVariable, DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable
 from launch.conditions import IfCondition
@@ -7,6 +8,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
+from ROSNavBench.path_utils import resolve_paths_in_config
 
 def generate_launch_description():
     # Package Paths
@@ -42,6 +44,24 @@ def generate_launch_description():
         name='GZ_SIM_RESOURCE_PATH',
         value='/opt/ros/jazzy/share/turtlebot3_gazebo/models'
     )
+
+    # Add any custom model paths from the experiment config (supports ':' separated lists)
+    extra_model_paths = []
+    specs = os.environ.get('PARAMS_FILE')
+    if specs:
+        try:
+            with open(specs, 'r') as file:
+                robot_specs = yaml.safe_load(file)
+            resolve_paths_in_config(robot_specs, specs)
+            models_path = robot_specs.get('models_path', '')
+            if models_path:
+                extra_model_paths = [p for p in models_path.split(':') if p]
+        except Exception:
+            extra_model_paths = []
+    extra_model_path_actions = [
+        AppendEnvironmentVariable(name='GZ_SIM_RESOURCE_PATH', value=path)
+        for path in extra_model_paths
+    ]
 
     # Gazebo Sim
     world_file = LaunchConfiguration('world', default=PathJoinSubstitution([pkg_ros_nav_bench, 'simulations', 'worlds', 'turtlebot3.sdf']))
@@ -100,6 +120,7 @@ def generate_launch_description():
     # We bridge it above.
 
     return LaunchDescription([
+        *extra_model_path_actions,
         gz_resource_path_local,
         gz_resource_path_system,
         DeclareLaunchArgument('use_sim_time', default_value='true'),

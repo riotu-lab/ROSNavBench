@@ -25,19 +25,24 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 import yaml
-
-# Get the name of config file of the current experiment
-specs = os.environ['PARAMS_FILE']
+from ROSNavBench.path_utils import resolve_paths_in_config
 
 def generate_launch_description():
+    # Get the name of config file of the current experiment
+    # Read from environment variable (set by main.launch.py)
+    specs = os.environ.get('PARAMS_FILE')
+    if not specs:
+        raise ValueError("PARAMS_FILE environment variable must be set")
 
     # Opening the config file to take the experiment data such as the path of the navigation configuration
-
     with open(specs, 'r') as file:
         robot_specs = yaml.safe_load(file)
+    
+    # Resolve all paths in the config relative to the config file location
+    resolve_paths_in_config(robot_specs, specs)
 
-    map_path=robot_specs['map_path']
-    nav_config=robot_specs['nav_config']
+    map_path = robot_specs['map_path']
+    nav_config = robot_specs['nav_config']
     
  
     if robot_specs['trajectory_type'] == 'user_defined':
@@ -57,9 +62,9 @@ def generate_launch_description():
             'maps',
             'warehouse_slam_toolbox.yaml'))
     # Seting the path of the navigation configuration file
-    param_dir = LaunchConfiguration(
-        'params_file',
-        default =nav_config)
+    nav2_param_file = LaunchConfiguration(
+        'nav2_params_file',
+        default=nav_config)
 
     nav2_launch_file_dir = os.path.join(get_package_share_directory('nav2_bringup'), 'launch')
 
@@ -75,9 +80,9 @@ def generate_launch_description():
             description = 'Full path to map file to load'),
 
         DeclareLaunchArgument(
-            'params_file',
-            default_value = param_dir,
-            description = 'Full path to param file to load'),
+            'nav2_params_file',
+            default_value=nav_config,
+            description='Full path to Nav2 params file to load'),
 
         DeclareLaunchArgument(
             'use_sim_time',
@@ -100,7 +105,7 @@ def generate_launch_description():
             launch_arguments = {
                 'map': map_path,
                 'use_sim_time': use_sim_time,
-                'params_file': param_dir,
+                'params_file': nav2_param_file,
                 'x_pose': LaunchConfiguration('x_pose'),
                 'y_pose': LaunchConfiguration('y_pose'),
                 'yaw_pose': LaunchConfiguration('yaw_pose')}.items(),

@@ -7,10 +7,19 @@ import yaml
 
 
 def main():
-    specs = os.environ['PARAMS_FILE']
+    specs = os.environ.get('PARAMS_FILE')
+    if not specs:
+        raise ValueError("PARAMS_FILE environment variable must be set")
+    
     with open(specs, 'r') as file:
         robot_specs = yaml.safe_load(file)
-    pdf_name=robot_specs['experiment_name']
+    
+    # Resolve all paths in the config relative to the config file location
+    # (though reset_robot only uses experiment_name, this ensures consistency)
+    from ROSNavBench.path_utils import resolve_paths_in_config
+    resolve_paths_in_config(robot_specs, specs)
+    
+    pdf_name = robot_specs['experiment_name']
     trajectory_num=os.environ["trajectory_num"]
     # Example values for x, y, yaw
     csv_path=os.path.join(get_package_share_directory('ROSNavBench'),

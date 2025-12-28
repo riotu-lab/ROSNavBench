@@ -15,17 +15,25 @@ import pandas as pd
 from ament_index_python.packages import get_package_share_directory
 import csv
 import time 
+from ROSNavBench.path_utils import resolve_paths_in_config
 
 rclpy.init()    
 navigator = BasicNavigator()
 
 # Opening the config file to take the experiment data such as spawn pose, and the goal pose or trjectory
-specs = os.environ['PARAMS_FILE']
+specs = os.environ.get('PARAMS_FILE')
+if not specs:
+    raise ValueError("PARAMS_FILE environment variable must be set")
+
 with open(specs, 'r') as file:
     robot_specs = yaml.safe_load(file)
-map_png_path=robot_specs['map_png_path']
-map_path=robot_specs['map_path']
-planners_id_list=robot_specs['planner_type']
+
+# Resolve all paths in the config relative to the config file location
+resolve_paths_in_config(robot_specs, specs)
+
+map_png_path = robot_specs['map_png_path']
+map_path = robot_specs['map_path']
+planners_id_list = robot_specs['planner_type']
 
 
 
@@ -362,10 +370,17 @@ def main():
     trajectories=trajectory_generator()
     data=[]
 
-    specs = os.environ['PARAMS_FILE']
+    specs = os.environ.get('PARAMS_FILE')
+    if not specs:
+        raise ValueError("PARAMS_FILE environment variable must be set")
+    
     with open(specs, 'r') as file:
         robot_specs = yaml.safe_load(file)
-    pdf_name=robot_specs['experiment_name']
+    
+    # Resolve all paths in the config relative to the config file location
+    resolve_paths_in_config(robot_specs, specs)
+    
+    pdf_name = robot_specs['experiment_name']
     csv_file = os.path.join(get_package_share_directory('ROSNavBench'),
         'raw_data',pdf_name+'_trajectories.csv')
     os.makedirs(os.path.dirname(csv_file), exist_ok=True)

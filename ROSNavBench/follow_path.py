@@ -31,8 +31,9 @@ from rclpy.executors import MultiThreadedExecutor
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup,ReentrantCallbackGroup
 from datetime import datetime
 from nav_msgs.msg import Path
-# Get the name of config file of the current experiment
-specs = os.environ['PARAMS_FILE']
+# Note: PARAMS_FILE is read later in main() with proper path resolution
+# This module-level variable is kept for backward compatibility but may be empty
+specs = os.environ.get('PARAMS_FILE', '')
 
 
 from lifecycle_msgs.srv import GetState  # Replace with the actual service type you need
@@ -261,13 +262,21 @@ def main(args=None):
         tree.write(os.path.join(behaviour_tree_directory,
         'bt_'+new_planner_value+'_'+new_controller_value+'.xml'))
     
-    specs = os.environ['PARAMS_FILE']
+    specs = os.environ.get('PARAMS_FILE')
+    if not specs:
+        raise ValueError("PARAMS_FILE environment variable must be set")
+    
     with open(specs, 'r') as file:
         robot_specs = yaml.safe_load(file)
-    trajectory_type= robot_specs['trajectory_type'] 
-    pdf_name=robot_specs['experiment_name']
-    controller_type=robot_specs['controller_type']
-    behaviour_tree_directory=robot_specs['behaviour_tree_directory']
+    
+    # Resolve all paths in the config relative to the config file location
+    from ROSNavBench.path_utils import resolve_paths_in_config
+    resolve_paths_in_config(robot_specs, specs)
+    
+    trajectory_type = robot_specs['trajectory_type'] 
+    pdf_name = robot_specs['experiment_name']
+    controller_type = robot_specs['controller_type']
+    behaviour_tree_directory = robot_specs['behaviour_tree_directory']
     planner=os.environ["planner"]
     controller=os.environ["controller"]
     trajectory_num=os.environ["trajectory_num"]

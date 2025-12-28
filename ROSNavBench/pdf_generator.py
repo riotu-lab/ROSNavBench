@@ -370,19 +370,27 @@ def main():
     
   
     # Get the name of config file of the current experiment
-    specs = os.environ['PARAMS_FILE']
+    specs = os.environ.get('PARAMS_FILE')
+    if not specs:
+        raise ValueError("PARAMS_FILE environment variable must be set")
+    
     # Open config file and extact data
     with open(specs, 'r') as file:
         robot_specs = yaml.safe_load(file)
-    controller_type=robot_specs['controller_type']
-    planner_type=robot_specs['planner_type']    
-    pdf_name=robot_specs['experiment_name']
-    results_directory=robot_specs['results_directory']
-    instances_num= robot_specs['instances_num']
-    map_path=robot_specs['map_path']
-    map_png_path=robot_specs['map_png_path']
-    criteria= robot_specs['criteria']
-    weights= robot_specs['weights']
+    
+    # Resolve all paths in the config relative to the config file location
+    from ROSNavBench.path_utils import resolve_paths_in_config
+    resolve_paths_in_config(robot_specs, specs)
+    
+    controller_type = robot_specs['controller_type']
+    planner_type = robot_specs['planner_type']    
+    pdf_name = robot_specs['experiment_name']
+    results_directory = robot_specs['results_directory']
+    instances_num = robot_specs['instances_num']
+    map_path = robot_specs['map_path']
+    map_png_path = robot_specs['map_png_path']
+    criteria = robot_specs['criteria']
+    weights = robot_specs['weights']
     # Load the CSV file to inspect its contents and structure
     file_path = os.path.join(get_package_share_directory('ROSNavBench'),'raw_data',
         pdf_name+'.csv')
@@ -390,13 +398,18 @@ def main():
    
     # Generating the pdf
     elements=[]
-    if results_directory!='':
-       doc=SimpleDocTemplate(os.path.join(results_directory,
-        pdf_name+".pdf"),pagesize=A4)
+    if results_directory != '':
+       os.makedirs(results_directory, exist_ok=True)
+       doc = SimpleDocTemplate(os.path.join(results_directory,
+        pdf_name + ".pdf"), pagesize=A4)
     else:
-       doc=SimpleDocTemplate(os.path.join(get_package_share_directory('ROSNavBench'),
-        'results',
-        pdf_name+".pdf"),pagesize=A4)    
+       default_results_dir = os.path.join(
+        get_package_share_directory('ROSNavBench'),
+        'results'
+       )
+       os.makedirs(default_results_dir, exist_ok=True)
+       doc = SimpleDocTemplate(os.path.join(default_results_dir,
+        pdf_name + ".pdf"), pagesize=A4)
     # PDF title
     d=shapes.Drawing(5,40)
     d.add(String(1,20,pdf_name,fontSize=20)) 
@@ -775,4 +788,3 @@ def main():
                 elements.append(Drawing(500, 10))    
   
     doc.build(elements)
-

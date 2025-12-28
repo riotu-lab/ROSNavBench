@@ -1,6 +1,7 @@
 from setuptools import setup
 import os
 from glob import glob
+from pathlib import Path
 
 package_name = 'ROSNavBench'
 
@@ -19,6 +20,12 @@ setup(
         (os.path.join('share/' + package_name, 'results/'), glob('./results/*')),
         (os.path.join('share/' + package_name, 'raw_data/'), glob('./raw_data/*')),     
         (os.path.join('share/' + package_name, 'simulations/models/block'), glob('simulations/models/block/*')),
+        # Install turtlebot3_world model files (preserving directory structure)
+        (os.path.join('share/' + package_name, 'simulations/models/turtlebot3_world'), 
+         [str(p) for p in Path('simulations/models/turtlebot3_world').iterdir() if p.is_file()]),
+        (os.path.join('share/' + package_name, 'simulations/models/turtlebot3_world/meshes'), 
+         [str(p) for p in Path('simulations/models/turtlebot3_world/meshes').iterdir() if p.is_file()]),
+        (os.path.join('share/' + package_name, 'simulations/models/turtlebot3_waffle_gz'), glob('simulations/models/turtlebot3_waffle_gz/*')),
         (os.path.join('share/' + package_name, 'simulations/maps/'), glob('simulations/maps/*')),
         (os.path.join('share/' + package_name, 'simulations/worlds/'), glob('simulations/worlds/*')),
         (os.path.join('share/' + package_name, 'simulations/urdf/'), glob('simulations/urdf/*')),

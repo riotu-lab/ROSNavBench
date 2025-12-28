@@ -2,21 +2,30 @@
 experiment_name: "tb3_test"
 
 
-#Save directory of results
-results_directory: "/home/khaled/riout_ws/src/ROSNavBench/results"
+#Save directory of results (relative paths are resolved relative to config file location)
+# Use empty string '' to save to default ROSNavBench/results directory
+# Absolute paths (starting with /) are used as-is
+results_directory: "results"
 
 
-#  Add the absolute path of the world
-world_path: "/home/khaled/riout_ws/src/ROSNavBench/simulations/worlds/turtlebot3_house_gz.sdf"
+#  Path to the world file (relative paths are resolved relative to config file location)
+#  Absolute paths (starting with /) are used as-is
+world_path: "../simulations/worlds/turtlebot3_house_gz.sdf"
 
-#  Add the absolute path of the map
+#  Path to the map YAML file (relative paths are resolved relative to config file location)
+#  Absolute paths (starting with /) are used as-is
+#  Note: External ROS packages may require absolute paths
 map_path: "/opt/ros/jazzy/share/turtlebot3_navigation2/map/map.yaml"
 
-#  Add the absolute path of the map
+#  Path to the map PNG file (relative paths are resolved relative to config file location)
+#  Absolute paths (starting with /) are used as-is
+#  Note: External ROS packages may require absolute paths
 map_png_path: "/opt/ros/jazzy/share/turtlebot3_navigation2/map/map.pgm"
 
-#  Add gazebo model path, if multiple path, please spereate them by a :
-models_path: "/home/khaled/riout_ws/src/ROSNavBench/simulations"
+#  Gazebo model path (relative paths are resolved relative to config file location)
+#  If multiple paths, please separate them by a :
+#  Absolute paths (starting with /) are used as-is
+models_path: "../simulations"
 #  Choose a type of global local planners to be tested
 planner_type: ["GridBased"]
 #, "smac_planner", "ThetaStar", "Lattice", "SmacHybraid"
@@ -26,20 +35,23 @@ planner_type: ["GridBased"]
 #  RPP
 #  RPP_RSC
 #  DWB_RSC
-controller_type: ["DWB", "DWB_RSC", "RPP", "RPP_RSC"] #name of behaviour tree
+controller_type: ["DWB", "DWB_RSC"] #name of behaviour tree
 
 #  This option is intended for testing the same controller and planner combination several times
 #  Min value is one
 instances_num: 1
 
-#  Add the absolute path of the robot navigation configuration
-nav_config: "/home/khaled/riout_ws/src/ROSNavBench/example/turtlebot3/nav2_config/waffle_pi2.yaml"
+#  Path to the robot navigation configuration (relative paths are resolved relative to config file location)
+#  Absolute paths (starting with /) are used as-is
+nav_config: "../example/turtlebot3/nav2_config/waffle_pi2.yaml"
 
-#  Add the directory of the behaviour tree
-behaviour_tree_directory: "/home/khaled/riout_ws/src/ROSNavBench/example/turtlebot3/behavior_trees"
+#  Directory of the behaviour tree (relative paths are resolved relative to config file location)
+#  Absolute paths (starting with /) are used as-is
+behaviour_tree_directory: "../example/turtlebot3/behavior_trees"
 
-#  Add the absolute path of the urdf and model files inside single qoutes ''
-urdf_file: "/home/khaled/riout_ws/src/ROSNavBench/simulations/urdf/turtlebot3_waffle_pi.urdf"
+#  Path to the URDF file (relative paths are resolved relative to config file location)
+#  Absolute paths (starting with /) are used as-is
+urdf_file: "../simulations/urdf/turtlebot3_waffle_pi.urdf"
 
 #  If the robot is spawned by only urdf, then set the model_file to 'None'
 model_file: 'None'
