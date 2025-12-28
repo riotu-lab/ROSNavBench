@@ -15,12 +15,12 @@ world_path: "../simulations/worlds/turtlebot3_house_gz.sdf"
 #  Path to the map YAML file (relative paths are resolved relative to config file location)
 #  Absolute paths (starting with /) are used as-is
 #  Note: External ROS packages may require absolute paths
-map_path: "/opt/ros/jazzy/share/turtlebot3_navigation2/map/map.yaml"
+map_path: "../simulations/maps/map.yaml"
 
 #  Path to the map PNG file (relative paths are resolved relative to config file location)
 #  Absolute paths (starting with /) are used as-is
 #  Note: External ROS packages may require absolute paths
-map_png_path: "/opt/ros/jazzy/share/turtlebot3_navigation2/map/map.pgm"
+map_png_path: "../simulations/maps/map.pgm"
 
 #  Gazebo model path (relative paths are resolved relative to config file location)
 #  If multiple paths, please separate them by a :
