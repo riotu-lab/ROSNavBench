@@ -462,6 +462,8 @@ def main(args=None):
     # closest_point = find_closest_point(current_pose, path)
     # closest_point
     def path_coordinates_extraction(path_msg):
+        if path_msg is None:
+            return None, None
         x_values = [pose.pose.position.x for pose in path_msg.poses]
         y_values = [pose.pose.position.y for pose in path_msg.poses]
         return x_values, y_values
@@ -470,9 +472,14 @@ def main(args=None):
     global_path_y=[]
     logger.info("The path is "+str(plan.count(None)))
     for i in range(len(x_pose)):
-        if i==0 and plan[0]==None:
-            plan[0]=path
-        x,y=find_closest_point((x_pose[i],y_pose[i]), (path_coordinates_extraction(plan[i])))
+        if i == 0 and plan[0] is None:
+            plan[0] = path
+        plan_x, plan_y = path_coordinates_extraction(plan[i])
+        if plan_x is None or plan_y is None:
+            global_path_x.append(None)
+            global_path_y.append(None)
+            continue
+        x, y = find_closest_point((x_pose[i], y_pose[i]), (plan_x, plan_y))
         global_path_x.append(x)
         global_path_y.append(y)
 
@@ -489,6 +496,5 @@ def main(args=None):
     
     rclpy.shutdown()
     exit(0)
-
 
 

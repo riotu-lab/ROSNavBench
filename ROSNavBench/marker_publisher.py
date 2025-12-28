@@ -13,10 +13,22 @@ class Marker_Publisher(Node):
 
     def __init__(self):
         super().__init__('rviz_marker')
+        self.declare_parameter('planner', '')
+        self.declare_parameter('controller', '')
+        self.declare_parameter('round_num', '')
+        self.planner = self._get_value('planner', 'planner')
+        self.controller = self._get_value('controller', 'controller')
+        self.round_num = self._get_value('round_num', 'round_num')
         self.publisher_ = self.create_publisher(Marker, "/visualization_marker", 10)
         timer_period = 0.5  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
         self.i = 0
+
+    def _get_value(self, param_name, env_name):
+        value = self.get_parameter(param_name).get_parameter_value().string_value
+        if value:
+            return value
+        return os.environ.get(env_name, '')
 
     def timer_callback(self):
         self.publisher_.publish(marker)
@@ -58,10 +70,13 @@ def main(args=None):
     marker.pose.orientation.y = 0.0
     marker.pose.orientation.z = 0.0
     marker.pose.orientation.w = 1.0
-    if os.environ["controller"]!= None:
-       marker.text=os.environ["controller"]+"\n"+os.environ["planner"]+" "+os.environ["round_num"]
+    controller = marker_publisher.controller
+    planner = marker_publisher.planner
+    round_num = marker_publisher.round_num
+    if controller or planner or round_num:
+        marker.text = f"{controller}\n{planner} {round_num}".strip()
     else:
-       marker.text='None'
+        marker.text = 'None'
     for i in range(4):
 
         rclpy.spin_once(marker_publisher)

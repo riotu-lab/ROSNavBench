@@ -442,8 +442,11 @@ def main():
                 table_data.append(unique_trajectories[p])
 
                 results_experiment=filtered_data[(filtered_data['result']!="In progress")]
-
-                table_data.append(str(round((results_experiment['result'].value_counts().get('succeeded', 0)/len(results_experiment['result']))*100,2))) #success rate of this combination
+                if len(results_experiment['result']) > 0:
+                    success_rate = (results_experiment['result'].value_counts().get('succeeded', 0) / len(results_experiment['result'])) * 100
+                else:
+                    success_rate = 0.0
+                table_data.append(str(round(success_rate, 2))) #success rate of this combination
                 
                 table_data.append(str('{0:.2f}'.format(results_experiment['Navigation_time'].mean())))    #Execution time ####
 

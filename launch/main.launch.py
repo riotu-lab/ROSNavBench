@@ -164,12 +164,31 @@ def launch_setup(context):
     
     # Generating different nodes to publish the type of running controller and planner 
     controller_node = []
-    for j in range(len(controller_type) * len(planner_type) * instances_num * trajectories_count):
+    total_runs = len(controller_type) * len(planner_type) * instances_num * trajectories_count
+    runs_per_planner = len(controller_type) * trajectories_count * instances_num
+    runs_per_controller = trajectories_count * instances_num
+    for j in range(total_runs):
+        planner_index = j // runs_per_planner
+        rem = j % runs_per_planner
+        controller_index = rem // runs_per_controller
+        rem2 = rem % runs_per_controller
+        trajectory_index = rem2 // instances_num
+        experiment_number = (
+            planner_index * (len(controller_type) * trajectories_count)
+            + controller_index * trajectories_count
+            + trajectory_index
+            + 1
+        )
         controller_node.append(Node(
             name='marker_publisher',
             executable='marker_publisher',
             package='ROSNavBench',
-            parameters=[{'use_sim_time': True}],
+            parameters=[{
+                'use_sim_time': True,
+                'planner': planner_type[planner_index],
+                'controller': controller_type[controller_index],
+                'round_num': str(experiment_number),
+            }],
         ))           
     
     # Generating different nodes for sending the goal and recording the data

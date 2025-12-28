@@ -27,15 +27,11 @@ map_png_path: "../simulations/maps/map.pgm"
 #  Absolute paths (starting with /) are used as-is
 models_path: "../simulations"
 #  Choose a type of global local planners to be tested
-planner_type: ["GridBased"]
-#, "smac_planner", "ThetaStar", "Lattice", "SmacHybraid"
+planner_type: ["GridBased", "smac_planner", "ThetaStar", "Lattice", "SmacHybraid"]
+#
 #  Choose one of the following controllers, by adding its name to the controller type list
 #  Note that these are the avaible controllers for the provided example
-#  DWB
-#  RPP
-#  RPP_RSC
-#  DWB_RSC
-controller_type: ["DWB", "DWB_RSC"] #name of behaviour tree
+controller_type: ["DWB", "DWB_RSC", "RPP", "RPP_RSC", "MPPI"] #name of behaviour tree
 
 #  This option is intended for testing the same controller and planner combination several times
 #  Min value is one
