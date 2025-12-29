@@ -31,7 +31,7 @@ planner_type: ["GridBased", "smac_planner", "ThetaStar", "Lattice", "SmacHybraid
 #
 #  Choose one of the following controllers, by adding its name to the controller type list
 #  Note that these are the avaible controllers for the provided example
-controller_type: ["DWB", "DWB_RSC", "RPP", "RPP_RSC", "MPPI"] #name of behaviour tree
+controller_type: ["DWB", "RPP", "DWB_RSC", "RPP_RSC", "MPPI"] #name of behaviour tree
 
 #  This option is intended for testing the same controller and planner combination several times
 #  Min value is one

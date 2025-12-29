@@ -29,9 +29,8 @@ setup(
         (os.path.join('share/' + package_name, 'simulations/maps/'), glob('simulations/maps/*')),
         (os.path.join('share/' + package_name, 'simulations/worlds/'), glob('simulations/worlds/*')),
         (os.path.join('share/' + package_name, 'simulations/urdf/'), glob('simulations/urdf/*')),
+        (os.path.join('share/' + package_name, 'example/turtlebot3/nav2_config'), glob('example/turtlebot3/nav2_config/*')),
         (os.path.join('share/' + package_name, 'example/turtlebot3/behavior_trees'), glob('example/turtlebot3/behavior_trees/*')),
-         (os.path.join('share/' + package_name, 'example/turtlebot3/nav2_config'), glob('example/turtlebot3/nav2_config/*')),
-
     ],
     install_requires=['setuptools'],
     zip_safe=True,
