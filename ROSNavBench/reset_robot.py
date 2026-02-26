@@ -1,6 +1,5 @@
 import subprocess
 import numpy as np
-import json
 import os
 from ROSNavBench.extract_data import extract_data
 from ament_index_python.packages import get_package_share_directory
@@ -8,36 +7,43 @@ import yaml
 
 
 def main():
-    specs = os.environ['PARAMS_FILE']
+    specs = os.environ.get('PARAMS_FILE')
+    if not specs:
+        raise ValueError("PARAMS_FILE environment variable must be set")
+    
     with open(specs, 'r') as file:
         robot_specs = yaml.safe_load(file)
-    pdf_name=robot_specs['experiment_name']
+    
+    # Resolve all paths in the config relative to the config file location
+    # (though reset_robot only uses experiment_name, this ensures consistency)
+    from ROSNavBench.path_utils import resolve_paths_in_config
+    resolve_paths_in_config(robot_specs, specs)
+    
+    pdf_name = robot_specs['experiment_name']
     trajectory_num=os.environ["trajectory_num"]
     # Example values for x, y, yaw
     csv_path=os.path.join(get_package_share_directory('ROSNavBench'),
         'raw_data',pdf_name+'_trajectories.csv')
     trajectory_type, initial_pose,trajectory_points=extract_data(csv_path,int(trajectory_num))
     # Construct the data as a Python dictionary
-    data = {
-        "state": {
-            "name": "robot",
-            "pose": {
-                "position": {"x": initial_pose[0], "y": initial_pose[1], "z": 0.0},
-                "orientation": {"x": 0.0, "y": 0.0, "z": initial_pose[2], "w": initial_pose[3]}
-            },
-            "reference_frame": "world"
-        }
-    }
-
-    # Convert dictionary to JSON string
-    json_data = json.dumps(data)
+    # Construct the request string for gz service
+    # The entity name in Gazebo Sim is 'turtlebot3_waffle_pi' as seen in spawn_robot.launch.py
+    # and gz topic list
+    req_str = (
+        f'name: "turtlebot3_waffle_pi", '
+        f'position: {{x: {initial_pose[0]}, y: {initial_pose[1]}, z: 0.0}}, '
+        f'orientation: {{x: 0.0, y: 0.0, z: {initial_pose[2]}, w: {initial_pose[3]}}}'
+    )
 
     command = [
-        'ros2', 'service', 'call',
-        '/set_entity_state',
-        'gazebo_msgs/SetEntityState',
-        json_data
+        'gz', 'service',
+        '-s', '/world/default/set_pose',
+        '--reqtype', 'gz.msgs.Pose',
+        '--reptype', 'gz.msgs.Boolean',
+        '--timeout', '2000',
+        '--req', req_str
     ]
+
     try_=True
     while try_:
         # Execute the command
@@ -45,8 +51,12 @@ def main():
 
         # Check result
         if result.returncode == 0:
-            print("Command executed successfully")
-            try_=False
+            # Check if the service call itself was successful (returned true)
+            if "data: true" in result.stdout:
+                print("Command executed successfully")
+                try_=False
+            else:
+                print("Service call returned false, retrying...", result.stdout)
         else:
             print("Error in executing command:", result.stderr)
-        
+

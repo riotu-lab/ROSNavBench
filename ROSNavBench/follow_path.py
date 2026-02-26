@@ -31,8 +31,9 @@ from rclpy.executors import MultiThreadedExecutor
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup,ReentrantCallbackGroup
 from datetime import datetime
 from nav_msgs.msg import Path
-# Get the name of config file of the current experiment
-specs = os.environ['PARAMS_FILE']
+# Note: PARAMS_FILE is read later in main() with proper path resolution
+# This module-level variable is kept for backward compatibility but may be empty
+specs = os.environ.get('PARAMS_FILE', '')
 
 
 from lifecycle_msgs.srv import GetState  # Replace with the actual service type you need
@@ -204,6 +205,7 @@ def log_trail_info(path, experiment_id, iteration_id, trajectory_type, planner, 
     df = pd.DataFrame(rows)
 
     # Append to CSV, create if doesn't exist
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     df.to_csv(path, mode='a', header=not pd.io.common.file_exists(path), index=False)
 
 def find_closest_point(current_pose, path):
@@ -260,13 +262,21 @@ def main(args=None):
         tree.write(os.path.join(behaviour_tree_directory,
         'bt_'+new_planner_value+'_'+new_controller_value+'.xml'))
     
-    specs = os.environ['PARAMS_FILE']
+    specs = os.environ.get('PARAMS_FILE')
+    if not specs:
+        raise ValueError("PARAMS_FILE environment variable must be set")
+    
     with open(specs, 'r') as file:
         robot_specs = yaml.safe_load(file)
-    trajectory_type= robot_specs['trajectory_type'] 
-    pdf_name=robot_specs['experiment_name']
-    controller_type=robot_specs['controller_type']
-    behaviour_tree_directory=robot_specs['behaviour_tree_directory']
+    
+    # Resolve all paths in the config relative to the config file location
+    from ROSNavBench.path_utils import resolve_paths_in_config
+    resolve_paths_in_config(robot_specs, specs)
+    
+    trajectory_type = robot_specs['trajectory_type'] 
+    pdf_name = robot_specs['experiment_name']
+    controller_type = robot_specs['controller_type']
+    behaviour_tree_directory = robot_specs['behaviour_tree_directory']
     planner=os.environ["planner"]
     controller=os.environ["controller"]
     trajectory_num=os.environ["trajectory_num"]
@@ -452,6 +462,8 @@ def main(args=None):
     # closest_point = find_closest_point(current_pose, path)
     # closest_point
     def path_coordinates_extraction(path_msg):
+        if path_msg is None:
+            return None, None
         x_values = [pose.pose.position.x for pose in path_msg.poses]
         y_values = [pose.pose.position.y for pose in path_msg.poses]
         return x_values, y_values
@@ -460,9 +472,14 @@ def main(args=None):
     global_path_y=[]
     logger.info("The path is "+str(plan.count(None)))
     for i in range(len(x_pose)):
-        if i==0 and plan[0]==None:
-            plan[0]=path
-        x,y=find_closest_point((x_pose[i],y_pose[i]), (path_coordinates_extraction(plan[i])))
+        if i == 0 and plan[0] is None:
+            plan[0] = path
+        plan_x, plan_y = path_coordinates_extraction(plan[i])
+        if plan_x is None or plan_y is None:
+            global_path_x.append(None)
+            global_path_y.append(None)
+            continue
+        x, y = find_closest_point((x_pose[i], y_pose[i]), (plan_x, plan_y))
         global_path_x.append(x)
         global_path_y.append(y)
 
@@ -479,6 +496,5 @@ def main(args=None):
     
     rclpy.shutdown()
     exit(0)
-
 
 

@@ -1,6 +1,6 @@
 <!-- Behavior tree configuration adapted from Nav2 example -->
 <!-- Source: https://navigation.ros.org/behavior_trees/trees/nav_through_poses_recovery.html -->
-<root main_tree_to_execute="MainTree">
+<root main_tree_to_execute="MainTree" BTCPP_format="4">
   <BehaviorTree ID="MainTree">
     <RecoveryNode number_of_retries="6" name="NavigateRecovery">
       <PipelineSequence name="NavigateWithReplanning">
