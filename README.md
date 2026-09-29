@@ -18,34 +18,15 @@ Before using the ROS 2 `ROSNavBench`, make sure you have the following prerequis
 
 - **Python Libraries**: Install the following Python libraries to enable the functionality of the `ROSNavBench`:
 
-  - **Csv**: Used for handling CSV file formats.
-
     ```bash
-    pip3 install python-csv
+    sudo apt install python3-pandas python3-numpy python3-matplotlib python3-seaborn python3-scipy python3-yaml python3-pil python3-reportlab python3-jinja2 python3-psutil
     ```
 
-  - **Reportlab**: Required for generating PDF reports.
-
-    ```bash
-    pip3 install reportlab
-    ```
-
-  - **Jinja2**: This library is used for template rendering.
-
-    ```bash
-    pip3 install Jinja2
-    ```
-
-  - **psutil**: Enables monitoring of system resources.
-
-    ```bash
-    pip3 install psutil
-    ```
 
   - **Nav2 Simple Commander**: Essential for navigation tasks and commands.
 
     ```bash
-    sudo apt install ros-humble-nav2-simple-commander
+    sudo apt install ros-$ROS_DISTRO-nav2-simple-commander
     ```
 
 - **Gazebo Sim**: ROSNavBench utilizes Gazebo Sim (GZ) for physics simulation. Install the required Gazebo Sim packages:
@@ -86,7 +67,7 @@ Please ensure that these prerequisites are satisfied before proceeding with the 
     Navigate to your ROS 2 workspace and build the package:
 
     ```bash
-    cd ~/your_workspace/src
+    cd ~/your_workspace
     colcon build --packages-select ROSNavBench
     source install/setup.bash
     ```
@@ -114,19 +95,19 @@ To initiate the ROSNavBench test, follow these steps:
       - Example using a relative path (resolved relative to the package):
 
       ```bash
-      ros2 launch ROSNavBench main.launch.py params_file:=config/house_experiment_no_obstaclesyaml.yaml
+      ros2 launch ROSNavBench main.launch.py params_file:=config/example.yaml
       ```
 
       - Example using an absolute path:
 
       ```bash
-      ros2 launch ROSNavBench main.launch.py params_file:=/home/USER/riout_ws/src/ROSNavBench/config/house_experiment_no_obstaclesyaml.yaml
+      ros2 launch ROSNavBench main.launch.py params_file:=/home/USER/riout_ws/src/ROSNavBench/config/example.yaml
       ```
 
       - Example using `PARAMS_FILE`:
 
       ```bash
-      export PARAMS_FILE="/home/USER/riout_ws/src/ROSNavBench/config/house_experiment_no_obstaclesyaml.yaml"
+      export PARAMS_FILE="/home/USER/riout_ws/src/ROSNavBench/config/example.yaml"
       ros2 launch ROSNavBench main.launch.py
       ```
 
@@ -139,6 +120,18 @@ To initiate the ROSNavBench test, follow these steps:
 By following these steps, you'll be able to execute the benchmarking test.
 
 ## Configuration Notes
+### Behavior tree path in the Nav2 parameters (required)
+
+The Nav2 parameter file contains an **absolute** path to the default behavior tree. Relative paths in the ROSNavBench config are resolved automatically, but this path is read by Nav2 itself, so it must be edited by hand to match your machine:
+
+```yaml
+bt_navigator:
+  ros__parameters:
+    default_nav_to_pose_bt_xml: "/home/<USER>/<your_ws>/src/ROSNavBench/example/turtlebot3/behavior_trees/pose.xml"
+    # default_nav_through_poses_bt_xml: "/home/<USER>/<your_ws>/src/ROSNavBench/example/turtlebot3/behavior_trees/poses.xml"
+```
+
+Replace `/home/<USER>/<your_ws>` with your workspace path. If this path is wrong, `bt_navigator` fails to activate and the benchmark will not start.
 
 - **Relative paths** in `config/*.yaml` are resolved relative to the config file location (e.g., `world_path`, `nav_config`, `urdf_file`, `behaviour_tree_directory`).
 - **results_directory**:
@@ -149,14 +142,14 @@ By following these steps, you'll be able to execute the benchmarking test.
 ## Built-in Controllers and Planners
 
 - **Controllers**: `DWB`, `RPP`, `DWB_RSC`, `MPPI`
-- **Planners**: `GridBased` (NavFn), `NavFn`, `smac_planner`, `ThetaStar`, `Lattice`, `SmacHybraid`
+- **Planners**: `GridBased` (NavFn), `smac_planner`, `ThetaStar`, `Lattice`, `SmacHybraid`
 
 ## Launching a custom Example
 
 To test with your custom robots, for example husky robot, follow these steps:
 
 1. **Specify the robot**
-   - Follow the instructions inside the documentation to specfiy a robot. check [here](docs/change_robot.md)
+   - Follow the instructions inside the documentation to specify a robot. check [here](docs/change_robot.md)
 
 2. **Update your World**
     - To add a new world for ROSNavBench, follow the instructions [here](docs/add_new_world.md)
@@ -186,13 +179,13 @@ To test with your custom robots, for example husky robot, follow these steps:
       - For example:
 
       ```bash
-      ros2 launch ROSNavBench main.launch.py params_file:=config/house_experiment_no_obstaclesyaml.yaml
+      ros2 launch ROSNavBench main.launch.py params_file:=config/example.yaml
       ```
 
    - Or:
 
       ```bash
-      export PARAMS_FILE="/home/USER/riout_ws/src/ROSNavBench/config/house_experiment_no_obstaclesyaml.yaml"
+      export PARAMS_FILE="/home/USER/riout_ws/src/ROSNavBench/config/example.yaml"
       ros2 launch ROSNavBench main.launch.py
       ```
 

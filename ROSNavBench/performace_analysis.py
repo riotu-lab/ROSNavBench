@@ -1,26 +1,38 @@
 #! /usr/bin/env python3
 
-from itertools import combinations
+"""
+Multi-criteria scoring of planner--controller combinations.
+Implements the Data Analysis Block of the ROSNavBench paper:
+  * Min--Max normalisation per trajectory type      (Eqs. 2 and 3)
 import string
-import numpy as np
-import pandas as pd
+  * Weight constraint: sum(alpha) = 1, 0 < alpha <= 1 (Eq. 4)
+  * Rank-order weights from the criteria order     (Eq. 5)
+  * User-given scores normalised to weights        (Eq. 6)
+  * Weighted sum, summed over trajectory types     (Eq. 7)
+  * Best configuration = highest score             (Eq. 8)
 
+"""
 #criteria=["Time","CPU","Path Length","Safety","Memory"]
 #List of possible criteria 
 #Time
 #Path Length
 #Safety in terms of the closest point to the obstacles
 #Computation: involves both CPU and memory >the user decide which one to include
-# 
 # Above criteria will be only of suessful iterations, failed iterations will be excluded
 # success rate will be provided on seperate analysis   
 
 #Data will be recived as a table of data [[name of critera as in table],[1m,1,1,1,]]
 
+from itertools import combinations
+import string
+import numpy as np
+import pandas as pd
+
+
 
 def performance_analysis(criteria,data,weights,planner_type,controller_type):
 
-    if weights=='None':
+    if weights is None or str(weights).strip().lower() in ('none', 'null', '', '[]'):
         #The user have not spceified weights
         normalized_weights=assign_weight(criteria)
     else:
@@ -28,13 +40,9 @@ def performance_analysis(criteria,data,weights,planner_type,controller_type):
         normalized_weights=convert_weight(criteria,weights)
     normalized_data=normalize_by_trajectory_type(data)
     scores=calculate_weighted_average(normalized_data, criteria, normalized_weights)
-    #planners_success_rate,controllers_success_rate=success_rate(iterations_result,controller_type,planner_type)
-    #conclusion=
+
+
     return scores
-
-#criteria=["Time","CPU","path_length","Safety","Memory",'path_deviation','success_rate','number_of_recoveries']  
-
-
 
 
 def convert_weight(criteria_order,weights):
@@ -51,6 +59,7 @@ def assign_weight(criteria_order):
     weights = {}
     num_criteria = len(criteria_order)
     
+    
    
     # Generate weights based on the order provided by the user
     for i, criterion in enumerate(criteria_order):
@@ -66,6 +75,8 @@ def assign_weight(criteria_order):
     return normalized_data
 def normalize_by_trajectory_type(data):
     normalized_data = data.copy()
+    maximized_metrics=["distance_to_obstacles","success_rate","Safety"]
+    minimaized_metrics=["Time","CPU","Memory", "path_length", 'path_deviation',  'number_of_recoveries']
     numeric_columns = ["Time","CPU","Memory", "path_length", "Safety",  'path_deviation', 'success_rate', 'number_of_recoveries']
 
     # Convert to numeric and handle non-numeric values
@@ -81,14 +92,17 @@ def normalize_by_trajectory_type(data):
         range_vals[range_vals == 0] = 1
 
         normalized_group_data = (max_vals - group_data[numeric_columns]) / range_vals
-        normalized_data.loc[normalized_data['Trajectory_Type'] == traj_type, numeric_columns] = normalized_group_data
-    print(normalized_data.dtypes)
+        normalized_group_maximaize=(group_data[numeric_columns]-min_vals) / range_vals
+        normalized_group_minimize=(max_vals - group_data[numeric_columns]) / range_vals
+        normalized_data.loc[normalized_data['Trajectory_Type'] == traj_type, maximized_metrics] = normalized_group_maximaize
+        normalized_data.loc[normalized_data['Trajectory_Type'] == traj_type, minimaized_metrics] = normalized_group_minimize
+    #print(normalized_data.dtypes)
     return normalized_data
 
 
 def calculate_weighted_average(data, metrics, weights_dict):
-    print(data.dtypes)
-    negative_metrics=["distance_to_obstacles","success_rate","Safety"]
+    #print(data.dtypes)
+
    
 
     # Check if all metrics are present in the weights dictionary
@@ -103,9 +117,7 @@ def calculate_weighted_average(data, metrics, weights_dict):
     for metric in metrics:
         weight = weights_dict[metric]
 
-        # Negate the weight for specified metrics
-        if metric in negative_metrics:
-            weight = -weight
+
 
         data[f'weighted_{metric}'] = data[metric] * weight
 
@@ -123,23 +135,5 @@ def calculate_weighted_average(data, metrics, weights_dict):
 
     return sorted_total_scores
     
-def success_rate(result,controller_type,planner_type):
-    # this function  calculates the success rate of each planner and controller. [number of successful iterations/number of all iterations]
-    success_rate_planners=''
-    success_rate_controllers=''
-    controllers=[]
-    planners=[] 
-    for i in range(len(planner_type)):
-        planners.append("The success rate of "+planner_type[i]+" is "+str(round((sum(result[i*len(controller_type):((i+1)*len(controller_type))])/len(controller_type)),2))+" %")
-    for i in range(len(controller_type)):   
-        controllers.append([])
-    for i in range(len(controller_type)):   
-        for j in range(len(planner_type)):
-           
-            controllers[i].append(result[j*len(controller_type)+i])
 
-    for i in range(len(controllers)):
-        controllers[i]="The success rate of "+controller_type[i]+" is "+str(round((sum(controllers[i])/len(planner_type)),2))+" %"
-    return planners,controllers
-            
  

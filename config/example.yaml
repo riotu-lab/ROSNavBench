@@ -1,0 +1,72 @@
+#  Name the experiment. This name will be the name of the report
+experiment_name: "example"
+
+
+#Save directory of results (relative paths are resolved relative to config file location)
+# Use empty string '' to save to default ROSNavBench/results directory
+# Absolute paths (starting with /) are used as-is
+results_directory: "results"
+
+
+#  Path to the world file (relative paths are resolved relative to config file location)
+#  Absolute paths (starting with /) are used as-is
+world_path: "../simulations/worlds/turtlebot3_house_gz.sdf"
+
+#  Path to the map YAML file (relative paths are resolved relative to config file location)
+#  Absolute paths (starting with /) are used as-is
+#  Note: External ROS packages may require absolute paths
+map_path: "../simulations/maps/map.yaml"
+
+#  Path to the map PNG file (relative paths are resolved relative to config file location)
+#  Absolute paths (starting with /) are used as-is
+#  Note: External ROS packages may require absolute paths
+map_png_path: "../simulations/maps/map.pgm"
+
+#  Gazebo model path (relative paths are resolved relative to config file location)
+#  If multiple paths, please separate them by a :
+#  Absolute paths (starting with /) are used as-is
+models_path: "../simulations"
+#  Choose a type of global local planners to be tested
+planner_type: ["GridBased", "smac_planner"]
+#
+#  Choose one of the following controllers, by adding its name to the controller type list
+#  Note that these are the avaible controllers for the provided example
+controller_type: ["DWB", "RPP"] #name of behaviour tree
+
+#  This option is intended for testing the same controller and planner combination several times
+#  Min value is of 1
+instances_num: 8
+
+#  Path to the robot navigation configuration (relative paths are resolved relative to config file location)
+#  Absolute paths (starting with /) are used as-is
+nav_config: "../example/turtlebot3/nav2_config/waffle_pi2.yaml"
+
+#  Directory of the behaviour tree (relative paths are resolved relative to config file location)
+#  Absolute paths (starting with /) are used as-is
+behaviour_tree_directory: "../example/turtlebot3/behavior_trees"
+
+#  Path to the URDF file (relative paths are resolved relative to config file location)
+#  Absolute paths (starting with /) are used as-is
+urdf_file: "../simulations/urdf/turtlebot3_waffle_pi.urdf"
+
+#  If the robot is spawned by only urdf, then set the model_file to 'None'
+model_file: 'None'
+#Citeria for performace analysis includes: "Time" ,"CPU", "Memory", "Path Length" , "Safety"
+criteria: ["Time", "path_length", "CPU", "Memory", "Safety"]
+
+#Wieght for each criteria as a number from 1 to 9
+#Set None if the wieght to be set automatcally giving that the importance to the eariler criteria in the matrix
+weights: "None"
+
+trajectory_type: "user_defined" # Options: "user_defined"
+
+user_defined_trajectories:
+  - type: "single_goal"
+    spawn_pose:
+      x: -2.0
+      y: -0.5
+      yaw: 0.0
+    single_goal:
+      x: 1.87151
+      y: 0.506992
+      theta: 0.4019

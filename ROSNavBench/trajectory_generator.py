@@ -177,50 +177,7 @@ def process_user_defined_trajectory(goal_data: dict,robot_specs):
     
     return [initial_pose_points,trajectory_points, trajectory_type]
     
-         
-# Generate a random trajectory within the specified bounds
-def generate_random_trajectory(traj,navigator,planner_id):
-    
-    waypoints = []
-    max_cost = 230
-    # Adapted from navigation2 planner benchmarking metrics
-    # Source: https://github.com/ros-planning/navigation2/blob/main/tools/planner_benchmarking/metrics.py
-    costmap_msg = navigator.getGlobalCostmap()
-    costmap = np.asarray(costmap_msg.data)
-    costmap.resize(costmap_msg.metadata.size_y, costmap_msg.metadata.size_x)
-    res = costmap_msg.metadata.resolution
-    # ____________________________________________________________________________________________________
-    
-    side_buffer = int(max(costmap.shape[0]*0.15,costmap.shape[1]*0.10)) 
-    initial_pose = getRandomStart(costmap, max_cost, side_buffer, res)
-    goal_pose = getRandomGoal(costmap, initial_pose, max_cost, side_buffer, res)
 
-    trajectory_type = traj.get('type', {})
-    waypoints_poses=[]
-    while True:
-        validation,path=validate_path(initial_pose, goal_pose, 'single_goal', navigator,planner_id)
-        
-        if validation == True:
-            path_length=calculate_path_length(path)
-            if trajectory_type=='long_trajectory':
-                if path_length<traj.get('long_trajectory', {}).get('lower_bound', 'default_lower_bound'):
-                   goal_pose = getRandomGoal(costmap, initial_pose, max_cost, side_buffer,  res)
-                else:
-                    return [initial_pose, goal_pose],trajectory_type
-            elif trajectory_type=='short_trajectory':
-                if path_length>traj.get('short_trajectory', {}).get('upper_bound', 'default_lower_bound'):
-                   goal_pose = Goal(costmap, initial_pose, max_cost, side_buffer,  res) 
-                else:
-                    return [initial_pose, goal_pose],trajectory_type
-            elif trajectory_type=='waypoints':
-                waypoints_poses.append(initial_pose)
-                if len(waypoints_poses) == traj.get('waypoints', 'default_waypoints'):
-                    return waypoints_poses,trajectory_type
-                initial_pose = goal_pose
-                goal_pose = getRandomGoal(costmap, initial_pose, max_cost, side_buffer,  res)
-        elif validation == False:
-            initial_pose = Start(costmap, max_cost, side_buffer,res)   
-            goal_pose = getRandomGoal(costmap, initial_pose, max_cost, side_buffer,  res)
 
          
                 
@@ -229,58 +186,7 @@ def set_intial_state(initial_pose,navigator):
     initial_pose.header.stamp = navigator.get_clock().now().to_msg()
     navigator.setInitialPose(initial_pose)
 
-# Function edited copy from https://github.com/ros-planning/navigation2/blob/main/tools/planner_benchmarking/metrics.py
-def getRandomStart(costmap, max_cost, side_buffer,  res):
-    start = PoseStamped()
-    start.header.frame_id = 'map'
-   
-    while True:
-      
-        row = random.randint(side_buffer, costmap.shape[0] - side_buffer)
-        col = random.randint(side_buffer, costmap.shape[1] - side_buffer)
 
-        if costmap[row, col] < max_cost:
-            start.pose.position.x = col * res
-            start.pose.position.y = row * res
-
-            yaw = random.uniform(0, 1) * 2 * math.pi
-            quad = euler2quat(0.0, 0.0, yaw)
-            start.pose.orientation.w = quad[0]
-            start.pose.orientation.x = quad[1]
-            start.pose.orientation.y = quad[2]
-            start.pose.orientation.z = quad[3]
-            break
-    return start
-
-# Function edited copy from https://github.com/ros-planning/navigation2/blob/main/tools/planner_benchmarking/metrics.py
-def getRandomGoal(costmap, start, max_cost, side_buffer,  res):
-    goal = PoseStamped()
-    goal.header.frame_id = 'map'
-  
-    while True:
-    
-        row = random.randint(side_buffer, costmap.shape[0] - side_buffer)
-        col = random.randint(side_buffer, costmap.shape[1] - side_buffer)
-
-        start_x = start.pose.position.x
-        start_y = start.pose.position.y
-        goal_x = col * res
-        goal_y = row * res
-        x_diff = goal_x - start_x
-        y_diff = goal_y - start_y
-        dist = math.sqrt(x_diff ** 2 + y_diff ** 2)
-
-        if costmap[row, col] < max_cost and dist > 3.0:
-            goal.pose.position.x = goal_x
-            goal.pose.position.y = goal_y
-            yaw = random.uniform(0, 1) * 2 * math.pi
-            quad = euler2quat(0.0, 0.0, yaw)
-            goal.pose.orientation.w = quad[0]
-            goal.pose.orientation.x = quad[1]
-            goal.pose.orientation.y = quad[2]
-            goal.pose.orientation.z = quad[3]
-            break
-    return goal
 
 def initial_pose(x,y,yaw):
     _initial_pose = PoseStamped()
@@ -347,20 +253,7 @@ def trajectory_generator():
             trajectories.append((waypoints))
 
     elif robot_specs['trajectory_type'] == 'auto_generated':
-        
-        i=0
-        
-        initial_pose_=robot_specs['auto_generated_trajectory']['spawn_pose']
-        initial_pose_=initial_pose(initial_pose_['x'],initial_pose_['y'],initial_pose_['yaw'])
-        set_intial_state(initial_pose_,navigator)
-        
-        for traj in robot_specs['auto_generated_trajectory']['types']:
-            trajectory_poses,trajectory_type = generate_random_trajectory(traj,navigator,planners_id_list)
-            initial_pose_points=[trajectory_poses[0].pose.position.x,trajectory_poses[0].pose.position.y,trajectory_poses[0].pose.orientation.z ,trajectory_poses[0].pose.orientation.w ]
-            trajectory_points=[]
-            for i in range(1,len(trajectory_poses)):
-                trajectory_points.append([trajectory_poses[i].pose.position.x,trajectory_poses[i].pose.position.y,trajectory_poses[i].pose.orientation.z ,trajectory_poses[i].pose.orientation.w])
-            trajectories.append((initial_pose_points,trajectory_points,trajectory_type)) 
+        pass
 
     # Process the trajectories array as needed
     navigator.destroyNode()

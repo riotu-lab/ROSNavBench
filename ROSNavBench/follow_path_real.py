@@ -31,9 +31,8 @@ from rclpy.executors import MultiThreadedExecutor
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup,ReentrantCallbackGroup
 from datetime import datetime
 from nav_msgs.msg import Path
-# Note: PARAMS_FILE is read later in main() with proper path resolution
-# This module-level variable is kept for backward compatibility but may be empty
-specs = os.environ.get('PARAMS_FILE', '')
+# Get the name of config file of the current experiment
+specs = os.environ['PARAMS_FILE']
 
 
 from lifecycle_msgs.srv import GetState  # Replace with the actual service type you need
@@ -132,27 +131,26 @@ class DataCollectionNode(Node):
 
     def collect_navigator_feedback(self):
         #self.get_logger().info("Feedback time"+str(datetime.now()))
-        self.CPU.append(psutil.cpu_percent(interval=0.1))
+        self.CPU.append(psutil.cpu_percent())
         self.memory.append(psutil.virtual_memory().percent)
         self.distance_to_obstacles.append(self.min_val)
         self.error_msgs.append([self.log_msg_name,self.log_level,self.log_msgs])
         self.plan_list.append(self.plan)
         feedback = self.navigator.getFeedback()
         if feedback is not None:
-            self.x_pose.append(round(feedback.current_pose.pose.position.x, 3))
-            self.y_pose.append(round(feedback.current_pose.pose.position.y, 3))
+            self.x_pose.append(round(feedback.current_pose.pose.position.x, 2))
+            self.y_pose.append(round(feedback.current_pose.pose.position.y, 2))
             self.recoveries.append(feedback.number_of_recoveries)
-            self.time_stamp.append(round(Duration.from_msg(feedback.navigation_time).nanoseconds / 1e9, 3))
+            self.time_stamp.append(round(Duration.from_msg(feedback.navigation_time).nanoseconds / 1e9, 2))
         else:
             self.x_pose.append(None)
             self.y_pose.append(None)
             self.recoveries.append(None)
-            self.time_stamp.append(None)
         self.result.append("In progress")
 
     def collect_computer_performance(self):
         # Your computer performance collection logic here
-        self.CPU.append(psutil.cpu_percent(interval=0.1))
+        self.CPU.append(psutil.cpu_percent())
         self.memory.append(psutil.virtual_memory().percent)
         #self.get_logger().info("CPU"+str(datetime.now()))
     def get_collected_data(self):
@@ -206,7 +204,6 @@ def log_trail_info(path, experiment_id, iteration_id, trajectory_type, planner, 
     df = pd.DataFrame(rows)
 
     # Append to CSV, create if doesn't exist
-    os.makedirs(os.path.dirname(path), exist_ok=True)
     df.to_csv(path, mode='a', header=not pd.io.common.file_exists(path), index=False)
 
 def find_closest_point(current_pose, path):
@@ -263,21 +260,13 @@ def main(args=None):
         tree.write(os.path.join(behaviour_tree_directory,
         'bt_'+new_planner_value+'_'+new_controller_value+'.xml'))
     
-    specs = os.environ.get('PARAMS_FILE')
-    if not specs:
-        raise ValueError("PARAMS_FILE environment variable must be set")
-    
+    specs = os.environ['PARAMS_FILE']
     with open(specs, 'r') as file:
         robot_specs = yaml.safe_load(file)
-    
-    # Resolve all paths in the config relative to the config file location
-    from ROSNavBench.path_utils import resolve_paths_in_config
-    resolve_paths_in_config(robot_specs, specs)
-    
-    trajectory_type = robot_specs['trajectory_type'] 
-    pdf_name = robot_specs['experiment_name']
-    controller_type = robot_specs['controller_type']
-    behaviour_tree_directory = robot_specs['behaviour_tree_directory']
+    trajectory_type= robot_specs['trajectory_type'] 
+    pdf_name=robot_specs['experiment_name']
+    controller_type=robot_specs['controller_type']
+    behaviour_tree_directory=robot_specs['behaviour_tree_directory']
     planner=os.environ["planner"]
     controller=os.environ["controller"]
     trajectory_num=os.environ["trajectory_num"]
@@ -387,7 +376,6 @@ def main(args=None):
         while not navigator.isTaskComplete():
             time.sleep(0.1)  # Check periodically, adjust the sleep duration as needed
         executor.shutdown()  # Stop the executor spinning when the task is complete
-        
     #########
     
     
@@ -408,8 +396,6 @@ def main(args=None):
     except KeyboardInterrupt:
         pass
     finally:
-        task_check_thread.join() 
-        data_collection_node.collect_navigator_feedback()
         collected_data = data_collection_node.get_collected_data()
         data_collection_node.destroy_node()
     # while not navigator.isTaskComplete():
@@ -425,7 +411,7 @@ def main(args=None):
     recoveries = collected_data["recoveries"]
     results = collected_data["result"]
     plan = collected_data["plan"]
-    #task_check_thread.join() # Ensure the task check thread has finished
+    task_check_thread.join()  # Ensure the task check thread has finished
   
     # Getting the result of task     
     result = navigator.getResult()   
@@ -466,8 +452,6 @@ def main(args=None):
     # closest_point = find_closest_point(current_pose, path)
     # closest_point
     def path_coordinates_extraction(path_msg):
-        if path_msg is None:
-            return None, None
         x_values = [pose.pose.position.x for pose in path_msg.poses]
         y_values = [pose.pose.position.y for pose in path_msg.poses]
         return x_values, y_values
@@ -476,14 +460,9 @@ def main(args=None):
     global_path_y=[]
     logger.info("The path is "+str(plan.count(None)))
     for i in range(len(x_pose)):
-        if i == 0 and plan[0] is None:
-            plan[0] = path
-        plan_x, plan_y = path_coordinates_extraction(plan[i])
-        if plan_x is None or plan_y is None:
-            global_path_x.append(None)
-            global_path_y.append(None)
-            continue
-        x, y = find_closest_point((x_pose[i], y_pose[i]), (plan_x, plan_y))
+        if i==0 and plan[0]==None:
+            plan[0]=path
+        x,y=find_closest_point((x_pose[i],y_pose[i]), (path_coordinates_extraction(plan[i])))
         global_path_x.append(x)
         global_path_y.append(y)
 
@@ -500,5 +479,6 @@ def main(args=None):
     
     rclpy.shutdown()
     exit(0)
+
 
 
