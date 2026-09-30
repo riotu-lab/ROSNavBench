@@ -1,5 +1,5 @@
 #  Name the experiment. This name will be the name of the report
-experiment_name: "tb3_test"
+experiment_name: "example"
 
 
 #Save directory of results (relative paths are resolved relative to config file location)
@@ -27,15 +27,15 @@ map_png_path: "../simulations/maps/map.pgm"
 #  Absolute paths (starting with /) are used as-is
 models_path: "../simulations"
 #  Choose a type of global local planners to be tested
-planner_type: ["GridBased", "smac_planner", "ThetaStar", "Lattice", "SmacHybraid"]
+planner_type: ["GridBased", "smac_planner"]
 #
 #  Choose one of the following controllers, by adding its name to the controller type list
 #  Note that these are the avaible controllers for the provided example
-controller_type: ["DWB", "RPP", "DWB_RSC", "RPP_RSC", "MPPI"] #name of behaviour tree
+controller_type: ["DWB", "RPP"] #name of behaviour tree
 
 #  This option is intended for testing the same controller and planner combination several times
-#  Min value is one
-instances_num: 1
+#  Min value is of 1
+instances_num: 8
 
 #  Path to the robot navigation configuration (relative paths are resolved relative to config file location)
 #  Absolute paths (starting with /) are used as-is
@@ -58,7 +58,7 @@ criteria: ["Time", "path_length", "CPU", "Memory", "Safety"]
 #Set None if the wieght to be set automatcally giving that the importance to the eariler criteria in the matrix
 weights: "None"
 
-trajectory_type: "user_defined" # Options: "user_defined", "auto_generated"
+trajectory_type: "user_defined" # Options: "user_defined"
 
 user_defined_trajectories:
   - type: "single_goal"

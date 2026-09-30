@@ -150,6 +150,7 @@ def calculate_path_length(data):
 def calculate_complete_path_length(data):
     # Function to calculate the sum of distances within a group
     def sum_of_distances(group):
+        group = group.dropna(subset=['x_pose', 'y_pose']) 
         distances = np.sqrt(np.diff(group['x_pose'])**2 + np.diff(group['y_pose'])**2)
         return pd.Series({'distance': distances.sum()})
 
@@ -190,10 +191,10 @@ def create_and_save_bar_chart(df, metric,width,height):
 
     # Average metric per planner-controller combination
     plt.figure(figsize=(width,height))
-    avg_metrics_combination = df.groupby(['Planner', 'Controller'])[metric].mean().reset_index()
-    if metric=="Navigation_time" or metric=="number_of_recoveries":
-       filtered_results=df[(df['result']!="In progress")]
-       avg_metrics_combination = filtered_results.groupby(['Planner', 'Controller'])[metric].mean().reset_index() 
+    per_run_agg = {'Navigation_time': 'max', 'number_of_recoveries': 'max',
+                   'CPU_Usage': 'mean', 'Memory_Usage': 'mean', 'distance_to_obstacles': 'min'}
+    per_run = df.groupby(['Experiment_ID', 'Iteration_ID', 'Planner', 'Controller', 'Trajectory_Type'])[metric].agg(per_run_agg[metric]).reset_index()
+    avg_metrics_combination = per_run.groupby(['Planner', 'Controller'])[metric].mean().reset_index()
     sns.barplot(x='Planner', y=metric, hue='Controller', data=avg_metrics_combination)
     plt.title(f'Average {metric} per\n  Planner-Controller Combination')
     plt.ylabel(f'Average {metric}')
@@ -211,10 +212,10 @@ def create_and_save_heatmap(df, metric,width,height):
     Create a heatmap for the given metric showing the relationship between planners and controllers.
     """
     # Preparing data for the heatmap
-    heatmap_data = df.groupby(['Planner', 'Controller'])[metric].mean().unstack()
-    if metric=="Navigation_time" or metric=="number_of_recoveries":
-       filtered_results=df[(df['result']!="In progress")]
-       heatmap_data = filtered_results.groupby(['Planner', 'Controller'])[metric].mean().unstack()
+    per_run_agg = {'Navigation_time': 'max', 'number_of_recoveries': 'max',
+                   'CPU_Usage': 'mean', 'Memory_Usage': 'mean', 'distance_to_obstacles': 'min'}
+    per_run = df.groupby(['Experiment_ID', 'Iteration_ID', 'Planner', 'Controller', 'Trajectory_Type'])[metric].agg(per_run_agg[metric]).reset_index()
+    heatmap_data = per_run.groupby(['Planner', 'Controller'])[metric].mean().unstack()
     # Creating the heatmap
     plt.figure(figsize=(width,height))
     sns.heatmap(heatmap_data, annot=True, fmt=".2f", cmap="YlGnBu")
@@ -255,7 +256,11 @@ def plot_metric_distribution_complex_boxplot(df, metric):
         g = sns.FacetGrid(df, col='Planner', col_wrap=2, height=facetgrid_height, aspect=facetgrid_width/facetgrid_height)
         g.map(sns.boxplot, 'Controller', metric, 'Trajectory_Type', hue_order=trajectories, order=None)
         g.add_legend()
-        g.fig.subplots_adjust(top=0.8)
+        for ax in g.axes.flat:
+            ax.tick_params(axis='x', labelbottom=True, labelrotation=45)
+            for lbl in ax.get_xticklabels():
+                lbl.set_ha('right')
+        g.fig.subplots_adjust(top=0.8, hspace=0.6)
         g.fig.suptitle(f'Complex Distribution of {metric}\n by Planner, Controller, and Trajectory Type')
 
   
@@ -395,6 +400,7 @@ def main():
     file_path = os.path.join(get_package_share_directory('ROSNavBench'),'raw_data',
         pdf_name+'.csv')
     df = pd.read_csv(file_path)
+    df = df[df['Navigation_time'].notna()] 
    
     # Generating the pdf
     elements=[]
@@ -442,27 +448,29 @@ def main():
                 table_data.append(unique_trajectories[p])
 
                 results_experiment=filtered_data[(filtered_data['result']!="In progress")]
-                if len(results_experiment['result']) > 0:
-                    success_rate = (results_experiment['result'].value_counts().get('succeeded', 0) / len(results_experiment['result'])) * 100
+                iteration_success = filtered_data.groupby(['Experiment_ID', 'Iteration_ID'])['result'].apply(lambda r: (r == 'succeeded').any())
+                if len(iteration_success) > 0:
+                    success_rate = iteration_success.mean() * 100
+            
                 else:
                     success_rate = 0.0
                 table_data.append(str(round(success_rate, 2))) #success rate of this combination
-                
-                table_data.append(str('{0:.2f}'.format(results_experiment['Navigation_time'].mean())))    #Execution time ####
+                table_data.append(str('{0:.3f}'.format(filtered_data.groupby(['Experiment_ID', 'Iteration_ID'])['Navigation_time'].max().mean())))    #Execution time
 
-                table_data.append(str('{0:.2f}'.format(filtered_data['CPU_Usage'].mean())))  # average CPU
+
+                table_data.append(str('{0:.3f}'.format(filtered_data.groupby('Iteration_ID')['CPU_Usage'].mean().mean())))  # average CPU
 
                
 
                 table_data.append(str(filtered_data['CPU_Usage'].max()))    #Max CPU
-                table_data.append(str('{0:.2f}'.format(np.mean(filtered_data['Memory_Usage'].mean())))) #average Memory
+                table_data.append(str('{0:.3f}'.format(np.mean(filtered_data.groupby('Iteration_ID')['Memory_Usage'].mean().mean())))) #average Memory
                 table_data.append(str(filtered_data['Memory_Usage'].max()))  #Max memory
-                table_data.append(str('{0:.2f}'.format(results_experiment['number_of_recoveries'].mean())))    #Number of recoveries
+                table_data.append(str('{0:.3f}'.format(filtered_data.groupby(['Experiment_ID', 'Iteration_ID'])['number_of_recoveries'].max().mean())))    #Number of recoveries
                 path_length_=path_length[(path_length['Trajectory_Type'] == unique_trajectories[p])&(path_length['Planner'] == planner_type[i])&(path_length['Controller'] == controller_type[k])]
-                table_data.append(str('{0:.2f}'.format(path_length_['distance'].mean()))) #Path length    ###
-                table_data.append(str(round(filtered_data['distance_to_obstacles'].min(),2)))  #Proximity to obstacles
+                table_data.append(str('{0:.3f}'.format(path_length_['distance'].mean()))) #Path length    ###
+                table_data.append(str(round(filtered_data.groupby('Iteration_ID')['distance_to_obstacles'].min().mean(),3)))  #Proximity to obstacles
                 path_deviation_=path_deviation[(path_deviation['Trajectory_Type'] == unique_trajectories[p])&(path_deviation['Planner'] == planner_type[i])&(path_deviation['Controller'] == controller_type[k])]
-                table_data.append(str(round(path_deviation_['deviation'].mean(),2)))
+                table_data.append(str(round(path_deviation_['deviation'].mean(),3)))
 
                 table.append(table_data)
 
@@ -516,7 +524,7 @@ def main():
     width,height,label_size,title_size=calculate_plot_size(len(planner_type),len(controller_type))
     width_pt=width*72
     if width_pt<250:
-       images_in_row=floor(480/width_pt)
+       images_in_row=math.floor(480/width_pt)
     else:
        images_in_row=1
      
@@ -546,7 +554,7 @@ def main():
     d.add(String(1,20,"Success rate",fontSize=11,fontName= 'Times-Bold')) 
     elements.append(d) 
 
-    final_results = df.groupby(['Experiment_ID', 'Iteration_ID','Planner','Controller'])['result'].last().reset_index()
+    final_results = df.groupby(['Experiment_ID', 'Iteration_ID','Planner','Controller'])['result'].apply(lambda r: 'succeeded' if (r == 'succeeded').any() else 'failed').reset_index()
     d=shapes.Drawing(250,20*(df['Planner'].nunique()+1))
     d.add(String(1,20*(df['Planner'].nunique()+1),"Planners' success rate are:",fontName= 'Times-Bold'))
     row_increament=1
@@ -601,16 +609,13 @@ def main():
    
     for i in range(len(combined_images)): 
         elements.append(Image_pdf(combined_images[i],width*image_length[i]*72,height*72))    
-
     ##boxplot
-    for i in ["Navigation_time","CPU_Usage","Memory_Usage","number_of_recoveries","distance_to_obstacles"]:
-        if i=="Navigation_time" or i=="number_of_recoveries":
-            filtered_results=df[(df['result']!="In progress")]
-            boxplot,filename,plot_height_,plot_width_=plot_metric_distribution_complex_boxplot(filtered_results, i)
-        else:
-            boxplot,filename,plot_height_,plot_width_=plot_metric_distribution_complex_boxplot(df, i)
-        
-        elements.append(Image_pdf(boxplot,plot_width_*72,plot_height_*72))
+    keys = ['Experiment_ID', 'Iteration_ID', 'Planner', 'Controller', 'Trajectory_Type']
+    time_per_iteration = df.groupby(keys)['Navigation_time'].max().reset_index()       
+    for data_, metric_ in [(time_per_iteration, 'Navigation_time')]:
+        boxplot, filename, plot_height_, plot_width_ = plot_metric_distribution_complex_boxplot(data_, metric_)
+        elements.append(Image_pdf(boxplot, plot_width_*72, plot_height_*72))
+
     path_deviation=plot_path_deviation_heatmap(df,width,height)
     elements.append(Image_pdf(path_deviation[0],width*72,height*72))
     path_length=create_path_length_barchart(df,width,height)
@@ -740,8 +745,8 @@ def main():
             'raw_data','map_plot'+str(i)+str(j)+'.png'),y_length,x_length))
   
 
-    final_results = df.groupby(['Experiment_ID', 'Iteration_ID'])['result'].last().reset_index()
-
+    
+    final_results = df.groupby(['Experiment_ID', 'Iteration_ID'])['result'].apply(lambda r: 'succeeded' if (r == 'succeeded').any() else 'failed').reset_index()
     # Filter to include only trails where the final result is not 'succeeded'
     trails_not_succeeded = final_results[final_results['result'] != 'succeeded']
    

@@ -132,26 +132,27 @@ class DataCollectionNode(Node):
 
     def collect_navigator_feedback(self):
         #self.get_logger().info("Feedback time"+str(datetime.now()))
-        self.CPU.append(psutil.cpu_percent())
+        self.CPU.append(psutil.cpu_percent(interval=0.1))
         self.memory.append(psutil.virtual_memory().percent)
         self.distance_to_obstacles.append(self.min_val)
         self.error_msgs.append([self.log_msg_name,self.log_level,self.log_msgs])
         self.plan_list.append(self.plan)
         feedback = self.navigator.getFeedback()
         if feedback is not None:
-            self.x_pose.append(round(feedback.current_pose.pose.position.x, 2))
-            self.y_pose.append(round(feedback.current_pose.pose.position.y, 2))
+            self.x_pose.append(round(feedback.current_pose.pose.position.x, 3))
+            self.y_pose.append(round(feedback.current_pose.pose.position.y, 3))
             self.recoveries.append(feedback.number_of_recoveries)
-            self.time_stamp.append(round(Duration.from_msg(feedback.navigation_time).nanoseconds / 1e9, 2))
+            self.time_stamp.append(round(Duration.from_msg(feedback.navigation_time).nanoseconds / 1e9, 3))
         else:
             self.x_pose.append(None)
             self.y_pose.append(None)
             self.recoveries.append(None)
+            self.time_stamp.append(None)
         self.result.append("In progress")
 
     def collect_computer_performance(self):
         # Your computer performance collection logic here
-        self.CPU.append(psutil.cpu_percent())
+        self.CPU.append(psutil.cpu_percent(interval=0.1))
         self.memory.append(psutil.virtual_memory().percent)
         #self.get_logger().info("CPU"+str(datetime.now()))
     def get_collected_data(self):
@@ -386,6 +387,7 @@ def main(args=None):
         while not navigator.isTaskComplete():
             time.sleep(0.1)  # Check periodically, adjust the sleep duration as needed
         executor.shutdown()  # Stop the executor spinning when the task is complete
+        
     #########
     
     
@@ -406,6 +408,8 @@ def main(args=None):
     except KeyboardInterrupt:
         pass
     finally:
+        task_check_thread.join() 
+        data_collection_node.collect_navigator_feedback()
         collected_data = data_collection_node.get_collected_data()
         data_collection_node.destroy_node()
     # while not navigator.isTaskComplete():
@@ -421,7 +425,7 @@ def main(args=None):
     recoveries = collected_data["recoveries"]
     results = collected_data["result"]
     plan = collected_data["plan"]
-    task_check_thread.join()  # Ensure the task check thread has finished
+    #task_check_thread.join() # Ensure the task check thread has finished
   
     # Getting the result of task     
     result = navigator.getResult()   
