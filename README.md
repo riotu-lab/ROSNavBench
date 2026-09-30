@@ -14,7 +14,7 @@ Efficient autonomous navigation in mobile robotics demands robust path planning 
 
 Before using the ROS 2 `ROSNavBench`, make sure you have the following prerequisites in place:
 
-- **ROS 2 Installation**: Ensure you have ROS 2 [`Humble`](docs/install_humble.md) installed on your system. This forms the foundation for running the `ROSNavBench`.
+- **ROS 2 Installation**: Ensure you have ROS 2 `Jazzy` installed on your system. This forms the foundation for running the `ROSNavBench`.
 
 - **Python Libraries**: Install the following Python libraries to enable the functionality of the `ROSNavBench`:
 
